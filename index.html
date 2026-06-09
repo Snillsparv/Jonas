@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jonas von Essen — Tvåfaldig världsmästare i minne</title>
+  <meta name="description" content="Jonas von Essen är tvåfaldig världsmästare i minne, föreläsare och författare. Han har memorerat 100 000 decimaler av pi — och lär dig tekniker som ger vem som helst ett superminne.">
+  <meta property="og:title" content="Jonas von Essen — Tvåfaldig världsmästare i minne">
+  <meta property="og:description" content="Föreläsningar, böcker och minnesteknik i världsklass. Från glömsk student till dubbel världsmästare på 18 månader.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="sv_SE">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%237c5cff'/%3E%3Cstop offset='1' stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='22' fill='%23070b14'/%3E%3Ctext x='50' y='72' font-size='62' text-anchor='middle' fill='url(%23g)' font-family='Georgia,serif'%3Eπ%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+
+  <header class="nav" id="nav">
+    <a class="nav-logo" href="#hem" aria-label="Till startsidan">
+      <span class="nav-logo-pi">π</span>
+      <span class="nav-logo-name">Jonas <strong>von Essen</strong></span>
+    </a>
+    <nav class="nav-links" id="nav-links" aria-label="Huvudmeny">
+      <a href="#om">Om</a>
+      <a href="#forelasningar">Föreläsningar</a>
+      <a href="#bocker">Böcker</a>
+      <a href="#minnestips">Minnestips</a>
+      <a href="#spelet">π-utmaningen</a>
+      <a href="#kontakt">Kontakt</a>
+    </nav>
+    <a class="btn btn-small btn-primary nav-cta" href="#kontakt">Boka föreläsning</a>
+    <button class="nav-burger" id="nav-burger" aria-label="Öppna meny" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <main>
+    <!-- ===================== HERO ===================== -->
+    <section class="hero" id="hem">
+      <canvas id="pi-canvas" aria-hidden="true"></canvas>
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="hero-inner">
+        <p class="hero-kicker reveal">
+          <span class="medal" aria-hidden="true">🏆</span> Tvåfaldig världsmästare i minne
+        </p>
+        <h1 class="hero-title">
+          <span class="reveal d1">Jag brukade glömma allt.</span>
+          <span class="grad reveal d2">Nu minns jag 100&nbsp;000 decimaler av&nbsp;π.</span>
+        </h1>
+        <p class="hero-sub reveal d3">
+          På 18 månader gick Jonas von Essen från glömsk student till dubbel världsmästare i minne.
+          Idag visar han företag, skolor och nyfikna hjärnor att samma sak är möjlig för precis alla
+          — med rätt teknik.
+        </p>
+        <div class="hero-cta reveal d4">
+          <a class="btn btn-primary" href="#kontakt">Boka föreläsning</a>
+          <a class="btn btn-ghost" href="#spelet">Testa ditt minne <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+      <a class="scroll-hint" href="#om" aria-label="Scrolla ner">
+        <span class="scroll-hint-dot"></span>
+      </a>
+    </section>
+
+    <!-- ===================== TICKER ===================== -->
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track">
+        <span>Världsmästare i minne 2013</span><i>π</i>
+        <span>Världsmästare i minne 2014</span><i>π</i>
+        <span>100 000 decimaler av π</span><i>π</i>
+        <span>Guldbuzzer i Talang 2018</span><i>π</i>
+        <span>500 namn på en kväll</span><i>π</i>
+        <span>Europarekord i π-minne</span><i>π</i>
+        <span>Världsmästare i minne 2013</span><i>π</i>
+        <span>Världsmästare i minne 2014</span><i>π</i>
+        <span>100 000 decimaler av π</span><i>π</i>
+        <span>Guldbuzzer i Talang 2018</span><i>π</i>
+        <span>500 namn på en kväll</span><i>π</i>
+        <span>Europarekord i π-minne</span><i>π</i>
+      </div>
+    </div>
+
+    <!-- ===================== STATS ===================== -->
+    <section class="stats">
+      <div class="stat reveal">
+        <span class="stat-num" data-count="2">0</span>
+        <span class="stat-label">VM-guld i minne</span>
+      </div>
+      <div class="stat reveal d1">
+        <span class="stat-num" data-count="100000">0</span>
+        <span class="stat-label">memorerade π-decimaler</span>
+      </div>
+      <div class="stat reveal d2">
+        <span class="stat-num" data-count="500">0</span>
+        <span class="stat-label">namn memorerade i Talang</span>
+      </div>
+      <div class="stat reveal d3">
+        <span class="stat-num" data-count="50">0</span><span class="stat-plus">+</span>
+        <span class="stat-label">lektioner i minneskursen</span>
+      </div>
+    </section>
+
+    <!-- ===================== OM ===================== -->
+    <section class="section" id="om">
+      <div class="section-head reveal">
+        <p class="eyebrow">Om Jonas</p>
+        <h2>Från glömsk drömmare<br>till <span class="grad">världsmästare</span></h2>
+      </div>
+      <div class="om-grid">
+        <div class="om-portrait reveal" aria-label="Porträtt av Jonas von Essen">
+          <div class="om-portrait-art">
+            <span class="om-portrait-pi" aria-hidden="true">π</span>
+            <span class="om-portrait-monogram">JvE</span>
+            <span class="om-portrait-note">Plats för porträttfoto</span>
+          </div>
+          <figcaption class="om-portrait-caption">Jonas von Essen — minnesmästare, föreläsare &amp; författare</figcaption>
+        </div>
+        <div class="om-text reveal d1">
+          <p>
+            Jonas kunde knappt komma ihåg sin flickväns telefonnummer. Sedan hittade han av en slump
+            en bok om minnesteknik på biblioteket — och allt förändrades.
+          </p>
+          <p>
+            Ett och ett halvt år senare stod han överst på pallen i minnes-VM. Året därpå gjorde han
+            om det. Sedan dess har han memorerat 100&nbsp;000 decimaler av π, lärt sig 500 namn på en
+            kväll i TV4:s Talang och memorerat hundratals slumpmässiga valnötter i kinesisk tv.
+          </p>
+          <p>
+            Men det viktigaste han vill att du minns är detta: <strong>han föddes inte med ett
+            superminne — han tränade sig till det.</strong> Och det kan du också.
+          </p>
+          <ol class="timeline">
+            <li class="reveal"><span class="timeline-year">2012</span><span class="timeline-text">Hittar en bok om minnesteknik på biblioteket. Börjar träna.</span></li>
+            <li class="reveal"><span class="timeline-year">2013</span><span class="timeline-text">Världsmästare i minne, London.</span></li>
+            <li class="reveal"><span class="timeline-year">2014</span><span class="timeline-text">Världsmästare igen, Kina. Två raka VM-guld.</span></li>
+            <li class="reveal"><span class="timeline-year">2018</span><span class="timeline-text">Memorerar 500 namn i Talang — guldbuzzer och raka vägen till final.</span></li>
+            <li class="reveal"><span class="timeline-year">2020</span><span class="timeline-text">Europarekord: återger 24&nbsp;063 π-decimaler på åtta timmar — och klarar som första person i världen stickprovstestet på 100&nbsp;000 decimaler.</span></li>
+            <li class="reveal"><span class="timeline-year">Idag</span><span class="timeline-text">Föreläsare, författare och minnescoach på heltid.</span></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== FÖRELÄSNINGAR ===================== -->
+    <section class="section" id="forelasningar">
+      <div class="section-head reveal">
+        <p class="eyebrow">Föreläsningar</p>
+        <h2>En show för hjärnan —<br>och verktyg som <span class="grad">sitter kvar</span></h2>
+        <p class="section-sub">
+          Skratt, häpnad och konkreta tekniker i ett. Publiken får se minnesbedrifter på nära håll —
+          och lär sig sedan göra (nästan) samma sak själva.
+        </p>
+      </div>
+      <div class="cards">
+        <article class="card reveal">
+          <div class="card-icon" aria-hidden="true">🏢</div>
+          <h3>Företag &amp; konferenser</h3>
+          <p>Minns namn, siffror och presentationer — utan anteckningar. En energiboost som gör nytta långt efter konferensen.</p>
+        </article>
+        <article class="card reveal d1">
+          <div class="card-icon" aria-hidden="true">🎓</div>
+          <h3>Skolor &amp; utbildning</h3>
+          <p>Studieteknik som gör plugget roligare och glosorna lättare. För elever, lärare och föräldrar.</p>
+        </article>
+        <article class="card reveal d2">
+          <div class="card-icon" aria-hidden="true">✨</div>
+          <h3>Skräddarsytt &amp; digitalt</h3>
+          <p>Workshops och utbildningar anpassade efter just er — på plats eller online, på svenska eller engelska.</p>
+        </article>
+      </div>
+      <div class="press reveal">
+        <p class="press-label">Känd från</p>
+        <ul class="press-logos">
+          <li>TV4 Talang</li>
+          <li>SVT</li>
+          <li>The Brain <span>(kinesisk tv)</span></li>
+          <li>Strömsö</li>
+          <li>Tekniska museet</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===================== BÖCKER ===================== -->
+    <section class="section" id="bocker">
+      <div class="section-head reveal">
+        <p class="eyebrow">Böcker</p>
+        <h2>Superminnet,<br><span class="grad">svart på vitt</span></h2>
+      </div>
+      <div class="books">
+        <article class="book reveal">
+          <div class="book-cover book-cover-1">
+            <span class="book-cover-title">Så får du ett<br>superminne</span>
+            <span class="book-cover-author">Jonas von Essen</span>
+          </div>
+          <h3>Så får du ett superminne</h3>
+          <p>Minnesteknikerna som alla kan använda. Boken som tar dig från "vad hette hen nu igen?" till järnminne.</p>
+        </article>
+        <article class="book reveal d1">
+          <div class="book-cover book-cover-2">
+            <span class="book-cover-title">Bli ett<br>minnesgeni!</span>
+            <span class="book-cover-author">Jonas von Essen</span>
+          </div>
+          <h3>Bli ett minnesgeni!</h3>
+          <p>För barn i mellanstadiet — och alla andra mellan 5 och 125 år. Glosor och fakta blir plötsligt en lek.</p>
+        </article>
+        <article class="book reveal d2">
+          <div class="book-cover book-cover-3">
+            <span class="book-cover-pi">π</span>
+            <span class="book-cover-title">Pi-boken 2.0</span>
+            <span class="book-cover-author">Jonas von Essen</span>
+          </div>
+          <h3>Pi-boken 2.0</h3>
+          <p>100&nbsp;000 decimaler av π. Hela talet Jonas memorerade — sida upp och sida ner. Galet? Lite.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===================== MINNESTIPS ===================== -->
+    <section class="section" id="minnestips">
+      <div class="section-head reveal">
+        <p class="eyebrow">Minnestips</p>
+        <h2>Fyra knep som<br>förändrar <span class="grad">allt</span></h2>
+        <p class="section-sub">Samma tekniker som världseliten använder — förklarade så att de funkar imorgon bitti.</p>
+      </div>
+      <div class="tips">
+        <details class="tip reveal">
+          <summary><span class="tip-num">01</span> Bygg ett minnespalats <span class="tip-arrow" aria-hidden="true">+</span></summary>
+          <p>Placera det du vill minnas på platser du redan kan utantill — din hall, ditt kök, din väg till jobbet. Hjärnan är byggd för platser; ge den en karta så gör den resten. Det här är tekniken som i princip hela minneseliten bygger allt på.</p>
+        </details>
+        <details class="tip reveal d1">
+          <summary><span class="tip-num">02</span> Tänk i tokiga bilder <span class="tip-arrow" aria-hidden="true">+</span></summary>
+          <p>Hjärnan glömmer abstrakt information men minns det absurda. Ska du handla mjölk och batterier? Se en ko som jonglerar batterier i ditt kylskåp. Ju konstigare bild, desto starkare minne.</p>
+        </details>
+        <details class="tip reveal d2">
+          <summary><span class="tip-num">03</span> Repetera precis innan du glömmer <span class="tip-arrow" aria-hidden="true">+</span></summary>
+          <p>Hemligheten är inte att repetera mycket — utan att repetera rätt: efter en dag, en vecka, en månad. Varje repetition flyttar minnet ett steg närmare för-alltid-lagret.</p>
+        </details>
+        <details class="tip reveal d3">
+          <summary><span class="tip-num">04</span> Namnknepet <span class="tip-arrow" aria-hidden="true">+</span></summary>
+          <p>Möter du en Rosa? Se en ros bakom hennes öra. En Björn? Du fattar. Koppla namnet till något du ser hos personen — det var så Jonas lärde sig 500 namn på en kväll.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- ===================== SPELET ===================== -->
+    <section class="section section-game" id="spelet">
+      <div class="game-panel reveal">
+        <div class="game-head">
+          <p class="eyebrow">π-utmaningen</p>
+          <h2>Jonas minns <span class="grad">100&nbsp;000</span> decimaler.<br>Hur många klarar du?</h2>
+          <p class="section-sub">Memorera siffrorna som visas — skriv sedan in dem. För varje nivå blir det fler. Lycka till!</p>
+        </div>
+        <div class="game-stage" id="game-stage">
+          <div class="game-screen" id="game-screen">
+            <p class="game-msg" id="game-msg">3,14… redo att fortsätta där skolan slutade?</p>
+            <div class="game-digits" id="game-digits" aria-live="polite"></div>
+            <input class="game-input" id="game-input" type="text" inputmode="numeric" autocomplete="off"
+                   placeholder="Skriv decimalerna här…" aria-label="Skriv decimalerna" hidden>
+          </div>
+          <div class="game-controls">
+            <button class="btn btn-primary" id="game-btn">Starta utmaningen</button>
+            <p class="game-best" id="game-best" hidden></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== KURS ===================== -->
+    <section class="section" id="kurs">
+      <div class="kurs-panel reveal">
+        <div class="kurs-text">
+          <p class="eyebrow eyebrow-light">Digital kurs</p>
+          <h2>Skaffa ett superminne!</h2>
+          <p>Över 50 interaktiva lektioner med video, texter och övningar — en minneskurs i världsklass,
+          av en tvåfaldig världsmästare. I din egen takt, var du än är.</p>
+          <a class="btn btn-light" href="https://kurs.jonasvonessen.se" target="_blank" rel="noopener">
+            Till kursen <span aria-hidden="true">→</span>
+          </a>
+        </div>
+        <div class="kurs-art" aria-hidden="true">
+          <span>50+</span>
+          <small>lektioner</small>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== KONTAKT ===================== -->
+    <section class="section" id="kontakt">
+      <div class="section-head reveal">
+        <p class="eyebrow">Kontakt</p>
+        <h2>Boka en föreläsning<br>publiken <span class="grad">aldrig glömmer</span></h2>
+        <p class="section-sub">Berätta kort om ert event så återkommer Jonas så snart han kan. (Han glömmer garanterat inte bort er.)</p>
+      </div>
+      <div class="kontakt-grid">
+        <form class="kontakt-form reveal" id="kontakt-form">
+          <div class="form-row">
+            <label>Namn<input type="text" name="namn" placeholder="Ditt namn" required></label>
+            <label>E-post<input type="email" name="epost" placeholder="din@mejl.se" required></label>
+          </div>
+          <label>Vad gäller det?
+            <select name="typ">
+              <option>Föreläsning — företag</option>
+              <option>Föreläsning — skola</option>
+              <option>Workshop / utbildning</option>
+              <option>Media / press</option>
+              <option>Annat</option>
+            </select>
+          </label>
+          <label>Meddelande<textarea name="meddelande" rows="5" placeholder="Berätta om ert event: datum, plats, publik…" required></textarea></label>
+          <button class="btn btn-primary" type="submit">Skicka förfrågan</button>
+          <p class="form-note" id="form-note" hidden>Tack! Ditt mejlprogram öppnas med förfrågan.</p>
+        </form>
+        <aside class="kontakt-aside reveal d1">
+          <h3>Följ Jonas</h3>
+          <ul class="socials">
+            <li><a href="https://www.instagram.com/jonasvonessen/" target="_blank" rel="noopener"><span class="social-ic" aria-hidden="true">◉</span> Instagram</a></li>
+            <li><a href="https://www.youtube.com/@BlueberryClubSparven" target="_blank" rel="noopener"><span class="social-ic" aria-hidden="true">▶</span> YouTube</a></li>
+            <li><a href="https://www.facebook.com/jonasvonessenmemorychampion/" target="_blank" rel="noopener"><span class="social-ic" aria-hidden="true">ƒ</span> Facebook</a></li>
+          </ul>
+          <div class="kontakt-quote">
+            <p>"Vem som helst kan skaffa sig ett otroligt minne."</p>
+            <cite>— Jonas von Essen</cite>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span class="footer-pi" aria-hidden="true">π</span>
+    <p>© 2026 Jonas von Essen · Byggd med kärlek och minnesteknik</p>
+    <p class="footer-digits" aria-hidden="true">3,14159265358979323846…</p>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
