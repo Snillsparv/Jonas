@@ -802,6 +802,88 @@ a { color: inherit; }
   color: rgba(151, 162, 186, 0.35);
 }
 
+/* ---------- Huvudet som öppnas ---------- */
+.head-anim {
+  width: min(290px, 64vw);
+  margin: 0 auto 4px;
+  cursor: pointer;
+  user-select: none;
+}
+.head-anim svg { width: 100%; height: auto; display: block; overflow: visible; }
+
+.head-anim .cap {
+  transform-box: view-box;
+  transform-origin: 110px 258px;
+}
+.head-anim.play .cap { animation: cap-open 1s cubic-bezier(0.34, 1.45, 0.64, 1) 0.35s forwards; }
+@keyframes cap-open {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(-42deg); }
+}
+
+.head-anim .brain { transform-box: fill-box; transform-origin: 50% 100%; }
+.head-anim.play .brain {
+  animation:
+    brain-pop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.55s both,
+    brain-pulse 2.4s ease-in-out 1.6s infinite alternate;
+  filter: drop-shadow(0 0 14px rgba(255, 122, 184, 0.55));
+}
+@keyframes brain-pop {
+  from { transform: translateY(12px) scale(0.92); }
+  to   { transform: translateY(0) scale(1); }
+}
+@keyframes brain-pulse {
+  from { transform: scale(1); }
+  to   { transform: scale(1.045); }
+}
+
+.head-anim .glow { opacity: 0; }
+.head-anim.play .glow { animation: glow-in 1s ease 0.6s forwards; }
+@keyframes glow-in { to { opacity: 1; } }
+
+.head-anim .item {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  opacity: 0;
+}
+.head-anim.play .item {
+  animation:
+    item-fly 1s cubic-bezier(0.22, 1, 0.36, 1) var(--d) both,
+    item-bob 2.6s ease-in-out calc(var(--d) + 1.1s) infinite alternate;
+}
+@keyframes item-fly {
+  0%   { opacity: 0; transform: translate(0, 0) rotate(0deg) scale(0.2); }
+  55%  { opacity: 1; }
+  100% { opacity: 1; transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(1); }
+}
+@keyframes item-bob {
+  from { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(1); }
+  to   { transform: translate(var(--tx), calc(var(--ty) - 9px)) rotate(var(--rot)) scale(1); }
+}
+
+.head-anim .spark { opacity: 0; transform-box: fill-box; transform-origin: 50% 50%; }
+.head-anim.play .spark { animation: spark-twinkle 1.8s ease-in-out infinite; }
+.head-anim.play .s1 { animation-delay: 1.3s; }
+.head-anim.play .s2 { animation-delay: 1.7s; }
+.head-anim.play .s3 { animation-delay: 2.1s; }
+@keyframes spark-twinkle {
+  0%, 100% { opacity: 0; transform: scale(0.4) rotate(0deg); }
+  50%      { opacity: 1; transform: scale(1) rotate(25deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .head-anim .cap { transform: rotate(-42deg); animation: none !important; }
+  .head-anim .item,
+  .head-anim .glow { opacity: 1; animation: none !important; }
+  .head-anim .item { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)); }
+  .head-anim .brain, .head-anim .spark { animation: none !important; }
+  .head-anim .spark { opacity: 0.7; }
+}
+
+@media (max-width: 700px) {
+  .head-anim { width: min(230px, 60vw); }
+}
+
 /* ---------- Reveal-animationer ---------- */
 .reveal {
   opacity: 0;

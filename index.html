@@ -43,6 +43,104 @@
       <canvas id="pi-canvas" aria-hidden="true"></canvas>
       <div class="hero-glow" aria-hidden="true"></div>
       <div class="hero-inner">
+        <div class="head-anim play" id="head-anim" role="img"
+             aria-label="Animerad illustration: Jonas huvud öppnas och minnen flyger ut ur hjärnan"
+             title="Klicka för att spela upp igen">
+          <svg viewBox="0 0 400 470" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="hg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#8b6bff"/>
+                <stop offset="1" stop-color="#22d3ee"/>
+              </linearGradient>
+              <linearGradient id="bg-brain" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#ff7ab8"/>
+                <stop offset="1" stop-color="#8b6bff"/>
+              </linearGradient>
+              <radialGradient id="open-glow" cx="0.5" cy="0.5" r="0.5">
+                <stop offset="0" stop-color="rgba(255,122,184,0.45)"/>
+                <stop offset="1" stop-color="rgba(255,122,184,0)"/>
+              </radialGradient>
+            </defs>
+            <g transform="translate(0,110)">
+              <!-- Glöd i öppningen -->
+              <ellipse class="glow" cx="200" cy="130" rx="78" ry="26" fill="url(#open-glow)"/>
+
+              <!-- Hjärnan (ritas före ansiktet så den bara syns i öppningen) -->
+              <g class="brain">
+                <path fill="url(#bg-brain)" d="M154 160 C140 152 140 132 154 124 C150 108 166 98 182 104 C190 92 214 92 224 102 C240 94 256 106 252 120 C264 128 262 148 248 154 C246 162 238 166 230 164 L168 164 C160 166 156 164 154 160 Z"/>
+                <path fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="2.5" stroke-linecap="round"
+                      d="M170 120 C178 112 188 114 192 122 C198 114 210 112 216 120 M180 140 C188 132 200 134 204 142 C212 134 224 136 228 144"/>
+              </g>
+
+              <!-- Ansikte, hals (täcker hjärnans nederkant) -->
+              <g class="face">
+                <path fill="#0c1526" stroke="url(#hg)" stroke-width="3.5" stroke-linejoin="round"
+                      d="M110 148 C96 178 96 214 112 244 C118 258 130 268 146 274 L150 304 C150 322 146 334 138 346 L268 346 C260 324 256 308 258 294 C270 288 278 282 284 272 C292 266 297 259 296 251 C295 244 290 241 285 242 C281 232 287 227 289 219 C283 214 283 209 289 205 C296 201 298 195 293 191 C308 184 312 173 305 167 C299 161 295 154 293 147 C291 139 288 132 284 126 Z"/>
+                <path fill="none" stroke="url(#hg)" stroke-width="3" stroke-linecap="round"
+                      d="M188 230 C180 240 184 254 196 256 C206 257 211 248 206 240"/>
+                <!-- Glasögon -->
+                <circle cx="258" cy="194" r="23" fill="none" stroke="#22d3ee" stroke-width="3.5"/>
+                <path fill="none" stroke="#22d3ee" stroke-width="3.5" stroke-linecap="round" d="M235 190 L206 232 M281 188 C287 184 291 184 294 188"/>
+                <!-- Glatt öga -->
+                <path fill="none" stroke="#e9edf8" stroke-width="3" stroke-linecap="round" d="M250 196 Q258 203 266 196"/>
+              </g>
+
+              <!-- Skallock + hår (öppnas som ett lock) -->
+              <g class="cap">
+                <path fill="#0d1729" stroke="url(#hg)" stroke-width="3.5" stroke-linejoin="round"
+                      d="M110 148 C106 108 126 74 160 58 C196 40 240 44 266 64 C282 78 288 102 284 126 Z"/>
+                <path fill="none" stroke="url(#hg)" stroke-width="5" stroke-linecap="round" opacity="0.9"
+                      d="M132 130 C130 100 148 74 176 62 M170 66 C200 50 236 54 256 72 M246 64 C264 78 276 98 277 118 M262 70 C276 60 288 66 290 80 M118 142 C110 134 108 122 114 112"/>
+              </g>
+
+              <!-- Sakerna som flyger ut -->
+              <g class="items" font-family="'JetBrains Mono', monospace" font-weight="700">
+                <g class="item" style="--tx:-8px; --ty:-160px; --rot:-8deg; --d:0.65s">
+                  <text x="200" y="116" font-family="Georgia, serif" font-size="44" text-anchor="middle" fill="url(#hg)">π</text>
+                </g>
+                <g class="item" style="--tx:-76px; --ty:-124px; --rot:-14deg; --d:0.75s">
+                  <text x="200" y="111" font-size="22" text-anchor="middle" fill="#22d3ee">3</text>
+                </g>
+                <g class="item" style="--tx:64px; --ty:-140px; --rot:10deg; --d:0.85s">
+                  <text x="200" y="111" font-size="20" text-anchor="middle" fill="#8b6bff">1</text>
+                </g>
+                <g class="item" style="--tx:-120px; --ty:-86px; --rot:-18deg; --d:0.95s">
+                  <text x="200" y="110" font-size="18" text-anchor="middle" fill="#ffc24b">4</text>
+                </g>
+                <g class="item" style="--tx:98px; --ty:-104px; --rot:16deg; --d:1.05s">
+                  <rect x="187" y="86" width="26" height="36" rx="4" fill="#101a30" stroke="#8b6bff" stroke-width="2.5"/>
+                  <text x="200" y="110" font-size="14" text-anchor="middle" fill="#ff7ab8" font-family="Georgia, serif">♥</text>
+                </g>
+                <g class="item" style="--tx:-152px; --ty:-44px; --rot:-10deg; --d:1.15s">
+                  <path fill="none" stroke="#ffc24b" stroke-width="2.5" stroke-linejoin="round"
+                        d="M178 104 C186 98 194 98 200 102 C206 98 214 98 222 104 L222 116 C214 110 206 110 200 114 C194 110 186 110 178 116 Z M200 102 L200 114"/>
+                </g>
+                <g class="item" style="--tx:134px; --ty:-58px; --rot:8deg; --d:1.25s">
+                  <circle cx="200" cy="100" r="9" fill="rgba(255,194,75,0.2)" stroke="#ffc24b" stroke-width="2.5"/>
+                  <path stroke="#ffc24b" stroke-width="2.5" stroke-linecap="round" d="M196 112 L204 112 M197 116 L203 116"/>
+                </g>
+                <g class="item" style="--tx:28px; --ty:-186px; --rot:0deg; --d:1.35s">
+                  <path fill="#ffc24b" d="M200 95 L203 102 L210 103 L205 108 L206 115 L200 111 L194 115 L195 108 L190 103 L197 102 Z"/>
+                </g>
+                <g class="item" style="--tx:-44px; --ty:-188px; --rot:12deg; --d:1.45s">
+                  <ellipse cx="200" cy="104" rx="9" ry="11" fill="rgba(201,138,75,0.25)" stroke="#c98a4b" stroke-width="2.5"/>
+                  <path fill="none" stroke="#c98a4b" stroke-width="2" stroke-linecap="round" d="M200 95 C203 100 197 106 200 112"/>
+                </g>
+                <g class="item" style="--tx:160px; --ty:-20px; --rot:6deg; --d:1.55s">
+                  <rect x="173" y="93" width="54" height="22" rx="7" fill="#101a30" stroke="#22d3ee" stroke-width="2.5"/>
+                  <text x="200" y="108" font-size="11" text-anchor="middle" fill="#22d3ee" letter-spacing="1">ANNA</text>
+                </g>
+              </g>
+
+              <!-- Gnistor -->
+              <g class="sparks" stroke="#ffc24b" stroke-width="2.5" stroke-linecap="round">
+                <path class="spark s1" d="M140 86 L140 96 M135 91 L145 91"/>
+                <path class="spark s2" d="M254 76 L254 86 M249 81 L259 81"/>
+                <path class="spark s3" d="M192 56 L192 66 M187 61 L197 61"/>
+              </g>
+            </g>
+          </svg>
+        </div>
         <p class="hero-kicker reveal">
           <span class="medal" aria-hidden="true">🏆</span> Tvåfaldig världsmästare i minne
         </p>

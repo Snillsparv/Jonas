@@ -97,6 +97,17 @@ const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)
   tick();
 })();
 
+/* ---------- Huvudet som öppnas: klick = spela igen ---------- */
+(function headReplay() {
+  const head = document.getElementById("head-anim");
+  if (!head) return;
+  head.addEventListener("click", () => {
+    head.classList.remove("play");
+    void head.offsetWidth; /* tvinga omritning så animationen kan starta om */
+    head.classList.add("play");
+  });
+})();
+
 /* ---------- Scrollprogress + nav-skugga ---------- */
 (function scrollUI() {
   const bar = document.getElementById("progress-bar");
