@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Den Förbluffande von Essen — varietéaffischen (koncept 5)</title>
+<meta name="description" content="Konceptversion: webbplatsen som en levande varietéaffisch från sekelskiftet.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rye&family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,500&family=Crimson+Text:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --kräm: #f1e4c4;
+    --kräm-mörk: #e6d5ac;
+    --röd: #a82335;
+    --marin: #22304f;
+    --guld: #a9842e;
+    --rye: "Rye", "Playfair Display", serif;
+    --play: "Playfair Display", Georgia, serif;
+    --crimson: "Crimson Text", Georgia, serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background:
+      radial-gradient(120% 90% at 50% 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.55) 100%),
+      #2b1c15;
+    font-family: var(--crimson);
+    color: var(--marin);
+    min-height: 100vh;
+  }
+
+  /* ---------- Ridån ---------- */
+  .ridå {
+    position: fixed;
+    top: 0; bottom: 0;
+    width: 52vw;
+    z-index: 1000;
+    background: repeating-linear-gradient(90deg, #5d1220 0 26px, #8a1e30 26px 52px, #6d1626 52px 78px);
+    box-shadow: inset 0 -40px 60px rgba(0,0,0,0.5);
+    transition: transform 1.4s cubic-bezier(0.7, 0, 0.3, 1) 0.5s;
+  }
+  .ridå::after {
+    content: "";
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 26px;
+    background: repeating-radial-gradient(circle at 13px 0, #caa544 0 5px, transparent 5px 26px);
+  }
+  .ridå.v { left: 0; }
+  .ridå.h { right: 0; }
+  body.öppen .ridå.v { transform: translateX(-101%); }
+  body.öppen .ridå.h { transform: translateX(101%); }
+
+  /* ---------- Spotlight ---------- */
+  .spot {
+    position: fixed; inset: -20%;
+    pointer-events: none;
+    z-index: 5;
+    background: radial-gradient(34% 30% at 50% 38%, rgba(255,238,190,0.14), transparent 70%);
+    transition: transform 0.4s ease-out;
+  }
+
+  /* ---------- Affischen ---------- */
+  .affisch {
+    position: relative;
+    z-index: 10;
+    max-width: 920px;
+    margin: 5vh auto 8vh;
+    background: var(--kräm);
+    border: 5px solid var(--marin);
+    outline: 2px solid var(--guld);
+    outline-offset: -12px;
+    box-shadow: 0 40px 90px rgba(0,0,0,0.6);
+    padding: clamp(30px, 6vw, 64px) clamp(22px, 5.5vw, 60px);
+    text-align: center;
+  }
+  /* pappersfläckar */
+  .affisch::before {
+    content: "";
+    position: absolute; inset: 0;
+    pointer-events: none;
+    opacity: 0.5;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='å'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.36 0 0 0 0 0.2 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23å)'/%3E%3C/svg%3E");
+  }
+  .affisch > * { position: relative; }
+
+  .pretitel {
+    font-family: var(--play);
+    font-size: clamp(12px, 1.6vw, 15px);
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--röd);
+  }
+  .ornament { margin: 14px auto 10px; width: 200px; color: var(--guld); }
+
+  /* Glödlampsramen */
+  .bulbs {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin: 16px 0 8px;
+  }
+  .bulbs i {
+    width: 11px; height: 11px;
+    border-radius: 50%;
+    background: #d8b65c;
+    box-shadow: 0 0 9px rgba(255,214,110,0.9);
+    animation: lysa 1.1s step-end infinite;
+  }
+  .bulbs i:nth-child(even) { animation-delay: 0.55s; }
+  @keyframes lysa { 50% { opacity: 0.25; box-shadow: none; } }
+
+  .förbluffande {
+    font-family: var(--play);
+    font-weight: 900;
+    font-size: clamp(22px, 3.6vw, 38px);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+  .namn {
+    font-family: var(--rye);
+    font-size: clamp(54px, 11vw, 124px);
+    line-height: 1;
+    color: var(--röd);
+    text-shadow: 3px 3px 0 rgba(34,48,79,0.28);
+    margin: 4px 0 8px;
+  }
+  .banderoll {
+    display: inline-block;
+    background: var(--marin);
+    color: var(--kräm);
+    font-family: var(--play);
+    font-weight: 700;
+    font-size: clamp(13px, 2.2vw, 21px);
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    padding: 10px 30px;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 50%, 100% 100%, 0 100%, 14px 50%);
+  }
+  .ikväll {
+    margin-top: 16px;
+    font-family: var(--play);
+    font-style: italic;
+    font-size: clamp(14px, 2vw, 18px);
+    color: #5a4a33;
+  }
+
+  /* Stjärnskott */
+  .stjärnor {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin: 26px 0 8px;
+  }
+  .stjärna { position: relative; width: clamp(110px, 16vw, 170px); flex-shrink: 0; }
+  .stjärna svg { width: 100%; animation: snurra 40s linear infinite; }
+  @keyframes snurra { to { transform: rotate(360deg); } }
+  .stjärna .text {
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+    font-family: var(--play);
+    font-weight: 900;
+    font-size: clamp(11px, 1.5vw, 15px);
+    line-height: 1.25;
+    text-transform: uppercase;
+    color: var(--kräm);
+    padding: 24%;
+  }
+  .mellan-text {
+    font-size: clamp(15px, 2.1vw, 19px);
+    line-height: 1.65;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+  .mellan-text b { color: var(--röd); }
+
+  /* Linjal-ornament */
+  .regel {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 34px 0 22px;
+    color: var(--guld);
+  }
+  .regel::before, .regel::after { content: ""; flex: 1; border-top: 2px solid var(--marin); }
+  .regel span {
+    font-family: var(--play);
+    font-weight: 900;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    font-size: clamp(14px, 2.4vw, 20px);
+    color: var(--marin);
+  }
+
+  /* Programmet */
+  .akt {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 4px 16px;
+    text-align: left;
+    max-width: 640px;
+    margin: 0 auto 18px;
+    align-items: baseline;
+  }
+  .akt .nr {
+    font-family: var(--rye);
+    font-size: clamp(20px, 3vw, 28px);
+    color: var(--röd);
+    white-space: nowrap;
+  }
+  .akt h3 { font-family: var(--play); font-weight: 900; font-size: clamp(17px, 2.4vw, 22px); letter-spacing: 0.06em; text-transform: uppercase; }
+  .akt p { grid-column: 2; font-size: 16px; line-height: 1.6; color: #43391f; font-style: italic; }
+
+  .hand { color: var(--röd); font-size: 1.2em; }
+
+  /* Fakta-spalter */
+  .fakta {
+    columns: 2;
+    column-gap: 40px;
+    column-rule: 1px solid rgba(34,48,79,0.3);
+    text-align: left;
+    max-width: 680px;
+    margin: 0 auto;
+    font-size: 15.5px;
+  }
+  .fakta p { break-inside: avoid; margin-bottom: 13px; line-height: 1.55; }
+  .fakta b { font-family: var(--play); color: var(--röd); }
+
+  /* Böcker */
+  .böcker { display: flex; justify-content: center; gap: 26px; flex-wrap: wrap; }
+  .bok {
+    width: 200px;
+    border: 2px solid var(--marin);
+    padding: 18px 14px;
+    background: var(--kräm-mörk);
+    transform: rotate(-0.6deg);
+  }
+  .bok:nth-child(2) { transform: rotate(0.7deg); }
+  .bok:nth-child(3) { transform: rotate(-0.3deg); }
+  .bok h3 { font-family: var(--play); font-weight: 900; font-size: 17px; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+  .bok p { font-size: 13.5px; font-style: italic; line-height: 1.5; color: #43391f; }
+  .bok .pris { display: inline-block; margin-top: 10px; font-family: var(--play); font-weight: 700; font-size: 12px; letter-spacing: 0.2em; color: var(--kräm); background: var(--röd); padding: 4px 12px; }
+
+  /* Hemligheter */
+  .hemligheter {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 34px;
+    max-width: 660px;
+    margin: 0 auto;
+    text-align: left;
+  }
+  .hemlighet { border-top: 2px solid var(--guld); padding-top: 10px; }
+  .hemlighet h3 { font-family: var(--play); font-weight: 900; font-size: 16px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .hemlighet p { font-size: 14.5px; line-height: 1.55; color: #43391f; }
+
+  /* Biljettluckan */
+  .biljett-cta {
+    display: inline-block;
+    font-family: var(--play);
+    font-weight: 900;
+    font-size: clamp(17px, 2.6vw, 24px);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--kräm);
+    background: var(--röd);
+    border: 3px solid var(--marin);
+    box-shadow: 5px 5px 0 var(--marin);
+    padding: 18px 36px;
+    text-decoration: none;
+    transition: transform 0.12s, box-shadow 0.12s;
+  }
+  .biljett-cta:hover { transform: translate(-2px,-2px); box-shadow: 8px 8px 0 var(--marin); }
+  .biljett-info { margin-top: 18px; font-size: 15px; font-style: italic; }
+  .biljett-info a { color: var(--röd); }
+
+  .finstilt {
+    margin-top: 38px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(34,48,79,0.4);
+    font-size: 12px;
+    font-style: italic;
+    color: #6b5c3c;
+  }
+
+  @media (max-width: 720px) {
+    .stjärnor { flex-direction: column; }
+    .fakta { columns: 1; }
+    .hemligheter { grid-template-columns: 1fr; }
+    .bulbs i:nth-child(n+15) { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ridå { transition: none; }
+    .bulbs i, .stjärna svg { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ridå v" aria-hidden="true"></div>
+<div class="ridå h" aria-hidden="true"></div>
+<div class="spot" id="spot" aria-hidden="true"></div>
+
+<article class="affisch">
+
+  <p class="pretitel">Kungliga Minnesteatern presenterar</p>
+  <svg class="ornament" viewBox="0 0 200 20" aria-hidden="true"><path d="M0 10 H78 M122 10 H200" stroke="currentColor" stroke-width="1.5"/><path d="M100 2 C108 10 108 10 100 18 C92 10 92 10 100 2 Z" fill="currentColor"/><circle cx="86" cy="10" r="2" fill="currentColor"/><circle cx="114" cy="10" r="2" fill="currentColor"/></svg>
+
+  <div class="bulbs" aria-hidden="true">
+    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+  </div>
+
+  <p class="förbluffande">Den förbluffande</p>
+  <h1 class="namn">von Essen</h1>
+  <p class="banderoll">Mannen som aldrig glömmer</p>
+  <p class="ikväll">Ikväll! Imorgon! Alla dagar! — ty ett tränat minne tar aldrig semester</p>
+
+  <div class="stjärnor">
+    <div class="stjärna">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><path fill="#a82335" d="M50 0 L56 22 L72 6 L68 28 L90 20 L76 38 L100 40 L78 50 L100 60 L76 62 L90 80 L68 72 L72 94 L56 78 L50 100 L44 78 L28 94 L32 72 L10 80 L24 62 L0 60 L22 50 L0 40 L24 38 L10 20 L32 28 L28 6 L44 22 Z"/></svg>
+      <span class="text">2 gånger världs&shy;mästare i minne</span>
+    </div>
+    <p class="mellan-text">
+      Bevittna mannen som år 2012 ej mindes sin fästmös telefonnummer — och arton månader
+      senare <b>besegrade hela världseliten</b> i minnes-VM i London, för att året därpå
+      göra om bedriften i Kina!
+    </p>
+    <div class="stjärna">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><path fill="#22304f" d="M50 0 L56 22 L72 6 L68 28 L90 20 L76 38 L100 40 L78 50 L100 60 L76 62 L90 80 L68 72 L72 94 L56 78 L50 100 L44 78 L28 94 L32 72 L10 80 L24 62 L0 60 L22 50 L0 40 L24 38 L10 20 L32 28 L28 6 L44 22 Z"/></svg>
+      <span class="text">100 000 decimaler av π</span>
+    </div>
+  </div>
+
+  <div class="regel"><span>Programmet</span></div>
+
+  <div class="akt">
+    <span class="nr">Akt I.</span>
+    <h3><span class="hand">☞</span> De femhundra namnen</h3>
+    <p>Såsom skådat i TV4:s Talang 1918— förlåt, 2018: artisten memorerar en hel publiks förnamn och belönas med Herr Batras gyllene knapp! För företag &amp; konferenser: lär er konsten själva.</p>
+  </div>
+  <div class="akt">
+    <span class="nr">Akt II.</span>
+    <h3><span class="hand">☞</span> π:s oändliga flod</h3>
+    <p>Etthundratusen decimaler i ett enda huvud! Europarekord: 24 063 stycken återgivna i följd under åtta timmar, utan ett enda felsteg. För skolor: samma teknik gör läxan till en lek.</p>
+  </div>
+  <div class="akt">
+    <span class="nr">Akt III.</span>
+    <h3><span class="hand">☞</span> Valnötternas mysterium</h3>
+    <p>Hundratals slumpvis valda valnötter, memorerade inför kinesisk television! Skräddarsydda föreställningar: på er scen eller genom den elektriska bildtelegrafen (»digitalt«), på svenska eller engelska.</p>
+  </div>
+
+  <div class="regel"><span>I bokhandeln</span></div>
+
+  <div class="böcker">
+    <div class="bok">
+      <h3>Så får du ett superminne</h3>
+      <p>Minnesteknikerna som alla kunna använda. För den vuxne läsaren.</p>
+      <span class="pris">Hos bokhandlarn</span>
+    </div>
+    <div class="bok">
+      <h3>Bli ett minnesgeni!</h3>
+      <p>För envar mellan 5 och 125 år. Glosorna fastna som av sig själva.</p>
+      <span class="pris">Hos bokhandlarn</span>
+    </div>
+    <div class="bok">
+      <h3>Pi-boken 2.0</h3>
+      <p>Samtliga 100 000 decimaler, svart på vitt. Ett mästerverk i tålamod.</p>
+      <span class="pris">Ett kuriosum!</span>
+    </div>
+  </div>
+
+  <div class="regel"><span>Professorns hemligheter</span></div>
+  <p class="mellan-text" style="margin-bottom:20px"><i>Avslöjas härmed utan kostnad — ty konsten är till för alla:</i></p>
+
+  <div class="hemligheter">
+    <div class="hemlighet"><h3>I. Minnespalatset</h3><p>Placera det ni önskar minnas på platser ni redan kännen utantill. Hjärnan är byggd för rum och vägar — giv henne en karta!</p></div>
+    <div class="hemlighet"><h3>II. De tokiga bilderna</h3><p>Hjärnan glömmer det torra men minns det galna. En ko som jonglerar batterier — den glömmer ni aldrig, hur ni än försöken.</p></div>
+    <div class="hemlighet"><h3>III. Den sluga repetitionen</h3><p>Repetera just innan glömskan slår till: efter en dag, en vecka, en månad. Tre gånger — och minnet sitter för evärdlig tid.</p></div>
+    <div class="hemlighet"><h3>IV. Namnknepet</h3><p>Möten ni en Rosa — sen för ert inre en ros bakom hennes öra. Femhundra namn på en afton: så gjordes det.</p></div>
+  </div>
+
+  <div class="regel"><span>Biljettluckan</span></div>
+
+  <a class="biljett-cta" href="mailto:hej@jonasvonessen.se?subject=Biljettförfrågan%20(föreläsning)">Säkra er föreställning!</a>
+  <p class="biljett-info">
+    Hellre studera i hemmets lugn? <a href="https://kurs.jonasvonessen.se" target="_blank" rel="noopener">Kursen »Skaffa ett superminne!«</a> — femtio lektioner genom den moderna bildtelegrafen.<br>
+    Följ artisten: <a href="https://www.instagram.com/jonasvonessen/" target="_blank" rel="noopener">Instagram</a> ·
+    <a href="https://www.youtube.com/@BlueberryClubSparven" target="_blank" rel="noopener">YouTube</a> ·
+    <a href="https://www.facebook.com/jonasvonessenmemorychampion/" target="_blank" rel="noopener">Facebook</a>
+  </p>
+
+  <p class="finstilt">Tryckt i Skövde. Direktionen ansvarar ej för åskådare som efter föreställningen minns precis allt, inklusive var de lade nycklarna 1997. — Koncept 5 · jonasvonessen.se</p>
+</article>
+
+<script>
+(function () {
+  "use strict";
+  /* Ridå upp */
+  window.addEventListener("load", function () {
+    document.body.classList.add("öppen");
+  });
+  /* Reservplan om load-händelsen redan passerat */
+  setTimeout(function () { document.body.classList.add("öppen"); }, 1200);
+
+  /* Strålkastaren följer pekaren, diskret */
+  var spot = document.getElementById("spot");
+  var stilla = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!stilla) {
+    document.addEventListener("pointermove", function (e) {
+      var dx = (e.clientX / window.innerWidth - 0.5) * 14;
+      var dy = (e.clientY / window.innerHeight - 0.5) * 10;
+      spot.style.transform = "translate(" + dx + "%, " + dy + "%)";
+    });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resan genom π — Jonas von Essen (koncept 2)</title>
+<meta name="description" content="Konceptversion: hela webbplatsen är talet π — scrolla dig genom 100 000 decimaler.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #020806;
+    --accent: #59f7c9;
+    --dim: #8fa89f;
+    --dimmer: #44544e;
+    --linje: rgba(89, 247, 201, 0.25);
+    --mono: "Space Mono", "Courier New", monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: #d9efe7;
+    font-family: var(--mono);
+    overflow-x: hidden;
+  }
+  ::selection { background: rgba(89,247,201,0.35); }
+
+  /* ---------- Bakgrund: flödande sifferkolumner ---------- */
+  .flode {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .kolumn {
+    position: absolute;
+    top: 0;
+    font-size: 15px;
+    line-height: 1.9;
+    white-space: pre;
+    color: var(--dimmer);
+    opacity: 0.55;
+    animation: fall linear infinite;
+  }
+  .kolumn b { color: var(--accent); font-weight: 400; opacity: 0.8; }
+  @keyframes fall {
+    from { transform: translateY(0); }
+    to   { transform: translateY(-50%); }
+  }
+
+  /* ---------- HUD ---------- */
+  .hud {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 14px 20px 12px;
+    background: linear-gradient(180deg, rgba(2,8,6,0.92) 60%, rgba(2,8,6,0));
+    text-align: center;
+  }
+  .hud-rubrik {
+    font-size: 10px;
+    letter-spacing: 0.5em;
+    color: var(--dim);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .odometer {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: clamp(22px, 4vw, 34px);
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .odo-slot {
+    display: inline-block;
+    height: 1.15em;
+    overflow: hidden;
+  }
+  .odo-strip {
+    display: block;
+    transition: transform 0.35s cubic-bezier(0.2, 0.6, 0.2, 1);
+  }
+  .odo-strip span { display: block; height: 1.15em; line-height: 1.15em; }
+  .odo-sep { width: 0.35em; }
+  .odo-total { color: var(--dimmer); font-weight: 400; font-size: 0.55em; margin-left: 10px; letter-spacing: 0.1em; }
+
+  .räls {
+    position: relative;
+    margin: 10px auto 0;
+    max-width: 720px;
+    height: 14px;
+  }
+  .räls-linje { position: absolute; top: 6px; left: 0; right: 0; height: 2px; background: var(--linje); }
+  .räls-station {
+    position: absolute;
+    top: 3px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    border: 1.5px solid var(--accent);
+    background: var(--bg);
+    transform: translateX(-50%);
+  }
+  .räls-du {
+    position: absolute;
+    top: 0;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 14px var(--accent);
+    transform: translateX(-50%);
+    transition: left 0.1s linear;
+  }
+
+  /* ---------- Innehåll ---------- */
+  main { position: relative; z-index: 10; }
+
+  .station {
+    min-height: 115vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18vh 24px;
+  }
+  .kort {
+    max-width: 620px;
+    width: 100%;
+    border-left: 2px solid var(--accent);
+    padding: 26px 0 26px 34px;
+    background: linear-gradient(90deg, rgba(89,247,201,0.05), transparent 70%);
+  }
+  .kort .etikett {
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .kort h2 {
+    font-size: clamp(24px, 3.6vw, 40px);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+  .kort p { font-size: 15px; line-height: 1.8; color: var(--dim); }
+  .kort p + p { margin-top: 12px; }
+  .kort .data {
+    margin-top: 18px;
+    font-size: 13px;
+    color: var(--accent);
+    border-top: 1px dashed var(--linje);
+    padding-top: 14px;
+    line-height: 2;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 24px 60px;
+  }
+  .hero .tre {
+    font-size: clamp(110px, 24vw, 240px);
+    font-weight: 700;
+    line-height: 0.9;
+    color: var(--accent);
+    text-shadow: 0 0 40px rgba(89,247,201,0.35);
+  }
+  .hero .tre i {
+    font-style: normal;
+    animation: puls 1.1s step-end infinite;
+  }
+  @keyframes puls { 50% { opacity: 0; } }
+  .hero .ström {
+    margin-top: 18px;
+    max-width: 90vw;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: clamp(14px, 2.4vw, 22px);
+    color: var(--dim);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+  }
+  .hero .ström span { display: inline-block; animation: driva 80s linear infinite; }
+  @keyframes driva { to { transform: translateX(-50%); } }
+  .hero .intro {
+    margin-top: 40px;
+    max-width: 560px;
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--dim);
+  }
+  .hero .intro b { color: #d9efe7; font-weight: 700; }
+  .pil-ner {
+    margin-top: 50px;
+    font-size: 12px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--accent);
+    animation: blink 2s ease-in-out infinite;
+  }
+  @keyframes blink { 50% { opacity: 0.3; } }
+
+  /* ---------- Slutstation ---------- */
+  .slut { text-align: center; min-height: 100vh; padding-bottom: 4vh; }
+  .slut .kort { border: 2px solid var(--accent); border-radius: 4px; padding: 44px 36px; background: rgba(89,247,201,0.04); }
+  .slut .stor {
+    font-size: clamp(44px, 9vw, 96px);
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 14px;
+  }
+  .slut .restid { margin-top: 16px; font-size: 13px; color: var(--accent); }
+  .cta {
+    display: inline-block;
+    margin: 26px 8px 0;
+    padding: 14px 30px;
+    border: 2px solid var(--accent);
+    color: var(--bg);
+    background: var(--accent);
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+  }
+  .cta.ghost { background: transparent; color: var(--accent); }
+  .cta:hover { background: #d9efe7; border-color: #d9efe7; color: var(--bg); }
+  .cta.ghost:hover { background: rgba(89,247,201,0.15); color: var(--accent); }
+  .socials { margin-top: 26px; font-size: 13px; color: var(--dim); }
+  .socials a { color: var(--accent); }
+
+  footer {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 12px 20px 18px;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--dimmer);
+    text-transform: uppercase;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .kolumn, .hero .ström span, .hero .tre i, .pil-ner { animation: none !important; }
+    .odo-strip { transition: none; }
+  }
+  @media (max-width: 640px) {
+    .kolumn { font-size: 12px; }
+    .räls { max-width: 86vw; }
+  }
+</style>
+</head>
+<body>
+
+<div class="flode" id="flode" aria-hidden="true"></div>
+
+<header class="hud" aria-hidden="true">
+  <p class="hud-rubrik">Din position i π</p>
+  <div class="odometer" id="odometer"></div>
+  <div class="räls" id="räls"><div class="räls-linje"></div><div class="räls-du" id="räls-du"></div></div>
+</header>
+
+<main id="main">
+
+  <section class="hero" data-decimal="0">
+    <div class="tre">3,<i>_</i></div>
+    <div class="ström" aria-hidden="true"><span id="ström-text"></span></div>
+    <p class="intro">
+      Det här är π. Oändligt, mönsterlöst, omöjligt att memorera.<br><br>
+      <b>Jonas von Essen har memorerat de första 100&nbsp;000 decimalerna.</b><br>
+      Den här sidan är talet självt — och en mätare som visar hur långt du kommit.
+      Decimalerna i bakgrunden beräknas live, här i din webbläsare.
+    </p>
+    <p class="pil-ner">▼ Scrolla för att resa in i talet</p>
+  </section>
+
+  <section class="station" data-decimal="1">
+    <div class="kort">
+      <p class="etikett">Decimal 1 · Resan börjar</p>
+      <h2>Han kunde inte ens minnas ett telefonnummer</h2>
+      <p>2012 var Jonas en glömsk student som hittade en bok om minnesteknik på biblioteket i Skövde.
+      Han började träna. Det visade sig att minne inte är en gåva — det är en teknik.</p>
+      <p class="data">decimal 1 av 100 000 · framsteg: 0,001 %</p>
+    </div>
+  </section>
+
+  <section class="station" data-decimal="2013">
+    <div class="kort">
+      <p class="etikett">Decimal 2 013 · London</p>
+      <h2>Världsmästare i minne 2013</h2>
+      <p>Arton månader efter biblioteksboken stod han överst på pallen i minnes-VM och hade
+      utklassat världseliten. Hemma i Sverige hade nästan ingen märkt något.</p>
+      <p class="data">status: världsmästare · träningstid: 18 månader</p>
+    </div>
+  </section>
+
+  <section class="station" data-decimal="2014">
+    <div class="kort">
+      <p class="etikett">Decimal 2 014 · Kina</p>
+      <h2>Och igen. Världsmästare 2014</h2>
+      <p>Titeln försvarad. Sedan dess har han bland annat memorerat hundratals slumpmässiga
+      valnötter i kinesisk tv — för i minnesvärlden är även det en gren.</p>
+      <p class="data">VM-guld: 2 · valnötter: hundratals</p>
+    </div>
+  </section>
+
+  <section class="station" data-decimal="2018">
+    <div class="kort">
+      <p class="etikett">Decimal 2 018 · TV4</p>
+      <h2>500 namn. En kväll. Guldbuzzer.</h2>
+      <p>I Talang memorerade Jonas förnamnen på alla 500 i publiken. David Batra tryckte på
+      guldknappen och skickade honom direkt till final — där han tog sig an 50&nbsp;000 decimaler av π.</p>
+      <p class="data">namn: 500/500 · buzzer: guld</p>
+    </div>
+  </section>
+
+  <section class="station" data-decimal="14159">
+    <div class="kort">
+      <p class="etikett">Decimal 14 159 · Biblioteket, fast tvärtom</p>
+      <h2>Nu skriver han böckerna själv</h2>
+      <p>«Så får du ett superminne» — teknikerna som alla kan använda. «Bli ett minnesgeni!» —
+      för alla mellan 5 och 125 år. Och «Pi-boken 2.0» — hela talet du just nu reser genom,
+      tryckt svart på vitt.</p>
+      <p class="data">böcker: 3 · varav en bara innehåller siffror: 1</p>
+    </div>
+  </section>
+
+  <section class="station" data-decimal="24063">
+    <div class="kort">
+      <p class="etikett">Decimal 24 063 · Europarekordet</p>
+      <h2>Åtta timmar. 24 063 decimaler i rad.</h2>
+      <p>I mars 2020 återgav Jonas 24&nbsp;063 decimaler i sträck — Europarekord. Tre dagar senare
+      blev han först i världen att klara «Olympus Mons-testet»: stickprov ur hela 100&nbsp;000-sviten.
+      Du har just passerat platsen där rekordet slutade. Allt härifrån och framåt kan han också.</p>
+      <p class="data">tid: 8 h · fel: 0 · kaffe: oklart men troligen mycket</p>
+    </div>
+  </section>
+
+  <section class="station" data-decimal="50000">
+    <div class="kort">
+      <p class="etikett">Decimal 50 000 · Halvvägs</p>
+      <h2>Hur? Fyra tekniker.</h2>
+      <p>1. Minnespalatset — placera minnen på platser du kan utantill.<br>
+      2. Tokiga bilder — hjärnan minns det absurda.<br>
+      3. Smart repetition — repetera precis innan du glömmer.<br>
+      4. Namnknepet — koppla namnet till något du ser.</p>
+      <p>Samma tekniker driver hans föreläsningar för företag, konferenser och skolor:
+      hälften show, hälften verktygslåda. Känd från TV4, SVT och The Brain.</p>
+      <p class="data">tekniker: 4 · kräver medfödd talang: nej</p>
+    </div>
+  </section>
+
+  <section class="station slut" data-decimal="100000">
+    <div class="kort">
+      <p class="etikett">Decimal 100 000 · Slutstation</p>
+      <div class="stor">100 000</div>
+      <p>Här slutar Jonas memorering. Du scrollade hit —
+      han bär allihop i huvudet. Men det viktiga är: <b style="color:#d9efe7">han föddes inte sån.</b>
+      Med rätt teknik kan vem som helst resa hur långt som helst.</p>
+      <p class="restid" id="restid"></p>
+      <div>
+        <a class="cta" href="mailto:hej@jonasvonessen.se?subject=Förfrågan%20föreläsning">Boka föreläsning</a>
+        <a class="cta ghost" href="https://kurs.jonasvonessen.se" target="_blank" rel="noopener">Gå kursen — 50+ lektioner</a>
+      </div>
+      <p class="socials">
+        <a href="https://www.instagram.com/jonasvonessen/" target="_blank" rel="noopener">Instagram</a> ·
+        <a href="https://www.youtube.com/@BlueberryClubSparven" target="_blank" rel="noopener">YouTube</a> ·
+        <a href="https://www.facebook.com/jonasvonessenmemorychampion/" target="_blank" rel="noopener">Facebook</a>
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer>π beräknas live med Gibbons spigot-algoritm · koncept 2 · jonasvonessen.se</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- π på riktigt: Gibbons obegränsade spigot-algoritm ---------- */
+  function skapaPiGenerator() {
+    var q = 1n, r = 180n, t = 60n, i = 2n;
+    return function nästaSiffra() {
+      var u = 3n * (3n * i + 1n) * (3n * i + 2n);
+      var y = (q * (27n * i - 12n) + 5n * r) / (5n * t);
+      r = 10n * u * (q * (5n * i - 2n) + r - y * t);
+      q = 10n * q * i * (2n * i - 1n);
+      t = t * u;
+      i = i + 1n;
+      return Number(y);
+    };
+  }
+
+  var nästa = skapaPiGenerator();
+  nästa(); /* första värdet är heltalsdelen 3 — hoppa över */
+  var decimaler = "";
+  function generera(n) { for (var k = 0; k < n; k++) decimaler += nästa(); }
+  generera(300); /* direkt: nog för hero-strömmen */
+
+  var strömEl = document.getElementById("ström-text");
+  var strömTxt = decimaler.slice(0, 220);
+  strömEl.textContent = strömTxt + " " + strömTxt; /* dubblerad för sömlös loop */
+
+  /* ---------- Bakgrundskolumner ---------- */
+  var flode = document.getElementById("flode");
+  var stilla = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var KOLUMNER = [
+    { left: "3%",  speed: 70, op: 0.5 }, { left: "12%", speed: 110, op: 0.3 },
+    { left: "22%", speed: 85,  op: 0.4 }, { left: "78%", speed: 95,  op: 0.4 },
+    { left: "88%", speed: 65,  op: 0.5 }, { left: "95%", speed: 120, op: 0.3 }
+  ];
+  function fyllKolumner() {
+    flode.innerHTML = "";
+    KOLUMNER.forEach(function (k, idx) {
+      var el = document.createElement("div");
+      el.className = "kolumn";
+      el.style.left = k.left;
+      el.style.opacity = k.op;
+      el.style.animationDuration = k.speed + "s";
+      var start = (idx * 977) % Math.max(1, decimaler.length - 400);
+      var text = "";
+      for (var rad = 0; rad < 90; rad++) {
+        var ch = decimaler[(start + rad) % decimaler.length] || "0";
+        text += (rad % 13 === 0) ? "<b>" + ch + "</b>\n" : ch + "\n";
+      }
+      el.innerHTML = text + text; /* dubblera för sömlös loop */
+      flode.appendChild(el);
+    });
+  }
+  fyllKolumner();
+
+  /* Fortsätt beräkna i bakgrunden upp till 4000 decimaler */
+  (function bakgrundsberäkna() {
+    if (decimaler.length >= 4000) { fyllKolumner(); return; }
+    generera(200);
+    setTimeout(bakgrundsberäkna, 80);
+  })();
+
+  /* ---------- Stationer & skrollkarta ---------- */
+  var stationer = Array.prototype.slice.call(document.querySelectorAll("[data-decimal]"));
+  var MÅL = 100000;
+
+  /* Räls-prickar */
+  var räls = document.getElementById("räls");
+  stationer.forEach(function (s) {
+    var d = +s.dataset.decimal;
+    var prick = document.createElement("div");
+    prick.className = "räls-station";
+    prick.style.left = (d / MÅL) * 100 + "%";
+    räls.appendChild(prick);
+  });
+  var duPrick = document.getElementById("räls-du");
+
+  /* ---------- Odometer ---------- */
+  var odo = document.getElementById("odometer");
+  var SLOTAR = ["d","d","d","sep","d","d","d"]; /* 100 000 */
+  var strippar = [];
+  SLOTAR.forEach(function (typ) {
+    if (typ === "sep") {
+      var sep = document.createElement("span");
+      sep.className = "odo-sep";
+      odo.appendChild(sep);
+      strippar.push(null);
+      return;
+    }
+    var slot = document.createElement("span");
+    slot.className = "odo-slot";
+    var strip = document.createElement("span");
+    strip.className = "odo-strip";
+    for (var s = 0; s <= 9; s++) {
+      var sp = document.createElement("span");
+      sp.textContent = s;
+      strip.appendChild(sp);
+    }
+    slot.appendChild(strip);
+    odo.appendChild(slot);
+    strippar.push(strip);
+  });
+  var total = document.createElement("span");
+  total.className = "odo-total";
+  total.textContent = "/ 100 000";
+  odo.appendChild(total);
+
+  function visaTal(n) {
+    var str = String(Math.round(n)).padStart(6, "0"); /* 6 siffror */
+    var si = 0;
+    strippar.forEach(function (strip) {
+      if (!strip) return;
+      strip.style.transform = "translateY(-" + (+str[si]) * 1.15 + "em)";
+      si++;
+    });
+  }
+
+  /* Styckvis linjär karta: stationernas dokumentpositioner → decimaler */
+  function bygg() {
+    return stationer.map(function (s) {
+      return { y: s.offsetTop - window.innerHeight * 0.4, d: +s.dataset.decimal };
+    });
+  }
+  var karta = bygg();
+  window.addEventListener("resize", function () { karta = bygg(); });
+
+  function decimalVid(scrollY) {
+    if (scrollY <= karta[0].y) return karta[0].d;
+    for (var j = 0; j < karta.length - 1; j++) {
+      var a = karta[j], b = karta[j + 1];
+      if (scrollY < b.y) {
+        var p = (scrollY - a.y) / Math.max(1, b.y - a.y);
+        return a.d + p * (b.d - a.d);
+      }
+    }
+    return MÅL;
+  }
+
+  var start = performance.now();
+  var resmål = false;
+  function vidScroll() {
+    var d = decimalVid(window.scrollY);
+    visaTal(d);
+    duPrick.style.left = (d / MÅL) * 100 + "%";
+    if (!resmål && d >= MÅL - 1) {
+      resmål = true;
+      var sek = Math.max(1, Math.round((performance.now() - start) / 1000));
+      document.getElementById("restid").textContent =
+        "Din restid: " + sek + " sekunder. Jonas behövde åtta timmar för en fjärdedel — men han mindes allt efteråt.";
+    }
+  }
+  window.addEventListener("scroll", vidScroll, { passive: true });
+  setTimeout(function () { karta = bygg(); vidScroll(); }, 400);
+  vidScroll();
+})();
+</script>
+</body>
+</html>

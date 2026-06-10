@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minnespalatset — Jonas von Essen (koncept 1)</title>
+<meta name="description" content="Konceptversion: webbplatsen som ett vandringsbart minnespalats.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --guld: #d9a64a;
+    --guld-ljus: #f0c87e;
+    --text: #f3e9d6;
+    --text-dov: #c9b896;
+    --serif: "Fraunces", Georgia, serif;
+    --sans: "Inter", system-ui, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #1c1424; }
+  body { font-family: var(--sans); color: var(--text); overflow-x: hidden; }
+
+  /* Höjden som ger scrollutrymme — världen rör sig i sidled */
+  .spacer { height: 600vh; }
+
+  .palats {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    will-change: transform;
+  }
+
+  .rum {
+    position: relative;
+    min-width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 9vh 8vw 14vh;
+    overflow: hidden;
+  }
+  /* Golv + golvlist i varje rum */
+  .rum::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 11vh;
+    background: linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.75));
+    border-top: 2px solid rgba(217,166,74,0.55);
+  }
+  /* Väggfärg per rum */
+  .rum-entre    { background: radial-gradient(120% 100% at 50% 0%, #382a47 0%, #241a31 60%, #1c1424 100%); }
+  .rum-trofe    { background: radial-gradient(120% 100% at 50% 0%, #46321c 0%, #2e2113 60%, #221809 100%); }
+  .rum-bibliotek{ background: radial-gradient(120% 100% at 50% 0%, #2b3b33 0%, #1d2a24 60%, #141f1a 100%); }
+  .rum-scen     { background: radial-gradient(120% 100% at 50% 0%, #4a1a26 0%, #331219 60%, #240c11 100%); }
+  .rum-traning  { background: radial-gradient(120% 100% at 50% 0%, #25324d 0%, #1a2336 60%, #121827 100%); }
+  .rum-utgang   { background: radial-gradient(120% 100% at 50% 0%, #332a44 0%, #241d31 60%, #1a1524 100%); }
+
+  /* Ljuskrona-glöd */
+  .ljus {
+    position: absolute;
+    top: -12vh; left: 50%;
+    transform: translateX(-50%);
+    width: 70vw; height: 60vh;
+    background: radial-gradient(50% 60% at 50% 20%, rgba(240,200,126,0.20), transparent 70%);
+    pointer-events: none;
+  }
+
+  .rum-inner { position: relative; max-width: 920px; }
+  .rum-nr {
+    font-family: var(--sans);
+    font-size: 12px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--guld);
+    margin-bottom: 16px;
+  }
+  .rum h1, .rum h2 {
+    font-family: var(--serif);
+    font-weight: 900;
+    font-size: clamp(34px, 5vw, 64px);
+    line-height: 1.05;
+    margin-bottom: 20px;
+  }
+  .rum h1 em, .rum h2 em { font-style: italic; font-weight: 400; color: var(--guld-ljus); }
+  .rum p.bröd { font-size: clamp(15px, 1.5vw, 18px); line-height: 1.7; color: var(--text-dov); max-width: 560px; }
+
+  .knapp {
+    display: inline-block;
+    margin-top: 28px;
+    padding: 14px 30px;
+    border: 1.5px solid var(--guld);
+    border-radius: 2px;
+    color: var(--guld-ljus);
+    font-family: var(--serif);
+    font-size: 17px;
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    background: rgba(217,166,74,0.07);
+    cursor: pointer;
+    transition: background 0.25s, transform 0.25s;
+  }
+  .knapp:hover { background: rgba(217,166,74,0.18); transform: translateY(-2px); }
+
+  /* ----- Entréns dörr ----- */
+  .dorr {
+    position: absolute;
+    right: 7vw; bottom: 11vh;
+    width: clamp(160px, 18vw, 260px);
+    opacity: 0.95;
+  }
+  /* ----- Troféer ----- */
+  .trofeer {
+    position: absolute;
+    right: 5vw; bottom: 11vh;
+    display: flex;
+    gap: 4vw;
+    align-items: flex-end;
+  }
+  .trofe { width: clamp(110px, 13vw, 200px); }
+  .plakett {
+    margin-top: 26px;
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    gap: 12px 28px;
+    max-width: 600px;
+  }
+  .plakett div {
+    border: 1px solid rgba(217,166,74,0.4);
+    background: rgba(0,0,0,0.25);
+    padding: 12px 16px;
+    border-radius: 2px;
+  }
+  .plakett b { display: block; font-family: var(--serif); font-size: 20px; color: var(--guld-ljus); }
+  .plakett span { font-size: 12.5px; color: var(--text-dov); }
+
+  /* ----- Bibliotekets hylla ----- */
+  .hylla {
+    position: absolute;
+    right: 5vw; bottom: 11vh;
+    width: clamp(220px, 26vw, 380px);
+  }
+  .bocker-lista { margin-top: 22px; display: grid; gap: 10px; max-width: 560px; }
+  .bok-rad {
+    display: flex;
+    gap: 14px;
+    align-items: baseline;
+    border-bottom: 1px dashed rgba(217,166,74,0.35);
+    padding-bottom: 10px;
+  }
+  .bok-rad b { font-family: var(--serif); font-size: 19px; color: var(--guld-ljus); white-space: nowrap; }
+  .bok-rad span { font-size: 13.5px; color: var(--text-dov); }
+
+  /* ----- Scenens ridåer ----- */
+  .rida { position: absolute; top: 0; bottom: 0; width: 12vw; pointer-events: none; }
+  .rida.v { left: 0; background: repeating-linear-gradient(90deg, #5e1320 0 18px, #7a1c2d 18px 36px); box-shadow: inset -18px 0 30px rgba(0,0,0,0.6); }
+  .rida.h { right: 0; background: repeating-linear-gradient(90deg, #7a1c2d 0 18px, #5e1320 18px 36px); box-shadow: inset 18px 0 30px rgba(0,0,0,0.6); }
+  .spotlight {
+    position: absolute;
+    top: 0; left: 30%;
+    width: 40vw; height: 80vh;
+    background: radial-gradient(45% 60% at 50% 30%, rgba(255,236,190,0.13), transparent 70%);
+    pointer-events: none;
+  }
+  .akter { margin-top: 24px; display: grid; gap: 12px; max-width: 620px; }
+  .akt {
+    display: flex;
+    gap: 16px;
+    align-items: baseline;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(217,166,74,0.35);
+    padding: 14px 18px;
+  }
+  .akt b { font-family: var(--serif); color: var(--guld-ljus); font-size: 18px; white-space: nowrap; }
+  .akt span { font-size: 14px; color: var(--text-dov); }
+
+  /* ----- Träningsrummets tavlor ----- */
+  .tavlor {
+    margin-top: 26px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    max-width: 680px;
+  }
+  .tavla {
+    border: 3px double var(--guld);
+    outline: 1px solid rgba(217,166,74,0.35);
+    outline-offset: 5px;
+    background: rgba(0,0,0,0.28);
+    padding: 18px;
+    transform: rotate(-0.4deg);
+  }
+  .tavla:nth-child(even) { transform: rotate(0.5deg); }
+  .tavla b { font-family: var(--serif); display: block; font-size: 18px; color: var(--guld-ljus); margin-bottom: 6px; }
+  .tavla span { font-size: 13.5px; color: var(--text-dov); line-height: 1.55; }
+
+  /* ----- Utgång ----- */
+  .socials-rad { margin-top: 18px; display: flex; gap: 22px; font-size: 14px; }
+  .socials-rad a { color: var(--guld-ljus); }
+
+  /* ----- Fast UI ----- */
+  .titel-skylt {
+    position: fixed;
+    top: 22px; left: 28px;
+    z-index: 50;
+    font-family: var(--serif);
+    font-size: 15px;
+    color: var(--guld-ljus);
+    letter-spacing: 0.05em;
+  }
+  .titel-skylt small { display: block; font-family: var(--sans); font-size: 10.5px; letter-spacing: 0.3em; color: var(--text-dov); text-transform: uppercase; margin-top: 3px; }
+
+  .scroll-tips {
+    position: fixed;
+    top: 26px; right: 28px;
+    z-index: 50;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dov);
+    animation: blink 2.4s ease-in-out infinite;
+  }
+  @keyframes blink { 50% { opacity: 0.35; } }
+
+  .minimap {
+    position: fixed;
+    bottom: 26px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: rgba(10,6,16,0.7);
+    border: 1px solid rgba(217,166,74,0.5);
+    padding: 10px 16px;
+    border-radius: 999px;
+    backdrop-filter: blur(8px);
+  }
+  .minimap button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px 10px;
+    color: var(--text-dov);
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    position: relative;
+  }
+  .minimap button::before {
+    content: "";
+    display: block;
+    width: 8px; height: 8px;
+    margin: 0 auto 5px;
+    border-radius: 50%;
+    border: 1.5px solid var(--guld);
+    transition: background 0.25s;
+  }
+  .minimap button.aktiv { color: var(--guld-ljus); }
+  .minimap button.aktiv::before { background: var(--guld); box-shadow: 0 0 10px rgba(217,166,74,0.9); }
+
+  /* Dammkorn */
+  .damm { position: fixed; inset: 0; pointer-events: none; z-index: 5; }
+  .damm i {
+    position: absolute;
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: rgba(240,200,126,0.35);
+    animation: sväv 9s linear infinite;
+  }
+  @keyframes sväv {
+    from { transform: translateY(8vh); opacity: 0; }
+    20%, 80% { opacity: 1; }
+    to { transform: translateY(-92vh); opacity: 0; }
+  }
+
+  /* Vinjett */
+  .vinjett {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 40;
+    background: radial-gradient(120% 100% at 50% 45%, transparent 55%, rgba(0,0,0,0.55) 100%);
+  }
+
+  /* ----- Mobil: rummen staplas på höjden ----- */
+  @media (max-width: 820px), (prefers-reduced-motion: reduce) {
+    .spacer { display: none; }
+    .palats { position: static; flex-direction: column; transform: none !important; }
+    .rum { min-width: 100%; height: auto; min-height: 100vh; padding: 14vh 7vw; }
+    .dorr, .trofeer, .hylla { position: static; margin-top: 30px; }
+    .minimap { display: none; }
+    .scroll-tips { display: none; }
+    .tavlor { grid-template-columns: 1fr; }
+    .plakett { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="titel-skylt">Jonas von Essens minnespalats<small>Koncept 1 · Palatset</small></div>
+<div class="scroll-tips">Scrolla för att vandra →</div>
+<div class="vinjett"></div>
+<div class="damm" aria-hidden="true">
+  <i style="left:12%; animation-delay:0s"></i><i style="left:31%; animation-delay:2.2s"></i>
+  <i style="left:55%; animation-delay:4.4s"></i><i style="left:72%; animation-delay:1.1s"></i>
+  <i style="left:88%; animation-delay:5.6s"></i><i style="left:43%; animation-delay:7s"></i>
+</div>
+
+<div class="palats" id="palats">
+
+  <!-- RUM 1: ENTRÉN -->
+  <section class="rum rum-entre" id="rum-0">
+    <div class="ljus"></div>
+    <div class="rum-inner">
+      <p class="rum-nr">Rum I — Entréhallen</p>
+      <h1>Stig in i mitt<br><em>minnespalats.</em></h1>
+      <p class="bröd">
+        Det är så här jag minns 100&nbsp;000 decimaler av π: jag placerar dem i rum som det här.
+        Den här webbplatsen är byggd på samma sätt — varje rum rymmer en del av min historia.
+        Vandra åt höger, så visar jag.
+      </p>
+      <a class="knapp" href="#" data-rum="1">Börja vandringen →</a>
+    </div>
+    <svg class="dorr" viewBox="0 0 200 320" aria-hidden="true">
+      <path d="M30 320 L30 110 Q30 30 100 30 Q170 30 170 110 L170 320" fill="none" stroke="#d9a64a" stroke-width="4"/>
+      <path d="M48 320 L48 118 Q48 50 100 50 Q152 50 152 118 L152 320" fill="rgba(0,0,0,0.35)" stroke="#d9a64a" stroke-width="2.5"/>
+      <line x1="100" y1="50" x2="100" y2="320" stroke="#d9a64a" stroke-width="2.5"/>
+      <circle cx="88" cy="190" r="5" fill="#f0c87e"/>
+      <circle cx="112" cy="190" r="5" fill="#f0c87e"/>
+      <text x="100" y="22" text-anchor="middle" font-family="Georgia,serif" font-size="20" fill="#f0c87e">π</text>
+    </svg>
+  </section>
+
+  <!-- RUM 2: TROFÉSALEN -->
+  <section class="rum rum-trofe" id="rum-1">
+    <div class="ljus"></div>
+    <div class="rum-inner">
+      <p class="rum-nr">Rum II — Trofésalen</p>
+      <h2>Två VM-guld.<br><em>Arton månader.</em></h2>
+      <p class="bröd">
+        2012 kunde jag knappt minnas min flickväns telefonnummer. Sedan hittade jag en bok om
+        minnesteknik på biblioteket. Ett och ett halvt år senare var jag världsmästare i minne —
+        och året därpå försvarade jag titeln.
+      </p>
+      <div class="plakett">
+        <div><b>2013</b><span>VM-guld, London</span></div>
+        <div><b>2014</b><span>VM-guld, Kina</span></div>
+        <div><b>2018</b><span>Guldbuzzer, Talang</span></div>
+        <div><b>2020</b><span>Europarekord: 24&nbsp;063 π-decimaler på 8 h</span></div>
+        <div><b>100 000</b><span>memorerade decimaler av π</span></div>
+        <div><b>500</b><span>namn memorerade på en kväll</span></div>
+      </div>
+    </div>
+    <div class="trofeer" aria-hidden="true">
+      <svg class="trofe" viewBox="0 0 160 220">
+        <path d="M40 30 H120 V70 Q120 110 80 118 Q40 110 40 70 Z" fill="none" stroke="#f0c87e" stroke-width="4"/>
+        <path d="M40 42 Q10 46 16 72 Q22 94 48 92 M120 42 Q150 46 144 72 Q138 94 112 92" fill="none" stroke="#f0c87e" stroke-width="4"/>
+        <path d="M80 118 V150 M58 165 H102 M50 180 H110 V196 H50 Z" stroke="#f0c87e" stroke-width="4" fill="none"/>
+        <text x="80" y="80" text-anchor="middle" font-family="Georgia,serif" font-size="30" fill="#f0c87e">1</text>
+        <text x="80" y="212" text-anchor="middle" font-family="Georgia,serif" font-size="13" fill="#d9a64a">VM 2013</text>
+      </svg>
+      <svg class="trofe" viewBox="0 0 160 220" style="width: clamp(95px, 11vw, 170px)">
+        <path d="M40 30 H120 V70 Q120 110 80 118 Q40 110 40 70 Z" fill="none" stroke="#f0c87e" stroke-width="4"/>
+        <path d="M40 42 Q10 46 16 72 Q22 94 48 92 M120 42 Q150 46 144 72 Q138 94 112 92" fill="none" stroke="#f0c87e" stroke-width="4"/>
+        <path d="M80 118 V150 M58 165 H102 M50 180 H110 V196 H50 Z" stroke="#f0c87e" stroke-width="4" fill="none"/>
+        <text x="80" y="80" text-anchor="middle" font-family="Georgia,serif" font-size="30" fill="#f0c87e">1</text>
+        <text x="80" y="212" text-anchor="middle" font-family="Georgia,serif" font-size="13" fill="#d9a64a">VM 2014</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- RUM 3: BIBLIOTEKET -->
+  <section class="rum rum-bibliotek" id="rum-2">
+    <div class="ljus"></div>
+    <div class="rum-inner">
+      <p class="rum-nr">Rum III — Biblioteket</p>
+      <h2>Allt började<br>med <em>en bok.</em></h2>
+      <p class="bröd">
+        Nu står mina egna här i hyllan. Jag har skrivit dem för att du ska slippa leta
+        som jag fick göra.
+      </p>
+      <div class="bocker-lista">
+        <div class="bok-rad"><b>Så får du ett superminne</b><span>Minnesteknikerna som alla kan använda. För vuxna.</span></div>
+        <div class="bok-rad"><b>Bli ett minnesgeni!</b><span>För alla mellan 5 och 125 år — plugget blir en lek.</span></div>
+        <div class="bok-rad"><b>Pi-boken 2.0</b><span>100&nbsp;000 decimaler, svart på vitt. Ja, hela talet.</span></div>
+      </div>
+      <a class="knapp" href="https://kurs.jonasvonessen.se" target="_blank" rel="noopener">Och kursen: 50+ lektioner →</a>
+    </div>
+    <svg class="hylla" viewBox="0 0 320 300" aria-hidden="true">
+      <rect x="10" y="10" width="300" height="280" fill="none" stroke="#d9a64a" stroke-width="4"/>
+      <line x1="10" y1="105" x2="310" y2="105" stroke="#d9a64a" stroke-width="4"/>
+      <line x1="10" y1="200" x2="310" y2="200" stroke="#d9a64a" stroke-width="4"/>
+      <g fill="rgba(217,166,74,0.25)" stroke="#d9a64a" stroke-width="2">
+        <rect x="30" y="38" width="22" height="67"/><rect x="56" y="30" width="26" height="75"/>
+        <rect x="86" y="44" width="20" height="61"/><rect x="120" y="34" width="24" height="71"/>
+        <rect x="160" y="40" width="22" height="65"/><rect x="200" y="28" width="28" height="77"/>
+        <rect x="240" y="42" width="22" height="63"/>
+        <rect x="40" y="130" width="24" height="70"/><rect x="70" y="138" width="20" height="62"/>
+        <rect x="110" y="126" width="26" height="74"/><rect x="150" y="134" width="22" height="66"/>
+        <rect x="190" y="128" width="24" height="72"/><rect x="230" y="140" width="20" height="60"/>
+        <rect x="36" y="226" width="22" height="64"/><rect x="64" y="234" width="26" height="56"/>
+        <rect x="120" y="222" width="22" height="68"/><rect x="156" y="230" width="24" height="60"/>
+        <rect x="210" y="224" width="22" height="66"/><rect x="250" y="236" width="26" height="54"/>
+      </g>
+    </svg>
+  </section>
+
+  <!-- RUM 4: SCENEN -->
+  <section class="rum rum-scen" id="rum-3">
+    <div class="rida v"></div><div class="rida h"></div>
+    <div class="spotlight"></div>
+    <div class="rum-inner">
+      <p class="rum-nr">Rum IV — Scenen</p>
+      <h2>En föreställning<br>för <em>hjärnan.</em></h2>
+      <p class="bröd">
+        Mina föreläsningar är hälften show, hälften verktygslåda. Publiken får häpna —
+        och gå hem med tekniker de använder dagen därpå.
+      </p>
+      <div class="akter">
+        <div class="akt"><b>Akt I</b><span>Företag &amp; konferenser — namn, siffror och presentationer utan anteckningar.</span></div>
+        <div class="akt"><b>Akt II</b><span>Skolor &amp; utbildning — studieteknik som gör plugget roligare.</span></div>
+        <div class="akt"><b>Akt III</b><span>Skräddarsytt &amp; digitalt — workshops på plats eller online, svenska eller engelska.</span></div>
+      </div>
+      <p class="bröd" style="margin-top:20px; font-size:13px;">Känd från TV4 Talang · SVT · The Brain (kinesisk tv) · Strömsö</p>
+    </div>
+  </section>
+
+  <!-- RUM 5: TRÄNINGSRUMMET -->
+  <section class="rum rum-traning" id="rum-4">
+    <div class="ljus"></div>
+    <div class="rum-inner">
+      <p class="rum-nr">Rum V — Träningsrummet</p>
+      <h2>Fyra tavlor.<br><em>Fyra superkrafter.</em></h2>
+      <div class="tavlor">
+        <div class="tavla"><b>I. Minnespalatset</b><span>Placera det du vill minnas på platser du kan utantill. Du gör det just nu — det är därför du kommer att minnas den här sidan.</span></div>
+        <div class="tavla"><b>II. Tokiga bilder</b><span>Hjärnan minns det absurda. En ko som jonglerar batterier glömmer du aldrig.</span></div>
+        <div class="tavla"><b>III. Repetera smart</b><span>Repetera precis innan du glömmer: efter en dag, en vecka, en månad.</span></div>
+        <div class="tavla"><b>IV. Namnknepet</b><span>Möter du en Rosa — se en ros bakom hennes öra. Så lärde jag mig 500 namn på en kväll.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RUM 6: UTGÅNGEN -->
+  <section class="rum rum-utgang" id="rum-5">
+    <div class="ljus"></div>
+    <div class="rum-inner">
+      <p class="rum-nr">Rum VI — Utgången (eller ingången?)</p>
+      <h2>Nu känner du palatset.<br><em>Du glömmer det inte.</em></h2>
+      <p class="bröd">
+        Vill du ha den här känslan på din konferens, din skola eller ditt företag?
+        Skriv en rad — jag glömmer garanterat inte bort dig.
+      </p>
+      <a class="knapp" href="mailto:hej@jonasvonessen.se?subject=Förfrågan%20föreläsning">Boka en föreläsning</a>
+      <div class="socials-rad">
+        <a href="https://www.instagram.com/jonasvonessen/" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://www.youtube.com/@BlueberryClubSparven" target="_blank" rel="noopener">YouTube</a>
+        <a href="https://www.facebook.com/jonasvonessenmemorychampion/" target="_blank" rel="noopener">Facebook</a>
+      </div>
+    </div>
+    <svg class="dorr" viewBox="0 0 200 320" aria-hidden="true">
+      <path d="M30 320 L30 110 Q30 30 100 30 Q170 30 170 110 L170 320" fill="none" stroke="#d9a64a" stroke-width="4"/>
+      <path d="M48 320 L48 118 Q48 50 100 50 Q152 50 152 118 L152 320" fill="rgba(240,200,126,0.12)" stroke="#d9a64a" stroke-width="2.5"/>
+      <circle cx="135" cy="190" r="5" fill="#f0c87e"/>
+      <text x="100" y="180" text-anchor="middle" font-family="Georgia,serif" font-size="15" fill="#f0c87e">PÅ ÅTERSEENDE</text>
+    </svg>
+  </section>
+</div>
+
+<div class="spacer" id="spacer"></div>
+
+<nav class="minimap" aria-label="Rumsnavigering">
+  <button data-rum="0" class="aktiv">Entré</button>
+  <button data-rum="1">Troféer</button>
+  <button data-rum="2">Bibliotek</button>
+  <button data-rum="3">Scen</button>
+  <button data-rum="4">Träning</button>
+  <button data-rum="5">Utgång</button>
+</nav>
+
+<script>
+(function () {
+  "use strict";
+  var palats = document.getElementById("palats");
+  var ANTAL_RUM = 6;
+  var mobil = window.matchMedia("(max-width: 820px)");
+  var stilla = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var knappar = Array.prototype.slice.call(document.querySelectorAll("[data-rum]"));
+
+  function horisontellt() { return !mobil.matches && !stilla.matches; }
+
+  function uppdatera() {
+    if (!horisontellt()) return;
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    var p = max > 0 ? window.scrollY / max : 0;
+    var världsbredd = palats.scrollWidth - window.innerWidth;
+    palats.style.transform = "translateX(" + (-p * världsbredd) + "px)";
+    var aktivt = Math.min(ANTAL_RUM - 1, Math.round(p * (ANTAL_RUM - 1)));
+    knappar.forEach(function (k) {
+      if (k.classList.contains("aktiv") !== (+k.dataset.rum === aktivt)) {
+        k.classList.toggle("aktiv", +k.dataset.rum === aktivt);
+      }
+    });
+  }
+
+  function gåTill(index) {
+    if (horisontellt()) {
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      window.scrollTo({ top: (index / (ANTAL_RUM - 1)) * max, behavior: "smooth" });
+    } else {
+      var rum = document.getElementById("rum-" + index);
+      if (rum) rum.scrollIntoView({ behavior: "smooth" });
+    }
+  }
+
+  knappar.forEach(function (k) {
+    k.addEventListener("click", function (e) {
+      e.preventDefault();
+      gåTill(+k.dataset.rum);
+    });
+  });
+
+  window.addEventListener("scroll", uppdatera, { passive: true });
+  window.addEventListener("resize", uppdatera);
+  uppdatera();
+})();
+</script>
+</body>
+</html>

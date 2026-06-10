@@ -33,6 +33,20 @@ webbläsare så är du igång.
 4. **Sociala länkar** — kontrollera att Instagram/YouTube/Facebook-länkarna i
    kontaktsektionen stämmer.
 
+## Konceptversioner
+
+I `versioner/` ligger fem helt olika, fristående konceptversioner av sajten,
+plus ett galleri (`versioner/index.html`) som länkar till alla:
+
+1. **Minnespalatset** — vandra i sidled genom palatsets rum
+2. **Resan genom π** — scrolla genom 100 000 decimaler med positionsmätare
+   (decimalerna beräknas live med Gibbons spigot-algoritm)
+3. **JonasOS 3.14** — hjärnan som retro-OS med dragbara fönster
+4. **Sidan som glömmer** — texten bleknar tills besökaren repeterar
+5. **Varietéaffischen** — sekelskiftescirkus med ridå och glödlampor
+
+Varje fil är självständig (HTML + CSS + JS i ett) och kan öppnas direkt.
+
 ## Cache-busting
 
 `index.html` länkar CSS/JS med en versionsparameter (`css/style.css?v=2`).

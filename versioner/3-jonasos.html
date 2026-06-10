@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JonasOS 3.14 — Jonas von Essen (koncept 3)</title>
+<meta name="description" content="Konceptversion: Jonas hjärna som retro-operativsystem.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bla: #000082;
+    --bla2: #1084d0;
+    --gra: #c0c0c0;
+    --gra-mork: #808080;
+    --gra-ljus: #ffffff;
+    --skrivbord: #027f7c;
+    --ui: 13px/1.45 "Tahoma", "Geneva", "Segoe UI", sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font: var(--ui);
+    background:
+      repeating-conic-gradient(rgba(0,0,0,0.08) 0% 25%, transparent 0% 50%) 0 0 / 4px 4px,
+      var(--skrivbord);
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* ---------- Bevels ---------- */
+  .upphöjd {
+    background: var(--gra);
+    border: 2px solid;
+    border-color: var(--gra-ljus) var(--gra-mork) var(--gra-mork) var(--gra-ljus);
+    box-shadow: 1px 1px 0 #000;
+  }
+  .nedsänkt {
+    background: #fff;
+    border: 2px solid;
+    border-color: var(--gra-mork) var(--gra-ljus) var(--gra-ljus) var(--gra-mork);
+  }
+
+  /* ---------- Boot ---------- */
+  #boot {
+    position: fixed; inset: 0;
+    background: #000;
+    color: #2bff7e;
+    font-family: "VT323", monospace;
+    font-size: clamp(17px, 2.4vw, 24px);
+    padding: 6vh 7vw;
+    z-index: 9999;
+    cursor: pointer;
+    line-height: 1.7;
+  }
+  #boot .rad { display: none; white-space: pre-wrap; }
+  #boot .rad.syns { display: block; }
+  #boot .hoppa { position: absolute; bottom: 4vh; right: 6vw; opacity: 0.6; font-size: 0.8em; }
+
+  /* ---------- Menyrad ---------- */
+  .menyrad {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 30px;
+    z-index: 5000;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 10px;
+    font-weight: 400;
+  }
+  .menyrad .pi-logo { font-family: Georgia, serif; font-weight: 700; font-size: 17px; padding: 0 10px; }
+  .menyrad span.post { padding: 3px 10px; cursor: default; }
+  .menyrad span.post:hover { background: var(--bla); color: #fff; }
+  .menyrad .höger { margin-left: auto; display: flex; gap: 14px; font-size: 12px; align-items: center; }
+
+  /* ---------- Ikoner ---------- */
+  .ikoner {
+    position: fixed;
+    top: 46px; left: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    z-index: 10;
+  }
+  .ikon {
+    width: 96px;
+    text-align: center;
+    cursor: pointer;
+  }
+  .ikon .glyf {
+    width: 52px; height: 44px;
+    margin: 0 auto 5px;
+    display: grid;
+    place-items: center;
+    background: #e8e8e8;
+    border: 2px solid;
+    border-color: var(--gra-ljus) var(--gra-mork) var(--gra-mork) var(--gra-ljus);
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.45);
+  }
+  .ikon .glyf svg { width: 32px; height: 30px; }
+  .ikon .namn {
+    display: inline-block;
+    color: #fff;
+    background: rgba(0,0,0,0.25);
+    padding: 1px 5px;
+    font-size: 12px;
+  }
+  .ikon:hover .namn { background: var(--bla); }
+
+  /* ---------- Fönster ---------- */
+  .fonster {
+    position: fixed;
+    width: 460px;
+    max-width: 94vw;
+    z-index: 100;
+    display: none;
+    flex-direction: column;
+  }
+  .fonster.öppet { display: flex; }
+  .titelrad {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 6px;
+    background: linear-gradient(90deg, #5a5a66, #9a9aa6);
+    color: #fff;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: grab;
+  }
+  .fonster.fokus .titelrad { background: linear-gradient(90deg, var(--bla), var(--bla2)); }
+  .titelrad .t-ikon { font-family: Georgia, serif; }
+  .titelrad .stäng {
+    margin-left: auto;
+    width: 20px; height: 18px;
+    display: grid; place-items: center;
+    font-size: 11px; font-weight: 700;
+    color: #000;
+    cursor: pointer;
+  }
+  .innehåll {
+    background: #fff;
+    border-top: 0;
+    padding: 16px;
+    font-size: 13px;
+    max-height: 62vh;
+    overflow: auto;
+    user-select: text;
+  }
+  .innehåll h1 { font-size: 16px; margin-bottom: 10px; }
+  .innehåll p { margin-bottom: 10px; }
+  .innehåll .grå { color: #555; }
+  .statuslist {
+    border-top: 2px solid var(--gra-mork);
+    background: var(--gra);
+    padding: 3px 8px;
+    font-size: 11px;
+    color: #333;
+  }
+
+  /* Fil-listor */
+  .fil-lista { border: 0; }
+  .fil-rad {
+    display: grid;
+    grid-template-columns: 26px 1fr auto;
+    gap: 8px;
+    padding: 5px 6px;
+    border-bottom: 1px dotted #bbb;
+    align-items: center;
+  }
+  .fil-rad:hover { background: var(--bla); color: #fff; }
+  .fil-rad:hover .grå { color: #d6e4ff; }
+  .fil-rad .f-ikon { font-family: Georgia, serif; text-align: center; }
+
+  /* Knappar */
+  .knapp95 {
+    font: var(--ui);
+    font-size: 13px;
+    padding: 5px 18px;
+    background: var(--gra);
+    border: 2px solid;
+    border-color: var(--gra-ljus) var(--gra-mork) var(--gra-mork) var(--gra-ljus);
+    box-shadow: 1px 1px 0 #000;
+    cursor: pointer;
+  }
+  .knapp95:active { border-color: var(--gra-mork) var(--gra-ljus) var(--gra-ljus) var(--gra-mork); }
+
+  .falt { width: 100%; font: var(--ui); padding: 5px 7px; margin: 3px 0 10px; }
+
+  /* π-data */
+  .pi-data {
+    font-family: "Courier New", monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    word-break: break-all;
+    padding: 10px;
+    background: #fff;
+  }
+  .pi-data b { background: #ffec99; }
+
+  /* RAM-mätare */
+  .ram-mätare { display: flex; align-items: center; gap: 6px; }
+  .ram-stapel {
+    width: 90px; height: 12px;
+    border: 1px solid #555;
+    background: #fff;
+    overflow: hidden;
+  }
+  .ram-stapel i {
+    display: block;
+    height: 100%;
+    width: 100%;
+    background: repeating-linear-gradient(90deg, var(--bla) 0 6px, var(--bla2) 6px 12px);
+  }
+
+  /* Statusfält nere */
+  .aktivitetsfält {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 34px;
+    z-index: 5000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+  .aktivitetsfält .start { font-weight: 700; padding: 3px 12px; cursor: default; }
+
+  @media (max-width: 700px) {
+    .fonster { left: 3vw !important; top: 12vh !important; right: 3vw; width: auto; }
+    .ikoner { flex-direction: row; flex-wrap: wrap; left: 8px; right: 8px; gap: 6px; }
+    .ikon { width: 78px; }
+    .menyrad span.post { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- BOOT -->
+<div id="boot" title="Klicka för att hoppa över">
+  <div class="rad">JonasOS 3.14 — bygge 1991-04-24 (Skövde)</div>
+  <div class="rad">Minnestest: 100 000 / 100 000 decimaler ........ OK</div>
+  <div class="rad">Kontrollerar hippocampus ....................... OK</div>
+  <div class="rad">Monterar minnespalats (6 rum) .................. OK</div>
+  <div class="rad">Söker efter glömda filer ....................... 0 hittades</div>
+  <div class="rad">Laddar VM-guld (2 st) .......................... OK</div>
+  <div class="rad">Startar skrivbordet ...</div>
+  <div class="hoppa">[klicka för att hoppa över]</div>
+</div>
+
+<!-- MENYRAD -->
+<header class="menyrad upphöjd">
+  <span class="pi-logo">π</span>
+  <span class="post">Arkiv</span>
+  <span class="post">Redigera</span>
+  <span class="post">Minne</span>
+  <span class="post">Hjälp</span>
+  <div class="höger">
+    <span class="ram-mätare">RAM <span class="ram-stapel"><i></i></span> 100 000/100 000</span>
+    <span id="klocka">--:--</span>
+  </div>
+</header>
+
+<!-- IKONER -->
+<nav class="ikoner">
+  <div class="ikon" data-öppna="f-valkommen">
+    <div class="glyf"><svg viewBox="0 0 32 30"><rect x="5" y="2" width="22" height="26" fill="#fff" stroke="#000" stroke-width="2"/><line x1="9" y1="9" x2="23" y2="9" stroke="#000" stroke-width="2"/><line x1="9" y1="14" x2="23" y2="14" stroke="#000" stroke-width="2"/><line x1="9" y1="19" x2="18" y2="19" stroke="#000" stroke-width="2"/></svg></div>
+    <span class="namn">välkommen.txt</span>
+  </div>
+  <div class="ikon" data-öppna="f-forelasningar">
+    <div class="glyf"><svg viewBox="0 0 32 30"><rect x="3" y="4" width="26" height="22" fill="#fff" stroke="#000" stroke-width="2"/><rect x="3" y="4" width="26" height="6" fill="#000082"/><circle cx="16" cy="19" r="4" fill="none" stroke="#000" stroke-width="2"/></svg></div>
+    <span class="namn">Föreläsningar.app</span>
+  </div>
+  <div class="ikon" data-öppna="f-bokhyllan">
+    <div class="glyf"><svg viewBox="0 0 32 30"><path d="M4 4 H15 Q17 6 17 8 V26 H4 Z M28 4 H17 V26 H28 Z" fill="#ffe9a8" stroke="#000" stroke-width="2"/><line x1="17" y1="8" x2="17" y2="26" stroke="#000" stroke-width="2"/></svg></div>
+    <span class="namn">Bokhyllan</span>
+  </div>
+  <div class="ikon" data-öppna="f-minnestips">
+    <div class="glyf"><svg viewBox="0 0 32 30"><circle cx="16" cy="15" r="12" fill="#fff" stroke="#000" stroke-width="2"/><text x="16" y="21" text-anchor="middle" font-size="16" font-family="Georgia" font-weight="bold">?</text></svg></div>
+    <span class="namn">minnestips.hlp</span>
+  </div>
+  <div class="ikon" data-öppna="f-pi">
+    <div class="glyf"><svg viewBox="0 0 32 30"><rect x="5" y="2" width="22" height="26" fill="#fff" stroke="#000" stroke-width="2"/><text x="16" y="21" text-anchor="middle" font-size="15" font-family="Georgia" font-weight="bold">π</text></svg></div>
+    <span class="namn">π.dat</span>
+  </div>
+  <div class="ikon" data-öppna="f-boka">
+    <div class="glyf"><svg viewBox="0 0 32 30"><rect x="3" y="6" width="26" height="18" fill="#fff" stroke="#000" stroke-width="2"/><path d="M3 6 L16 17 L29 6" fill="none" stroke="#000" stroke-width="2"/></svg></div>
+    <span class="namn">Boka.exe</span>
+  </div>
+  <div class="ikon" data-öppna="f-korg">
+    <div class="glyf"><svg viewBox="0 0 32 30"><path d="M8 8 H24 L22 27 H10 Z" fill="#fff" stroke="#000" stroke-width="2"/><line x1="5" y1="8" x2="27" y2="8" stroke="#000" stroke-width="2"/><rect x="13" y="3" width="6" height="4" fill="#fff" stroke="#000" stroke-width="2"/></svg></div>
+    <span class="namn">Papperskorgen</span>
+  </div>
+</nav>
+
+<!-- FÖNSTER -->
+<section class="fonster" id="f-valkommen" style="left:max(130px,18vw); top:70px">
+  <div class="titelrad upphöjd"><span class="t-ikon">▤</span> välkommen.txt <span class="stäng upphöjd">✕</span></div>
+  <div class="innehåll nedsänkt">
+    <h1>LÄS MIG FÖRST</h1>
+    <p>Hej! Du har startat <b>JonasOS</b> — operativsystemet i Jonas von Essens huvud.</p>
+    <p>För fjorton år sedan kraschade det här systemet ständigt: glömda namn, borttappade
+    nycklar, telefonnummer som aldrig fastnade. Sedan installerades en uppgradering:
+    <b>minnesteknik</b>.</p>
+    <p>Numera kör systemet två VM-guld i minne (2013, 2014), 100 000 decimaler av π,
+    500 namn på en kväll i TV4:s Talang och hundratals valnötter i kinesisk tv —
+    utan en enda krasch sedan 2012.</p>
+    <p class="grå">Tips: dubbla VM-guld hittar du i Arkiv → Troféer. Eller klicka runt
+    bland ikonerna — allt går att öppna, inget går att glömma.</p>
+  </div>
+  <div class="statuslist">82 ord · senast ändrad: aldrig (glöms ej)</div>
+</section>
+
+<section class="fonster" id="f-forelasningar" style="left:max(180px,24vw); top:110px">
+  <div class="titelrad upphöjd"><span class="t-ikon">▣</span> Föreläsningar.app <span class="stäng upphöjd">✕</span></div>
+  <div class="innehåll nedsänkt">
+    <h1>Välj program att köra:</h1>
+    <div class="fil-lista">
+      <div class="fil-rad"><span class="f-ikon">▸</span><span><b>foretag_konferens.exe</b><br><span class="grå">Namn, siffror och presentationer utan anteckningar. En energiboost med verktyg som sitter kvar.</span></span><span class="grå">45–90 min</span></div>
+      <div class="fil-rad"><span class="f-ikon">▸</span><span><b>skola_utbildning.exe</b><br><span class="grå">Studieteknik som gör plugget roligare — för elever, lärare och föräldrar.</span></span><span class="grå">45–90 min</span></div>
+      <div class="fil-rad"><span class="f-ikon">▸</span><span><b>skraddarsytt.bat</b><br><span class="grå">Workshops och utbildningar — fysiskt eller digitalt, svenska eller engelska.</span></span><span class="grå">valfri</span></div>
+    </div>
+    <p style="margin-top:12px"><button class="knapp95" data-öppna="f-boka">Kör Boka.exe</button></p>
+    <p class="grå">Systemkrav: en publik. Känd från TV4 Talang, SVT, The Brain (Kina), Strömsö.</p>
+  </div>
+  <div class="statuslist">3 program · 0 virus · 100 % skratt-kompatibel</div>
+</section>
+
+<section class="fonster" id="f-bokhyllan" style="left:max(220px,30vw); top:150px">
+  <div class="titelrad upphöjd"><span class="t-ikon">❐</span> Bokhyllan <span class="stäng upphöjd">✕</span></div>
+  <div class="innehåll nedsänkt">
+    <div class="fil-lista">
+      <div class="fil-rad"><span class="f-ikon">📖</span><span><b>sa_far_du_ett_superminne.bok</b><br><span class="grå">Minnesteknikerna som alla kan använda. För vuxna.</span></span><span class="grå">2018</span></div>
+      <div class="fil-rad"><span class="f-ikon">📖</span><span><b>bli_ett_minnesgeni.bok</b><br><span class="grå">För alla mellan 5 och 125 år. Plugget blir en lek.</span></span><span class="grå">2019</span></div>
+      <div class="fil-rad"><span class="f-ikon">📖</span><span><b>pi_boken_2.0.bok</b><br><span class="grå">100 000 decimaler av π. Hela talet. Svart på vitt.</span></span><span class="grå">∞</span></div>
+    </div>
+    <p style="margin-top:12px"><a href="https://kurs.jonasvonessen.se" target="_blank" rel="noopener"><button class="knapp95">Öppna kurs.jonasvonessen.se →</button></a> <span class="grå">(50+ lektioner, video + övningar)</span></p>
+  </div>
+  <div class="statuslist">3 objekt · 100 312 sidor totalt</div>
+</section>
+
+<section class="fonster" id="f-minnestips" style="left:max(160px,22vw); top:190px">
+  <div class="titelrad upphöjd"><span class="t-ikon">?</span> Hjälp: minnestips.hlp <span class="stäng upphöjd">✕</span></div>
+  <div class="innehåll nedsänkt">
+    <h1>Vanliga frågor (och hemligheterna)</h1>
+    <p><b>F: Hur minns man 100 000 decimaler?</b><br>S: Med ett <i>minnespalats</i> — placera det du vill minnas på platser du kan utantill. Hjärnan är byggd för platser.</p>
+    <p><b>F: Varför glömmer jag namn direkt?</b><br>S: För att de är abstrakta. Koppla namnet till en bild: Rosa? En ros bakom örat. Så lärde sig Jonas 500 namn på en kväll.</p>
+    <p><b>F: Hur slipper jag plugga om allt?</b><br>S: Repetera <i>precis innan du glömmer</i>: efter en dag, en vecka, en månad.</p>
+    <p><b>F: Måste man vara smart?</b><br>S: Nej. Jonas kunde inte minnas ett telefonnummer 2012. Arton månader senare var han världsmästare. Teknik, inte talang.</p>
+  </div>
+  <div class="statuslist">minnestips.hlp · 4 av 4 frågor besvarade</div>
+</section>
+
+<section class="fonster" id="f-pi" style="left:max(260px,34vw); top:90px">
+  <div class="titelrad upphöjd"><span class="t-ikon">π</span> π.dat — skrivskyddad <span class="stäng upphöjd">✕</span></div>
+  <div class="innehåll nedsänkt pi-data" id="pi-text">3,</div>
+  <div class="statuslist">visar <span id="pi-antal">0</span> av 100 000 poster · resten finns i Jonas huvud</div>
+</section>
+
+<section class="fonster" id="f-boka" style="left:max(200px,28vw); top:130px">
+  <div class="titelrad upphöjd"><span class="t-ikon">✉</span> Boka.exe <span class="stäng upphöjd">✕</span></div>
+  <div class="innehåll nedsänkt">
+    <h1>Boka en föreläsning</h1>
+    <form id="boka-form">
+      <label>Ditt namn<br><input class="falt nedsänkt" name="namn" required></label>
+      <label>Vad gäller det?<br><input class="falt nedsänkt" name="amne" placeholder="t.ex. konferens i oktober, 200 personer"></label>
+      <button class="knapp95" type="submit">Skicka förfrågan</button>
+      <span class="grå" style="margin-left:8px">öppnar ditt e-postprogram</span>
+    </form>
+    <p class="grå" style="margin-top:12px">Eller följ: <a href="https://www.instagram.com/jonasvonessen/" target="_blank" rel="noopener">Instagram</a> ·
+    <a href="https://www.youtube.com/@BlueberryClubSparven" target="_blank" rel="noopener">YouTube</a> ·
+    <a href="https://www.facebook.com/jonasvonessenmemorychampion/" target="_blank" rel="noopener">Facebook</a></p>
+  </div>
+  <div class="statuslist">svarstid: snabb · risk att bli bortglömd: 0 %</div>
+</section>
+
+<section class="fonster" id="f-korg" style="left:max(240px,32vw); top:170px">
+  <div class="titelrad upphöjd"><span class="t-ikon">🗑</span> Papperskorgen <span class="stäng upphöjd">✕</span></div>
+  <div class="innehåll nedsänkt" style="text-align:center; padding:34px 16px">
+    <p style="font-size:30px">🗑️</p>
+    <p><b>Papperskorgen är tom.</b></p>
+    <p class="grå">Ingenting har glömts sedan 2012-08-14.</p>
+  </div>
+  <div class="statuslist">0 objekt · 0 byte</div>
+</section>
+
+<!-- AKTIVITETSFÄLT -->
+<footer class="aktivitetsfält upphöjd">
+  <span class="start upphöjd">π Start</span>
+  <span>JonasOS 3.14</span>
+  <span class="grå">·</span>
+  <span>Drifttid utan glömska: <b id="drifttid">5 100 dagar</b></span>
+  <span style="margin-left:auto" id="boot-om" class="grå">starta om = klicka här</span>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- Boot-sekvens ---------- */
+  var boot = document.getElementById("boot");
+  var rader = boot.querySelectorAll(".rad");
+  var i = 0;
+  var bootTimer = setInterval(function () {
+    if (i < rader.length) { rader[i].classList.add("syns"); i++; }
+    else { clearInterval(bootTimer); setTimeout(stängBoot, 500); }
+  }, 380);
+  function stängBoot() { boot.style.display = "none"; }
+  boot.addEventListener("click", function () { clearInterval(bootTimer); stängBoot(); });
+  document.getElementById("boot-om").addEventListener("click", function () { location.reload(); });
+
+  /* ---------- Fönsterhanterare ---------- */
+  var z = 200;
+  function fokusera(f) {
+    document.querySelectorAll(".fonster").forEach(function (x) { x.classList.remove("fokus"); });
+    f.classList.add("fokus");
+    f.style.zIndex = ++z;
+  }
+  function öppna(id) {
+    var f = document.getElementById(id);
+    if (!f) return;
+    f.classList.add("öppet");
+    fokusera(f);
+  }
+  document.querySelectorAll("[data-öppna]").forEach(function (k) {
+    k.addEventListener("click", function () { öppna(k.dataset.öppna); });
+  });
+  document.querySelectorAll(".fonster").forEach(function (f) {
+    f.addEventListener("pointerdown", function () { fokusera(f); });
+    f.querySelector(".stäng").addEventListener("click", function (e) {
+      e.stopPropagation();
+      f.classList.remove("öppet");
+    });
+    /* Dra i titelraden */
+    var titel = f.querySelector(".titelrad");
+    titel.addEventListener("pointerdown", function (e) {
+      if (e.target.classList.contains("stäng")) return;
+      if (window.matchMedia("(max-width: 700px)").matches) return;
+      var startX = e.clientX - f.offsetLeft;
+      var startY = e.clientY - f.offsetTop;
+      function flytta(ev) {
+        f.style.left = Math.max(0, Math.min(window.innerWidth - 120, ev.clientX - startX)) + "px";
+        f.style.top = Math.max(32, Math.min(window.innerHeight - 80, ev.clientY - startY)) + "px";
+      }
+      function släpp() {
+        document.removeEventListener("pointermove", flytta);
+        document.removeEventListener("pointerup", släpp);
+      }
+      document.addEventListener("pointermove", flytta);
+      document.addEventListener("pointerup", släpp);
+      e.preventDefault();
+    });
+  });
+
+  /* Öppna välkomstfönstret efter boot */
+  setTimeout(function () { öppna("f-valkommen"); }, 380 * rader.length + 900);
+
+  /* ---------- π.dat: strömma in decimaler ---------- */
+  var PI100 = "1415926535897932384626433832795028841971" +
+              "6939937510582097494459230781640628620899" +
+              "86280348253421170679";
+  var piText = document.getElementById("pi-text");
+  var piAntal = document.getElementById("pi-antal");
+  var pi = 0;
+  setInterval(function () {
+    if (pi >= PI100.length) return;
+    piText.textContent += PI100[pi];
+    pi++;
+    piAntal.textContent = pi;
+    if (pi === PI100.length) piText.innerHTML += ' <b>… och 99 900 till (de får inte plats i fönstret, men de får plats i huvudet)</b>';
+  }, 60);
+
+  /* ---------- Klocka & drifttid ---------- */
+  function klocka() {
+    var nu = new Date();
+    document.getElementById("klocka").textContent =
+      String(nu.getHours()).padStart(2, "0") + ":" + String(nu.getMinutes()).padStart(2, "0");
+  }
+  klocka();
+  setInterval(klocka, 20000);
+  var dagar = Math.floor((Date.now() - new Date("2012-08-14").getTime()) / 86400000);
+  document.getElementById("drifttid").textContent = dagar.toLocaleString("sv-SE") + " dagar";
+
+  /* ---------- Boka.exe ---------- */
+  document.getElementById("boka-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var d = new FormData(e.target);
+    location.href = "mailto:hej@jonasvonessen.se?subject=" +
+      encodeURIComponent("Förfrågan: " + (d.get("amne") || "föreläsning")) +
+      "&body=" + encodeURIComponent("Hälsningar " + (d.get("namn") || ""));
+  });
+})();
+</script>
+</body>
+</html>

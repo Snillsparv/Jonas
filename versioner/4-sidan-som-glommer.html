@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sidan som glömmer — Jonas von Essen (koncept 4)</title>
+<meta name="description" content="Konceptversion: en webbplats som glömmer sitt eget innehåll — tills du repeterar.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,900;1,9..144,300;1,9..144,600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --papper: #f7f1e5;
+    --bläck: #1b1610;
+    --grå: #6e645a;
+    --stämpel: #b3372b;
+    --guld: #8a6f24;
+    --serif: "Fraunces", Georgia, serif;
+    --sans: "Inter", system-ui, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--papper);
+    color: var(--bläck);
+    font-family: var(--serif);
+    line-height: 1.7;
+  }
+  /* Pappersådring */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    opacity: 0.4;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.5 0 0 0 0 0.42 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23p)'/%3E%3C/svg%3E");
+  }
+
+  main { max-width: 740px; margin: 0 auto; padding: 0 26px; }
+
+  /* ---------- Mätaren ---------- */
+  .mätare {
+    position: fixed;
+    top: 18px; right: 18px;
+    z-index: 100;
+    width: 158px;
+    background: var(--papper);
+    border: 1.5px solid var(--bläck);
+    box-shadow: 4px 4px 0 rgba(27,22,16,0.2);
+    padding: 12px 14px;
+    font-family: var(--sans);
+  }
+  .mätare .rubrik { font-size: 9.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--grå); }
+  .mätare .värde { font-family: var(--serif); font-size: 34px; font-weight: 900; line-height: 1.1; }
+  .mätare .stapel { height: 7px; border: 1px solid var(--bläck); margin: 6px 0; }
+  .mätare .stapel i { display: block; height: 100%; background: var(--stämpel); width: 100%; transition: width 0.5s, background 0.5s; }
+  .mätare .lång { font-size: 10.5px; color: var(--grå); }
+  body.teknik .mätare .stapel i { background: #2e7d44; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 16vh 0 10vh; border-bottom: 1.5px solid var(--bläck); }
+  .hero .övertitel { font-family: var(--sans); font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--stämpel); margin-bottom: 26px; }
+  h1 {
+    font-size: clamp(42px, 7.5vw, 84px);
+    font-weight: 900;
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+  }
+  h1 em { font-style: italic; font-weight: 300; }
+  .hero .ingress { margin-top: 30px; font-size: clamp(17px, 2.2vw, 21px); max-width: 560px; color: #3d362d; }
+  .hero .instruktion {
+    margin-top: 30px;
+    font-family: var(--sans);
+    font-size: 13.5px;
+    color: var(--grå);
+    border-left: 3px solid var(--stämpel);
+    padding-left: 14px;
+    max-width: 480px;
+  }
+
+  /* ---------- Strömbrytaren ---------- */
+  .brytare {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 34px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    border: 1.5px solid var(--bläck);
+    padding: 12px 18px;
+    background: #fff;
+    box-shadow: 4px 4px 0 rgba(27,22,16,0.18);
+    user-select: none;
+  }
+  .brytare .spår {
+    width: 46px; height: 24px;
+    border: 1.5px solid var(--bläck);
+    border-radius: 999px;
+    position: relative;
+    background: #e8ded0;
+    transition: background 0.3s;
+  }
+  .brytare .knopp {
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 17px; height: 17px;
+    border-radius: 50%;
+    background: var(--bläck);
+    transition: left 0.25s;
+  }
+  body.teknik .brytare .spår { background: #b9dcc1; }
+  body.teknik .brytare .knopp { left: 24px; }
+  .brytare .av-på::after { content: "AV"; color: var(--stämpel); }
+  body.teknik .brytare .av-på::after { content: "PÅ"; color: #2e7d44; }
+
+  /* ---------- Sektioner ---------- */
+  section.minne { padding: 9vh 0 6vh; border-bottom: 1px solid rgba(27,22,16,0.25); position: relative; }
+  .kapitel {
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--grå);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .kapitel .status { color: var(--stämpel); }
+  section.förevigad .kapitel .status { color: var(--guld); }
+  h2 { font-size: clamp(28px, 4.4vw, 46px); font-weight: 900; line-height: 1.1; margin-bottom: 22px; }
+  h2 em { font-style: italic; font-weight: 300; }
+  .minne p.glömbar { font-size: 17px; max-width: 620px; margin-bottom: 16px; color: #2b251d; }
+
+  .ord { transition: opacity 0.9s ease, filter 0.9s ease; }
+  .ord.blek { opacity: 0.07; filter: blur(2px); }
+
+  /* Stämpeln */
+  .repetera {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--stämpel);
+    background: none;
+    border: 2.5px solid var(--stämpel);
+    border-radius: 4px;
+    padding: 10px 20px;
+    margin-top: 14px;
+    cursor: pointer;
+    transform: rotate(-2deg);
+    transition: transform 0.15s, background 0.2s;
+  }
+  .repetera:hover { transform: rotate(-2deg) scale(1.05); background: rgba(179,55,43,0.07); }
+  .repetera:active { transform: rotate(-2deg) scale(0.96); }
+  .repetera small { display: block; font-size: 9px; letter-spacing: 0.1em; opacity: 0.7; }
+  section.förevigad .repetera { border-color: var(--guld); color: var(--guld); cursor: default; transform: rotate(0); }
+
+  section.förevigad { border-left: 4px solid var(--guld); padding-left: 22px; margin-left: -26px; }
+
+  /* ---------- Kontakt ---------- */
+  .kontakt { padding: 10vh 0 8vh; text-align: left; }
+  .kontakt .stor-cta {
+    display: inline-block;
+    font-family: var(--serif);
+    font-size: clamp(20px, 3vw, 28px);
+    font-weight: 600;
+    color: var(--papper);
+    background: var(--bläck);
+    text-decoration: none;
+    padding: 18px 34px;
+    margin-top: 22px;
+    box-shadow: 6px 6px 0 rgba(179,55,43,0.85);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .kontakt .stor-cta:hover { transform: translate(-2px,-2px); box-shadow: 9px 9px 0 rgba(179,55,43,0.85); }
+  .kontakt .alternativ { margin-top: 22px; font-family: var(--sans); font-size: 13.5px; color: var(--grå); }
+  .kontakt .alternativ a { color: var(--bläck); }
+
+  footer {
+    padding: 40px 26px 60px;
+    text-align: center;
+    font-style: italic;
+    color: var(--grå);
+    font-size: 15px;
+  }
+
+  /* Marginalanteckningar */
+  .marginal {
+    position: absolute;
+    right: -195px;
+    top: 110px;
+    width: 160px;
+    font-style: italic;
+    font-size: 13.5px;
+    color: var(--grå);
+    transform: rotate(1.2deg);
+    border-top: 1px solid rgba(27,22,16,0.3);
+    padding-top: 8px;
+  }
+  @media (max-width: 1180px) { .marginal { display: none; } }
+  @media (max-width: 640px) {
+    .mätare { width: 128px; padding: 9px 11px; }
+    .mätare .värde { font-size: 26px; }
+    section.förevigad { margin-left: -10px; padding-left: 6px; }
+  }
+</style>
+</head>
+<body>
+
+<aside class="mätare" aria-live="polite">
+  <p class="rubrik">Minnesstyrka</p>
+  <p class="värde"><span id="styrka">100</span>%</p>
+  <div class="stapel"><i id="stapel"></i></div>
+  <p class="lång"><span id="antal-lång">0</span>/5 i långtidsminnet</p>
+</aside>
+
+<main>
+  <header class="hero">
+    <p class="övertitel">Jonas von Essen · Tvåfaldig världsmästare i minne</p>
+    <h1>Det här är sidan<br>som <em>glömmer.</em></h1>
+    <p class="ingress">
+      Precis som din hjärna. Medan du läser kommer texten härunder att blekna bort,
+      ord för ord — exakt som dina minnen gör varje dag.
+    </p>
+    <p class="instruktion">
+      <strong>Så här gör du:</strong> när en sektion börjar blekna, tryck på
+      <span style="color:var(--stämpel); font-weight:600">REPETERA</span>.
+      Repetera samma sektion två gånger så fastnar den i långtidsminnet — för alltid.
+      Det är så riktiga minnen fungerar. Jonas lär dig resten.
+    </p>
+    <div class="brytare" id="brytare" role="switch" aria-checked="false" tabindex="0">
+      Minnesteknik: <span class="av-på"></span>
+      <span class="spår"><span class="knopp"></span></span>
+    </div>
+  </header>
+
+  <section class="minne" id="s1">
+    <p class="kapitel">Kapitel I — Vem är Jonas? <span class="status"></span></p>
+    <h2>Från glömsk student till <em>världsmästare</em> på 18 månader</h2>
+    <p class="glömbar">2012 kunde Jonas von Essen inte ens komma ihåg sin flickväns telefonnummer. Av en slump hittade han en bok om minnesteknik på biblioteket i Skövde — och bestämde sig för att testa.</p>
+    <p class="glömbar">Ett och ett halvt år senare stod han överst på pallen i minnes-VM i London. Året därpå, 2014, försvarade han titeln i Kina. Två raka VM-guld, från noll, på arton månader.</p>
+    <button class="repetera">↻ Repetera<small>innan det försvinner</small></button>
+    <div class="marginal">Obs: detta är sant. Det är det märkliga med minnesteknik — det låter som magi men är hantverk.</div>
+  </section>
+
+  <section class="minne" id="s2">
+    <p class="kapitel">Kapitel II — Bedrifterna <span class="status"></span></p>
+    <h2>100 000 decimaler. 500 namn. <em>Hundratals valnötter.</em></h2>
+    <p class="glömbar">Jonas har memorerat de första 100 000 decimalerna av π. År 2020 återgav han 24 063 i sträck under åtta timmar — Europarekord — och klarade som första person i världen stickprovstestet på hela sviten.</p>
+    <p class="glömbar">I TV4:s Talang 2018 lärde han sig förnamnen på alla 500 i publiken och fick David Batras guldbuzzer. I kinesisk tv memorerade han hundratals slumpmässiga valnötter. Ja, valnötter.</p>
+    <button class="repetera">↻ Repetera<small>innan det försvinner</small></button>
+    <div class="marginal">Du har redan glömt hur många decimaler det var, eller hur? Poängen. Bevisad.</div>
+  </section>
+
+  <section class="minne" id="s3">
+    <p class="kapitel">Kapitel III — Föreläsningarna <span class="status"></span></p>
+    <h2>En föreläsning publiken <em>inte kan</em> glömma</h2>
+    <p class="glömbar">Hälften show, hälften verktygslåda. Jonas visar vad ett tränat minne klarar — och lär sedan publiken teknikerna: för namn, siffror, presentationer och prov.</p>
+    <p class="glömbar">Han föreläser för företag, konferenser och skolor, på plats eller digitalt, på svenska eller engelska. Känd från TV4, SVT, The Brain och Strömsö.</p>
+    <button class="repetera">↻ Repetera<small>innan det försvinner</small></button>
+  </section>
+
+  <section class="minne" id="s4">
+    <p class="kapitel">Kapitel IV — Böckerna <span class="status"></span></p>
+    <h2>Tre böcker. <em>En av dem är bara siffror.</em></h2>
+    <p class="glömbar">«Så får du ett superminne» ger vuxna teknikerna som alla kan använda. «Bli ett minnesgeni!» gör plugget till en lek för alla mellan 5 och 125 år.</p>
+    <p class="glömbar">Och «Pi-boken 2.0» innehåller alla 100 000 decimaler Jonas memorerat — sida upp och sida ner med siffror. Dessutom finns kursen «Skaffa ett superminne!» med över 50 lektioner på kurs.jonasvonessen.se.</p>
+    <button class="repetera">↻ Repetera<small>innan det försvinner</small></button>
+  </section>
+
+  <section class="minne" id="s5">
+    <p class="kapitel">Kapitel V — Hemligheten <span class="status"></span></p>
+    <h2>Det du just gjorde <em>är</em> tekniken</h2>
+    <p class="glömbar">Märkte du? Varje gång du tryckte på repetera blev minnet starkare, och efter två repetitioner fastnade det för gott. Det kallas spaced repetition — repetera precis innan du glömmer: efter en dag, en vecka, en månad.</p>
+    <p class="glömbar">Lägg till minnespalats, tokiga bilder och namnknepet, så har du hela verktygslådan. Inget av det kräver talang. Bara teknik. Det är det Jonas bevisar — och lär ut.</p>
+    <button class="repetera">↻ Repetera<small>innan det försvinner</small></button>
+    <div class="marginal">Den här sidan slutade aldrig undervisa. Den bara låtsades vara trasig.</div>
+  </section>
+
+  <section class="kontakt">
+    <p class="kapitel">Epilog — Det oförglömliga</p>
+    <h2>Boka föreläsningen<br><em>innan du glömmer.</em></h2>
+    <a class="stor-cta" href="mailto:hej@jonasvonessen.se?subject=Förfrågan%20föreläsning">Boka Jonas →</a>
+    <p class="alternativ">
+      Eller: <a href="https://kurs.jonasvonessen.se" target="_blank" rel="noopener">gå kursen (50+ lektioner)</a> ·
+      <a href="https://www.instagram.com/jonasvonessen/" target="_blank" rel="noopener">Instagram</a> ·
+      <a href="https://www.youtube.com/@BlueberryClubSparven" target="_blank" rel="noopener">YouTube</a> ·
+      <a href="https://www.facebook.com/jonasvonessenmemorychampion/" target="_blank" rel="noopener">Facebook</a><br>
+      <em style="font-family:var(--serif)">Den här sektionen bleknar aldrig. Viktiga saker förtjänar det.</em>
+    </p>
+  </section>
+</main>
+
+<footer>Slut. — Om du minns hur sidan började är du redan bättre än de flesta.</footer>
+
+<script>
+(function () {
+  "use strict";
+  var stilla = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- Dela upp text i ord ---------- */
+  document.querySelectorAll(".glömbar").forEach(function (p) {
+    var ord = p.textContent.split(" ");
+    p.innerHTML = ord.map(function (o) { return '<span class="ord">' + o + "</span>"; }).join(" ");
+  });
+
+  var sektioner = Array.prototype.slice.call(document.querySelectorAll("section.minne")).map(function (el) {
+    return {
+      el: el,
+      ord: Array.prototype.slice.call(el.querySelectorAll(".ord")),
+      status: el.querySelector(".status"),
+      synligSedan: null,
+      repetitioner: 0,
+      förevigad: false
+    };
+  });
+
+  /* ---------- Synlighet ---------- */
+  var obs = new IntersectionObserver(function (poster) {
+    poster.forEach(function (post) {
+      var s = sektioner.find(function (x) { return x.el === post.target; });
+      if (!s) return;
+      s.synligSedan = post.isIntersecting ? performance.now() : null;
+    });
+  }, { threshold: 0.35 });
+  sektioner.forEach(function (s) { obs.observe(s.el); });
+
+  /* ---------- Glömskan ---------- */
+  var teknikPå = false;
+  var GOLV = 0.3; /* lägst 30 % av orden kvar */
+  setInterval(function () {
+    if (teknikPå || stilla) return;
+    var nu = performance.now();
+    sektioner.forEach(function (s) {
+      if (s.förevigad || s.synligSedan === null) return;
+      if (nu - s.synligSedan < 2600) return; /* nådetid att läsa först */
+      var bleka = s.ord.filter(function (o) { return o.classList.contains("blek"); }).length;
+      if (bleka / s.ord.length >= 1 - GOLV) return;
+      for (var k = 0; k < 3; k++) {
+        var kandidat = s.ord[Math.floor(Math.random() * s.ord.length)];
+        kandidat.classList.add("blek");
+      }
+      uppdateraMätare();
+    });
+  }, 350);
+
+  /* ---------- Repetera ---------- */
+  sektioner.forEach(function (s) {
+    var knapp = s.el.querySelector(".repetera");
+    knapp.addEventListener("click", function () {
+      if (s.förevigad) return;
+      återställ(s);
+      s.repetitioner++;
+      if (s.repetitioner >= 2) föreviga(s);
+      else s.status.textContent = "· repeterat 1 gång — en gång till så fastnar det";
+      uppdateraMätare();
+    });
+  });
+
+  function återställ(s) {
+    s.ord.forEach(function (o, idx) {
+      setTimeout(function () { o.classList.remove("blek"); }, idx * 9);
+    });
+  }
+
+  function föreviga(s) {
+    s.förevigad = true;
+    s.el.classList.add("förevigad");
+    s.status.textContent = "✓ i långtidsminnet";
+    var knapp = s.el.querySelector(".repetera");
+    knapp.innerHTML = "✓ Sitter för alltid";
+    uppdateraMätare();
+  }
+
+  /* ---------- Mätaren ---------- */
+  function uppdateraMätare() {
+    var totalOrd = 0, klaraOrd = 0, långa = 0;
+    sektioner.forEach(function (s) {
+      totalOrd += s.ord.length;
+      klaraOrd += s.ord.filter(function (o) { return !o.classList.contains("blek"); }).length;
+      if (s.förevigad) långa++;
+    });
+    var procent = Math.round((klaraOrd / totalOrd) * 100);
+    document.getElementById("styrka").textContent = procent;
+    document.getElementById("stapel").style.width = procent + "%";
+    document.getElementById("antal-lång").textContent = långa;
+  }
+  uppdateraMätare();
+
+  /* ---------- Strömbrytaren ---------- */
+  var brytare = document.getElementById("brytare");
+  function växla() {
+    teknikPå = !teknikPå;
+    document.body.classList.toggle("teknik", teknikPå);
+    brytare.setAttribute("aria-checked", String(teknikPå));
+    if (teknikPå) {
+      sektioner.forEach(function (s) { återställ(s); if (!s.förevigad) föreviga(s); });
+      uppdateraMätare();
+    }
+  }
+  brytare.addEventListener("click", växla);
+  brytare.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); växla(); }
+  });
+
+  if (stilla) {
+    /* Utan rörelse: visa allt statiskt */
+    document.body.classList.add("teknik");
+  }
+})();
+</script>
+</body>
+</html>

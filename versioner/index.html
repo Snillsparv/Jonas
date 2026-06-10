@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fem koncept — jonasvonessen.se</title>
+<meta name="description" content="Fem originella konceptversioner av jonasvonessen.se — välj din favorit.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070b14;
+    --panel: rgba(255,255,255,0.045);
+    --kant: rgba(255,255,255,0.1);
+    --text: #e9edf8;
+    --dov: #97a2ba;
+    --grad: linear-gradient(92deg, #8b6bff, #22d3ee);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Inter", system-ui, sans-serif;
+    line-height: 1.6;
+    padding: 60px 24px 80px;
+  }
+  .wrap { max-width: 1060px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 56px; }
+  .eyebrow {
+    font-family: "Sora", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 14px;
+  }
+  h1 { font-family: "Sora", sans-serif; font-size: clamp(30px, 5vw, 52px); font-weight: 800; letter-spacing: -0.02em; }
+  header p.sub { margin: 16px auto 0; max-width: 560px; color: var(--dov); font-size: 16px; }
+  header a.tillbaka { color: #22d3ee; font-size: 14px; }
+
+  .galleri { display: grid; gap: 26px; }
+  .kort {
+    display: grid;
+    grid-template-columns: minmax(280px, 440px) 1fr;
+    gap: 0;
+    background: var(--panel);
+    border: 1px solid var(--kant);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: transform 0.25s, border-color 0.25s;
+  }
+  .kort:hover { transform: translateY(-4px); border-color: rgba(139,107,255,0.55); }
+  .kort .bild { position: relative; min-height: 230px; background: #0b1020; }
+  .kort .bild img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+  .kort .nr {
+    position: absolute;
+    top: 14px; left: 14px;
+    width: 38px; height: 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    background: var(--grad);
+    color: #fff;
+    font-family: "Sora", sans-serif;
+    font-weight: 800;
+    font-size: 17px;
+    box-shadow: 0 6px 18px rgba(124,92,255,0.5);
+  }
+  .kort .info { padding: 26px 30px; display: flex; flex-direction: column; }
+  .kort h2 { font-family: "Sora", sans-serif; font-size: 23px; font-weight: 800; margin-bottom: 8px; }
+  .kort .tagline { color: #ffc24b; font-size: 13.5px; font-weight: 600; margin-bottom: 12px; }
+  .kort p.beskrivning { color: var(--dov); font-size: 14.5px; margin-bottom: 10px; }
+  .kort .unik { font-size: 13px; color: var(--dov); }
+  .kort .unik b { color: #22d3ee; font-weight: 600; }
+  .kort .rad { margin-top: auto; padding-top: 18px; }
+  .kort a.öppna {
+    display: inline-block;
+    padding: 11px 24px;
+    border-radius: 999px;
+    background: var(--grad);
+    color: #fff;
+    font-family: "Sora", sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    text-decoration: none;
+    box-shadow: 0 8px 24px rgba(124,92,255,0.4);
+    transition: transform 0.15s;
+  }
+  .kort a.öppna:hover { transform: translateY(-2px); }
+
+  footer { text-align: center; margin-top: 60px; color: var(--dov); font-size: 13.5px; }
+  footer a { color: #22d3ee; }
+
+  @media (max-width: 760px) {
+    .kort { grid-template-columns: 1fr; }
+    .kort .bild { min-height: 180px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">jonasvonessen.se</p>
+    <h1>Fem världar.<br>En minnesmästare.</h1>
+    <p class="sub">Fem konceptversioner som alla gör något du inte sett förut.
+    Klicka in i varje värld — och känn efter vilken som är <em>din</em>.
+    (<a class="tillbaka" href="../index.html">Originalversionen finns här.</a>)</p>
+  </header>
+
+  <div class="galleri">
+
+    <article class="kort">
+      <div class="bild"><span class="nr">1</span><img src="thumbs/1.jpg" alt="Skärmbild: Minnespalatset"></div>
+      <div class="info">
+        <h2>Minnespalatset</h2>
+        <p class="tagline">Webbplatsen är ett palats — och du vandrar genom det.</p>
+        <p class="beskrivning">Sex rum i sidled: entréhall, trofésal, bibliotek, scen, träningsrum och utgång.
+        Innehållet hänger som tavlor och står som möbler. Levande ljus, dammkorn och en minikarta som visar var du är.</p>
+        <p class="unik"><b>Det unika:</b> sidan använder själva tekniken Jonas lär ut — besökaren bygger
+        omedvetet ett minnespalats av innehållet.</p>
+        <div class="rad"><a class="öppna" href="1-minnespalatset.html">Stig in →</a></div>
+      </div>
+    </article>
+
+    <article class="kort">
+      <div class="bild"><span class="nr">2</span><img src="thumbs/2.jpg" alt="Skärmbild: Resan genom π"></div>
+      <div class="info">
+        <h2>Resan genom π</h2>
+        <p class="tagline">Hela sidan är talet π. Du scrollar dig in i det.</p>
+        <p class="beskrivning">En mätare visar exakt vilken decimal du befinner dig på — från 0 till 100 000.
+        Stationer längs vägen berättar historien: decimal 2 013 är VM-guldet, 24 063 är Europarekordet.
+        I mål får du din restid.</p>
+        <p class="unik"><b>Det unika:</b> decimalerna i bakgrunden beräknas på riktigt, live i webbläsaren,
+        med en spigot-algoritm.</p>
+        <div class="rad"><a class="öppna" href="2-resan-genom-pi.html">Res in i talet →</a></div>
+      </div>
+    </article>
+
+    <article class="kort">
+      <div class="bild"><span class="nr">3</span><img src="thumbs/3.jpg" alt="Skärmbild: JonasOS"></div>
+      <div class="info">
+        <h2>JonasOS 3.14</h2>
+        <p class="tagline">Jonas hjärna som retro-operativsystem.</p>
+        <p class="beskrivning">Sidan bootar ("Kontrollerar hippocampus … OK"), sedan landar du på ett skrivbord
+        från 90-talet. Föreläsningarna är .exe-filer, böckerna ligger i Bokhyllan, π.dat strömmar decimaler
+        och Papperskorgen är tom — inget har glömts sedan 2012.</p>
+        <p class="unik"><b>Det unika:</b> fönstren går att dra runt, öppna och stänga — hela sidan är ett
+        litet operativsystem.</p>
+        <div class="rad"><a class="öppna" href="3-jonasos.html">Starta systemet →</a></div>
+      </div>
+    </article>
+
+    <article class="kort">
+      <div class="bild"><span class="nr">4</span><img src="thumbs/4.jpg" alt="Skärmbild: Sidan som glömmer"></div>
+      <div class="info">
+        <h2>Sidan som glömmer</h2>
+        <p class="tagline">Texten bleknar medan du läser — om du inte repeterar.</p>
+        <p class="beskrivning">Vacker tidskriftslayout på papper — men orden tynar bort som riktiga minnen.
+        Tryck REPETERA för att rädda en sektion; två repetitioner och den fastnar i långtidsminnet.
+        En mätare visar din minnesstyrka. Eller fuska: slå på "minnesteknik".</p>
+        <p class="unik"><b>Det unika:</b> besökaren upplever glömskekurvan och spaced repetition i kroppen —
+        Jonas hela budskap som interaktion.</p>
+        <div class="rad"><a class="öppna" href="4-sidan-som-glommer.html">Läs innan det bleknar →</a></div>
+      </div>
+    </article>
+
+    <article class="kort">
+      <div class="bild"><span class="nr">5</span><img src="thumbs/5.jpg" alt="Skärmbild: Varietéaffischen"></div>
+      <div class="info">
+        <h2>Varietéaffischen</h2>
+        <p class="tagline">Ridån går upp för 1890-talets största attraktion.</p>
+        <p class="beskrivning">"DEN FÖRBLUFFANDE von ESSEN — MANNEN SOM ALDRIG GLÖMMER!" En teaterridå öppnas
+        mot en cirkusaffisch med blinkande glödlampor, stjärnskott, tre akter, professorns hemligheter
+        och en biljettlucka. Föreläsningen som föreställning.</p>
+        <p class="unik"><b>Det unika:</b> en hel berättarröst från sekelskiftet ("genom den elektriska
+        bildtelegrafen") — humor och hantverk i varje rad.</p>
+        <div class="rad"><a class="öppna" href="5-varieteaffischen.html">Upp med ridån →</a></div>
+      </div>
+    </article>
+
+  </div>
+
+  <footer>
+    Alla fem är kompletta, fristående sidor med riktigt innehåll — byggda utan ramverk.
+    Blanda och matcha gärna: säg vilken värld som vinner, så bygger vi ut den (eller korsar flera).<br>
+    <a href="../index.html">← Till originalversionen</a>
+  </footer>
+</div>
+</body>
+</html>
