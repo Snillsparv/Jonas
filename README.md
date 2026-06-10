@@ -33,6 +33,12 @@ webbläsare så är du igång.
 4. **Sociala länkar** — kontrollera att Instagram/YouTube/Facebook-länkarna i
    kontaktsektionen stämmer.
 
+## Cache-busting
+
+`index.html` länkar CSS/JS med en versionsparameter (`css/style.css?v=2`).
+Bumpa siffran när du ändrar i `css/` eller `js/` — annars kan CDN:er
+(t.ex. githack-förhandsvisningen) fortsätta servera gamla cachade filer.
+
 ## Publicering
 
 Sajten är 100 % statisk och kan läggas var som helst:
