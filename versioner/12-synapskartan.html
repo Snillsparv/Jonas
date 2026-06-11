@@ -177,6 +177,7 @@
   function init() {
     bygg();
     noder = [];
+    pulser = []; /* gamla pulser pekar på noder som inte längre finns */
     /* innehållsnoder */
     MINNEN.forEach(function (m, i) {
       noder.push({ x: m.fx * W, y: m.fy * H, vx: 0, vy: 0, r: m.r, minne: i, glöd: 0 });
@@ -218,7 +219,9 @@
     pulser.push({ kant: kant, t: 0, fart: 0.012 + Math.random() * 0.01, färg: färg || "rgba(167,139,250," });
   }
   function ambient() {
-    if (!stilla && pulser.length < 14) nyPuls(kanter[Math.floor(Math.random() * kanter.length)]);
+    if (!stilla && kanter.length > 0 && pulser.length < 14) {
+      nyPuls(kanter[Math.floor(Math.random() * kanter.length)]);
+    }
     setTimeout(ambient, 380);
   }
 
@@ -247,7 +250,7 @@
   }
 
   /* ---------- Rendering ---------- */
-  var mus = { x: -9999, y: -9999 };
+  /* mus deklareras i interaktionsdelen nedan men används här */
   function rita() {
     ctx.clearRect(0, 0, W, H);
 
@@ -270,6 +273,7 @@
       p.t += p.fart;
       if (p.t >= 1) { pulser.splice(i, 1); continue; }
       var a = noder[p.kant.a], b = noder[p.kant.b];
+      if (!a || !b) { pulser.splice(i, 1); continue; }
       var x = a.x + (b.x - a.x) * p.t;
       var y = a.y + (b.y - a.y) * p.t;
       ctx.fillStyle = p.färg + (0.9 * (1 - Math.abs(p.t - 0.5) * 1.4)) + ")";
@@ -320,10 +324,23 @@
   }
 
   /* ---------- Interaktion ---------- */
+  var mus = { x: -9999, y: -9999 };
+  /* Generös klickyta: hela glöden + etiketten under noden räknas */
+  function träffadNod(x, y) {
+    var bäst = null, bästAvst = 1e9;
+    for (var i = 0; i < MINNEN.length; i++) {
+      var n = noder[i];
+      var radie = Math.max(52, n.r + 34);
+      var d = Math.hypot(n.x - x, n.y - y);
+      /* etikettens textruta under noden */
+      var iEtikett = Math.abs(x - n.x) < 90 && y > n.y && y < n.y + n.r + 34;
+      if ((d < radie || iEtikett) && d < bästAvst) { bästAvst = d; bäst = i; }
+    }
+    return bäst;
+  }
   canvas.addEventListener("pointermove", function (e) {
     mus.x = e.clientX; mus.y = e.clientY;
-    var träff = träffadNod(e.clientX, e.clientY);
-    canvas.style.cursor = träff !== null ? "pointer" : "crosshair";
+    canvas.style.cursor = träffadNod(e.clientX, e.clientY) !== null ? "pointer" : "crosshair";
   });
   canvas.addEventListener("click", function (e) {
     var i = träffadNod(e.clientX, e.clientY);
@@ -333,12 +350,6 @@
     våg(i);
     öppnaPanel(nod.minne);
   });
-  function träffadNod(x, y) {
-    for (var i = 0; i < MINNEN.length; i++) {
-      if (Math.hypot(noder[i].x - x, noder[i].y - y) < noder[i].r + 16) return i;
-    }
-    return null;
-  }
 
   var panel = document.getElementById("panel");
   function öppnaPanel(mi) {
@@ -355,7 +366,11 @@
   });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") panel.classList.remove("öppen"); });
 
-  window.addEventListener("resize", init);
+  var resizeTimer;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(init, 180);
+  });
   init();
   rita();
   ambient();

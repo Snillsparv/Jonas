@@ -35,7 +35,7 @@ webbläsare så är du igång.
 
 ## Konceptversioner
 
-I `versioner/` ligger femton helt olika, fristående konceptversioner av sajten,
+I `versioner/` ligger tjugo helt olika, fristående konceptversioner av sajten,
 plus ett galleri (`versioner/index.html`) som länkar till alla:
 
 1. **Minnespalatset** — vandra i sidled genom palatsets rum
@@ -54,6 +54,11 @@ plus ett galleri (`versioner/index.html`) som länkar till alla:
 13. **Dekrypteringen** — tre lås att knäcka (Caesar-hjul, sekvens, minnestest)
 14. **Neuroscan 3000** — sci-fi-HUD med roterande hjärna, EEG-våg och anomalirapport
 15. **Neon-noir** — detektivnovell i CSS-regn under flimrande neonskyltar
+16. **Sagoboken** — bläddringsbar bilderbok där draken Glömskan tämjs
+17. **Ballongfärden** — himlen skiftar färg när du stiger mot 100 000 m
+18. **Fantasifabriken** — maskin som gör tråkiga saker till oförglömliga tokbilder
+19. **Minnesträdgården** — så frön, se blommor växa, vattna dem med repetition
+20. **Målarboken** — färglägg den svartvita världen, region för region
 
 Varje fil är självständig (HTML + CSS + JS i ett) och kan öppnas direkt.
 

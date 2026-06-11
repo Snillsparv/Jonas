@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sagan om pojken som glömde nästan allt — (koncept 16)</title>
+<meta name="description" content="Konceptversion: en bläddringsbar sagobok om minnets magi.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,500&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --himmel: #fdf3e3;
+    --lavendel: #e8e0f5;
+    --bläck: #4a3b55;
+    --rosa: #f2a7c3;
+    --gull: #f7c873;
+    --grön: #a8d8b9;
+    --blå: #a9cdeb;
+    --serif: "Fraunces", Georgia, serif;
+    --hand: "Caveat", cursive;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: linear-gradient(160deg, var(--himmel) 0%, var(--lavendel) 100%);
+    color: var(--bläck);
+    font-family: var(--serif);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 4vh 14px 40px;
+    overflow-x: hidden;
+  }
+  /* gnistrande stjärnor i bakgrunden */
+  .gnista {
+    position: fixed;
+    font-size: 18px;
+    color: var(--gull);
+    animation: tindra 3s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+  @keyframes tindra { 50% { opacity: 0.2; transform: scale(0.7) rotate(20deg); } }
+
+  header { position: relative; z-index: 5; text-align: center; margin-bottom: 20px; }
+  header .liten { font-family: var(--hand); font-size: 22px; color: #9c7fb8; }
+  header h1 { font-weight: 900; font-size: clamp(24px, 4vw, 40px); font-style: italic; }
+
+  /* ---------- Boken ---------- */
+  .bok-scen { position: relative; z-index: 5; width: min(960px, 96vw); }
+  .bok {
+    position: relative;
+    background: #fffdf7;
+    border-radius: 12px 18px 18px 12px;
+    box-shadow:
+      0 1px 0 #f1e8d8, 0 2px 0 #ece2cf, 0 3px 0 #e6dbc5,
+      0 26px 60px rgba(95, 70, 120, 0.3);
+    border: 10px solid #b8829c;
+    min-height: clamp(440px, 60vh, 580px);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+  }
+  .bok::before { /* bokrygg */
+    content: "";
+    position: absolute;
+    left: 50%; top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(90deg, rgba(74,59,85,0.16), transparent);
+    transform: translateX(-50%);
+    z-index: 2;
+  }
+
+  .uppslag { display: none; grid-column: 1 / 3; grid-row: 1; grid-template-columns: 1fr 1fr; }
+  .uppslag.syns { display: grid; animation: blädderfram 0.55s ease; }
+  @keyframes blädderfram {
+    from { opacity: 0; transform: perspective(1200px) rotateY(7deg); }
+    to { opacity: 1; transform: none; }
+  }
+  .sida {
+    padding: clamp(24px, 4.5vw, 52px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 14px;
+    position: relative;
+  }
+  .sida.vänster { background: linear-gradient(90deg, #fbf6ea 92%, #f3ecdc 100%); }
+  .sida.höger  { background: linear-gradient(270deg, #fffdf7 92%, #f6efe1 100%); }
+
+  .sida h2 { font-weight: 900; font-size: clamp(22px, 3vw, 34px); line-height: 1.2; }
+  .sida h2 em { font-style: italic; color: #c2628e; }
+  .sida p { font-size: clamp(15px, 1.7vw, 18px); line-height: 1.75; color: #5d4e68; }
+  .sida .anfang::first-letter {
+    font-size: 3.1em;
+    float: left;
+    line-height: 0.85;
+    padding-right: 8px;
+    color: #c2628e;
+    font-weight: 900;
+  }
+  .sida .hand { font-family: var(--hand); font-size: 21px; color: #9c7fb8; }
+  .sidnummer { position: absolute; bottom: 12px; font-size: 13px; color: #b6a99a; }
+  .sida.vänster .sidnummer { left: 22px; }
+  .sida.höger .sidnummer { right: 22px; }
+
+  /* Trollformler */
+  .formler { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .formel {
+    border: 2px dashed var(--rosa);
+    border-radius: 12px;
+    padding: 10px 12px;
+    background: #fff;
+    transform: rotate(-0.8deg);
+  }
+  .formel:nth-child(even) { transform: rotate(0.9deg); border-color: var(--blå); }
+  .formel b { display: block; font-size: 15px; }
+  .formel span { font-size: 13px; color: #7c6d88; line-height: 1.4; display: block; }
+
+  /* Sago-illustrationer (SVG) */
+  .illustration { display: flex; justify-content: center; }
+  .illustration svg { max-width: 100%; height: auto; }
+
+  .cta-knapp {
+    align-self: center;
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 17px;
+    color: #fff;
+    background: linear-gradient(120deg, #c2628e, #9c7fb8);
+    border: 0;
+    border-radius: 999px;
+    padding: 14px 30px;
+    text-decoration: none;
+    box-shadow: 0 10px 26px rgba(156, 127, 184, 0.45);
+    transition: transform 0.15s;
+  }
+  .cta-knapp:hover { transform: translateY(-2px) rotate(-1deg); }
+  .soc { font-size: 13.5px; text-align: center; }
+  .soc a { color: #c2628e; }
+
+  /* ---------- Bläddring ---------- */
+  .bläddring {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 20px;
+  }
+  .pil {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    border: 2.5px solid var(--bläck);
+    background: #fffdf7;
+    font-size: 21px;
+    color: var(--bläck);
+    cursor: pointer;
+    box-shadow: 0 5px 0 rgba(74, 59, 85, 0.25);
+    transition: transform 0.12s;
+  }
+  .pil:hover { transform: translateY(-2px); }
+  .pil:active { transform: translateY(2px); box-shadow: none; }
+  .pil:disabled { opacity: 0.3; cursor: default; transform: none; }
+  .prickar { display: flex; gap: 9px; }
+  .prick { width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--bläck); background: transparent; padding: 0; cursor: pointer; }
+  .prick.aktiv { background: var(--bläck); }
+
+  footer { position: relative; z-index: 5; margin-top: 22px; font-family: var(--hand); font-size: 19px; color: #9c8aa8; text-align: center; }
+
+  @media (max-width: 700px) {
+    .bok { grid-template-columns: 1fr; min-height: 0; }
+    .uppslag { grid-template-columns: 1fr; }
+    .uppslag.syns { display: flex; flex-direction: column; }
+    .bok::before { display: none; }
+    .formler { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gnista { animation: none; }
+    .uppslag.syns { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<span class="gnista" style="top:12%; left:8%">✦</span>
+<span class="gnista" style="top:24%; right:10%; animation-delay:1s">✧</span>
+<span class="gnista" style="bottom:18%; left:14%; animation-delay:2s">✦</span>
+<span class="gnista" style="bottom:30%; right:6%; animation-delay:0.5s">✧</span>
+
+<header>
+  <p class="liten">En alldeles sann saga, fritt berättad</p>
+  <h1>Sagan om pojken som glömde nästan allt</h1>
+</header>
+
+<div class="bok-scen">
+  <div class="bok" id="bok">
+
+    <!-- UPPSLAG 1 -->
+    <section class="uppslag syns" data-nr="0">
+      <div class="sida vänster">
+        <div class="illustration">
+          <svg viewBox="0 0 300 220" width="300" aria-label="Ett sagoslott">
+            <path d="M60 200 V120 L80 100 L100 120 V200 Z M200 200 V120 L220 100 L240 120 V200 Z" fill="#b8a4d6"/>
+            <rect x="100" y="140" width="100" height="60" fill="#cdbce6"/>
+            <path d="M130 200 V170 Q150 155 170 170 V200 Z" fill="#7c6d99"/>
+            <path d="M80 100 V80 L74 80 L86 62 L98 80 L92 80 V100 Z" fill="#f2a7c3"/>
+            <path d="M220 100 V80 L214 80 L226 62 L238 80 L232 80 V100 Z" fill="#f2a7c3"/>
+            <rect x="115" y="120" width="70" height="20" fill="#b8a4d6"/>
+            <circle cx="150" cy="50" r="20" fill="#f7c873"/>
+            <path d="M150 22 V10 M150 78 V90 M122 50 H110 M190 50 H178 M130 30 L122 22 M170 30 L178 22" stroke="#f7c873" stroke-width="4" stroke-linecap="round"/>
+            <path d="M20 205 Q150 185 280 205 L280 220 L20 220 Z" fill="#a8d8b9"/>
+          </svg>
+        </div>
+        <p class="sidnummer">1</p>
+      </div>
+      <div class="sida höger">
+        <h2>…och mindes<br>sedan <em>allting.</em></h2>
+        <p class="anfang">Det här är sagan om ett huvud som alla sa var alldeles vanligt — och om hur det blev det mest häpnadsväckande huvudet i hela kungariket. Det bästa med sagan? Den är sann. Och den handlar i hemlighet om ditt huvud också.</p>
+        <p class="hand">Bläddra med pilarna där nere ➵</p>
+        <p class="sidnummer">2</p>
+      </div>
+    </section>
+
+    <!-- UPPSLAG 2 -->
+    <section class="uppslag" data-nr="1">
+      <div class="sida vänster">
+        <h2>Det var en gång<br>en <em>glömsk</em> pojke</h2>
+        <p class="anfang">I staden Skövde bodde en pojke som hette Jonas. Han var snäll och klok — men i hans huvud bodde en drake som hette <em>Glömskan</em>, och draken åt allt: telefonnummer, var nycklarna låg, namnen på folk han just träffat.</p>
+        <p>"Så är det bara", suckade folk. "Vissa har bra minne. Andra har inte."</p>
+        <p class="hand">(Folk hade fel, skulle det visa sig.)</p>
+        <p class="sidnummer">3</p>
+      </div>
+      <div class="sida höger">
+        <div class="illustration">
+          <svg viewBox="0 0 300 220" width="280" aria-label="En snäll drake">
+            <path d="M70 160 Q60 110 110 95 Q120 60 165 70 Q210 55 225 95 Q265 105 255 145 Q270 175 235 185 L95 185 Q60 185 70 160 Z" fill="#a8d8b9"/>
+            <path d="M110 95 L100 75 L122 84 M150 72 L148 50 L168 64 M195 70 L200 50 L214 70" fill="#7cc298"/>
+            <circle cx="210" cy="115" r="7" fill="#4a3b55"/>
+            <circle cx="212" cy="112" r="2.5" fill="#fff"/>
+            <path d="M225 135 Q243 140 252 132" stroke="#4a3b55" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <path d="M70 160 Q35 160 28 135 Q45 142 56 138" fill="#a8d8b9"/>
+            <path d="M120 185 Q118 200 105 205 M180 185 Q182 200 196 205" stroke="#7cc298" stroke-width="9" stroke-linecap="round" fill="none"/>
+            <text x="245" y="90" font-size="26">💭</text>
+            <text x="262" y="62" font-size="15">🔑?</text>
+          </svg>
+        </div>
+        <p style="text-align:center" class="hand">Glömskan. Ser snäll ut — åt upp allt ändå.</p>
+        <p class="sidnummer">4</p>
+      </div>
+    </section>
+
+    <!-- UPPSLAG 3 -->
+    <section class="uppslag" data-nr="2">
+      <div class="sida vänster">
+        <h2>Den förtrollade<br><em>boken</em></h2>
+        <p class="anfang">En dag år 2012 hittade Jonas en gammal bok på biblioteket. Den handlade om minnesteknik — och i den stod fyra trollformler som vem som helst fick använda. Vem som helst!</p>
+        <p>Jonas började öva. Och draken i hans huvud blev tamare för varje dag.</p>
+        <p class="sidnummer">5</p>
+      </div>
+      <div class="sida höger">
+        <div class="formler">
+          <div class="formel"><b>🏰 Palatset!</b><span>Lägg minnen på platser du kan utantill — hjärnan älskar rum.</span></div>
+          <div class="formel"><b>🐄 Tokbilderna!</b><span>Det galna fastnar. En ko som jonglerar glöms aldrig.</span></div>
+          <div class="formel"><b>🔁 Repetitionen!</b><span>Säg det igen — lagom innan du glömmer: dag, vecka, månad.</span></div>
+          <div class="formel"><b>🌹 Namnknepet!</b><span>Rosa? En ros bakom örat. Namnet sitter för alltid.</span></div>
+        </div>
+        <p class="hand" style="text-align:center">Fyra formler. Noll medfödd magi krävs.</p>
+        <p class="sidnummer">6</p>
+      </div>
+    </section>
+
+    <!-- UPPSLAG 4 -->
+    <section class="uppslag" data-nr="3">
+      <div class="sida vänster">
+        <div class="illustration">
+          <svg viewBox="0 0 300 220" width="280" aria-label="Två pokaler och stjärnor">
+            <path d="M90 60 H150 V95 Q150 130 120 137 Q90 130 90 95 Z" fill="#f7c873"/>
+            <path d="M90 70 Q65 74 70 96 Q75 112 95 110 M150 70 Q175 74 170 96 Q165 112 145 110" fill="none" stroke="#f7c873" stroke-width="7"/>
+            <path d="M120 137 V160 M102 170 H138 M96 182 H144 V196 H96 Z" stroke="#f7c873" stroke-width="7" fill="none"/>
+            <text x="120" y="100" text-anchor="middle" font-size="30">🏆</text>
+            <path d="M195 80 H235 V105 Q235 130 215 136 Q195 130 195 105 Z" fill="#f2a7c3"/>
+            <path d="M215 136 V155 M202 163 H228 M197 174 H233 V186 H197 Z" stroke="#f2a7c3" stroke-width="6" fill="none"/>
+            <text x="40" y="50" font-size="22">✨</text><text x="250" y="45" font-size="22">✨</text><text x="262" y="160" font-size="18">✨</text>
+          </svg>
+        </div>
+        <p style="text-align:center" class="hand">London 2013 · Kina 2014</p>
+        <p class="sidnummer">7</p>
+      </div>
+      <div class="sida höger">
+        <h2>Pojken som blev<br><em>världsmästare</em></h2>
+        <p class="anfang">Arton månader efter biblioteksdagen ställde sig Jonas på världens största minnesturnering i London — och vann alltihop. Året därpå red han till Kina och vann igen.</p>
+        <p>Sedan lärde han sig <b>500 namn på en kväll</b> i Talang, memorerade <b>hundratals valnötter</b> i kinesisk TV och stoppade <b>100 000 av talet π:s siffror</b> i huvudet — där draken Glömskan numera bor som tamt husdjur och vaktar dem.</p>
+        <p class="sidnummer">8</p>
+      </div>
+    </section>
+
+    <!-- UPPSLAG 5 -->
+    <section class="uppslag" data-nr="4">
+      <div class="sida vänster">
+        <h2>Och vet du<br>det <em>bästa?</em></h2>
+        <p class="anfang">Ditt huvud är byggt av exakt samma sagostoff som Jonas. Samma slott går att bygga där inne, samma drakar går att tämja. Hjärnan rymmer mer än alla bibliotek du någonsin besökt — den väntar bara på formlerna.</p>
+        <p>Jonas skrev därför ner alltihop: <b>«Så får du ett superminne»</b> för stora, <b>«Bli ett minnesgeni!»</b> för alla mellan 5 och 125, och <b>«Pi-boken 2.0»</b> där alla 100 000 siffror bor.</p>
+        <p class="sidnummer">9</p>
+      </div>
+      <div class="sida höger">
+        <div class="illustration">
+          <svg viewBox="0 0 300 200" width="260" aria-label="En uppslagen bok med stjärnor">
+            <path d="M40 150 Q95 125 150 145 Q205 125 260 150 L260 60 Q205 35 150 55 Q95 35 40 60 Z" fill="#fff" stroke="#b8a4d6" stroke-width="5"/>
+            <path d="M150 55 V145" stroke="#b8a4d6" stroke-width="4"/>
+            <path d="M65 80 H125 M65 97 H125 M65 114 H115 M175 80 H235 M175 97 H235 M175 114 H225" stroke="#d9cce8" stroke-width="6" stroke-linecap="round"/>
+            <text x="150" y="32" text-anchor="middle" font-size="24">✨</text>
+          </svg>
+        </div>
+        <p class="hand" style="text-align:center">Och en kurs med 50+ lektioner finns det också —<br><a href="https://kurs.jonasvonessen.se" target="_blank" rel="noopener" style="color:#c2628e">kurs.jonasvonessen.se</a></p>
+        <p class="sidnummer">10</p>
+      </div>
+    </section>
+
+    <!-- UPPSLAG 6 -->
+    <section class="uppslag" data-nr="5">
+      <div class="sida vänster">
+        <h2>Snipp snapp<br><em>snut…</em></h2>
+        <p class="anfang">…men ditt äventyr har bara börjat. Vill du att Jonas kommer till ert slott — förlåt, er konferens, ert företag eller er skola — och visar magin på riktigt?</p>
+        <p>Han tar med sig häpnad, skratt och alla fyra trollformlerna. Publiken glömmer aldrig besöket. Det är liksom grejen.</p>
+        <p class="sidnummer">11</p>
+      </div>
+      <div class="sida höger" style="align-items:center; text-align:center">
+        <p style="font-size:44px">🧙‍♂️✨</p>
+        <a class="cta-knapp" href="mailto:hej@jonasvonessen.se?subject=Inbjudan%20till%20vårt%20slott%20(bokningsförfrågan)">Bjud trollkarlen till ert slott</a>
+        <p class="soc">
+          <a href="https://www.instagram.com/jonasvonessen/" target="_blank" rel="noopener">Instagram</a> ·
+          <a href="https://www.youtube.com/@BlueberryClubSparven" target="_blank" rel="noopener">YouTube</a> ·
+          <a href="https://www.facebook.com/jonasvonessenmemorychampion/" target="_blank" rel="noopener">Facebook</a>
+        </p>
+        <p class="hand">Och de levde minnesrikt i alla sina dagar.</p>
+        <p class="sidnummer">12</p>
+      </div>
+    </section>
+  </div>
+
+  <nav class="bläddring" aria-label="Bläddra i boken">
+    <button class="pil" id="bakåt" aria-label="Föregående uppslag">←</button>
+    <div class="prickar" id="prickar"></div>
+    <button class="pil" id="framåt" aria-label="Nästa uppslag">→</button>
+  </nav>
+</div>
+
+<footer>Koncept 16 · jonasvonessen.se · Läses med fördel högt, med drakröst där det passar.</footer>
+
+<script>
+(function () {
+  "use strict";
+  var uppslag = document.querySelectorAll(".uppslag");
+  var prickar = document.getElementById("prickar");
+  var bakåt = document.getElementById("bakåt");
+  var framåt = document.getElementById("framåt");
+  var nu = 0;
+
+  uppslag.forEach(function (_, i) {
+    var p = document.createElement("button");
+    p.className = "prick" + (i === 0 ? " aktiv" : "");
+    p.setAttribute("aria-label", "Uppslag " + (i + 1));
+    p.addEventListener("click", function () { visa(i); });
+    prickar.appendChild(p);
+  });
+
+  function visa(i) {
+    nu = Math.max(0, Math.min(uppslag.length - 1, i));
+    uppslag.forEach(function (u, k) { u.classList.toggle("syns", k === nu); });
+    document.querySelectorAll(".prick").forEach(function (p, k) { p.classList.toggle("aktiv", k === nu); });
+    bakåt.disabled = nu === 0;
+    framåt.disabled = nu === uppslag.length - 1;
+  }
+  bakåt.addEventListener("click", function () { visa(nu - 1); });
+  framåt.addEventListener("click", function () { visa(nu + 1); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowLeft") visa(nu - 1);
+    if (e.key === "ArrowRight") visa(nu + 1);
+  });
+  visa(0);
+})();
+</script>
+</body>
+</html>

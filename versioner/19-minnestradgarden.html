@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minnesträdgården — Jonas von Essen (koncept 19)</title>
+<meta name="description" content="Konceptversion: plantera frön, se minnena blomma — och vattna dem med repetition.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --himmel1: #aee3f7;
+    --himmel2: #e6f7fd;
+    --gräs: #7ec77f;
+    --gräs-mörk: #5cab60;
+    --jord: #8a6243;
+    --bläck: #35503c;
+    --sans: "Quicksand", system-ui, sans-serif;
+    --hand: "Caveat", cursive;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: linear-gradient(180deg, var(--himmel1) 0%, var(--himmel2) 55%, #d9f0d4 100%);
+    color: var(--bläck);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ---------- Solen ---------- */
+  .sol {
+    position: fixed;
+    top: 5vh; right: 7vw;
+    width: 120px; height: 120px;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .sol .kärna { position: absolute; inset: 18px; border-radius: 50%; background: radial-gradient(circle, #fff6cf 25%, #ffd96b 75%); box-shadow: 0 0 60px rgba(255, 217, 107, 0.9); }
+  .sol .strålar { position: absolute; inset: 0; animation: snurr 26s linear infinite; }
+  .sol .strålar i { position: absolute; left: 50%; top: 50%; width: 5px; height: 60px; background: rgba(255, 217, 107, 0.7); border-radius: 3px; transform-origin: 50% 0; }
+  @keyframes snurr { to { transform: rotate(360deg); } }
+
+  /* fjärilar */
+  .fjäril { position: fixed; font-size: 26px; z-index: 4; pointer-events: none; animation: fladder 17s ease-in-out infinite alternate; }
+  @keyframes fladder {
+    0% { transform: translate(0, 0) rotate(-8deg); }
+    25% { transform: translate(24vw, -9vh) rotate(10deg); }
+    50% { transform: translate(46vw, 3vh) rotate(-12deg); }
+    75% { transform: translate(64vw, -13vh) rotate(8deg); }
+    100% { transform: translate(82vw, -2vh) rotate(-6deg); }
+  }
+
+  header { position: relative; z-index: 5; text-align: center; padding: 6vh 18px 10px; }
+  header .hand-rad { font-family: var(--hand); font-size: 24px; color: #5e8b66; }
+  header h1 { font-weight: 700; font-size: clamp(30px, 5.4vw, 52px); line-height: 1.1; }
+  header h1 em { font-style: normal; color: #d96fa0; }
+  header p.sub { max-width: 560px; margin: 12px auto 0; font-size: 16px; line-height: 1.65; color: #4c6b53; }
+  header p.sub b { color: #d96fa0; }
+
+  .räknare {
+    position: fixed;
+    top: 14px; left: 14px;
+    z-index: 50;
+    background: #fff;
+    border: 3px solid var(--bläck);
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 9px 18px;
+    box-shadow: 0 6px 16px rgba(53, 80, 60, 0.18);
+  }
+
+  /* ---------- Trädgården ---------- */
+  .trädgård {
+    position: relative;
+    z-index: 5;
+    max-width: 1060px;
+    margin: 20px auto 0;
+    padding: 30px 14px 70px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px 4px;
+    background:
+      radial-gradient(130% 120% at 50% 130%, var(--gräs-mörk) 0%, var(--gräs) 55%, transparent 78%);
+    border-radius: 50% 50% 0 0 / 90px 90px 0 0;
+    min-height: 380px;
+    align-items: flex-end;
+  }
+
+  .plantering { width: 138px; text-align: center; position: relative; }
+  .växtyta { height: 215px; display: flex; align-items: flex-end; justify-content: center; position: relative; }
+
+  .frö-knapp {
+    position: absolute;
+    bottom: 6px; left: 50%;
+    transform: translateX(-50%);
+    width: 74px; height: 64px;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    font-family: var(--hand);
+  }
+  .frö-knapp .kulle { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 72px; height: 26px; background: var(--jord); border-radius: 50% 50% 8px 8px; }
+  .frö-knapp .skylt {
+    position: absolute;
+    bottom: 20px; left: 50%;
+    transform: translateX(-50%) rotate(-3deg);
+    background: #f5e8c8;
+    border: 2.5px solid var(--bläck);
+    border-radius: 7px;
+    font-size: 19px;
+    font-weight: 700;
+    padding: 3px 11px;
+    transition: transform 0.15s;
+  }
+  .frö-knapp:hover .skylt { transform: translateX(-50%) rotate(3deg) scale(1.12); }
+
+  .blomma {
+    width: 110px;
+    height: 205px;
+    cursor: pointer;
+    display: none;
+    border: 0;
+    background: none;
+    padding: 0;
+    transform-origin: bottom center;
+  }
+  .plantering.växt .frö-knapp { display: none; }
+  .plantering.växt .blomma { display: block; animation: växa 1s cubic-bezier(0.3, 1.4, 0.5, 1); }
+  @keyframes växa { from { transform: scaleY(0.05) scaleX(0.4); } }
+  .blomma:hover { filter: brightness(1.06); }
+  .blomma svg { width: 100%; height: 100%; }
+  .blomma .huvud { transform-origin: 55px 58px; }
+  .plantering.vissen .blomma { filter: saturate(0.35) brightness(0.92); }
+  .plantering.vissen .huvud { transform: rotate(38deg); transition: transform 1.2s ease; }
+
+  .namnlapp { font-family: var(--hand); font-size: 19px; font-weight: 700; color: #3f5e47; min-height: 26px; }
+
+  .vattna {
+    position: absolute;
+    top: 8px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: none;
+    border: 2.5px solid var(--bläck);
+    background: #d2ecf9;
+    border-radius: 999px;
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 12.5px;
+    padding: 7px 13px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 rgba(53, 80, 60, 0.4);
+    animation: guppa 1.2s ease-in-out infinite alternate;
+  }
+  @keyframes guppa { to { transform: translateX(-50%) translateY(-5px); } }
+  .plantering.vissen .vattna { display: block; }
+
+  /* ---------- Infokort ---------- */
+  .skugga { position: fixed; inset: 0; background: rgba(53, 80, 60, 0.45); z-index: 90; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+  .skugga.syns { opacity: 1; pointer-events: auto; }
+  .infokort {
+    position: fixed;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -46%) scale(0.92);
+    width: min(460px, 92vw);
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 100;
+    background: #fffdf4;
+    border: 4px solid var(--bläck);
+    border-radius: 24px;
+    padding: 28px 30px;
+    box-shadow: 0 30px 70px rgba(53, 80, 60, 0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s, transform 0.25s;
+  }
+  .infokort.syns { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
+  .infokort .blomnamn { font-family: var(--hand); font-size: 21px; color: #d96fa0; }
+  .infokort h2 { font-size: 24px; font-weight: 700; margin: 2px 0 12px; }
+  .infokort p { font-size: 15px; line-height: 1.7; color: #44604c; margin-bottom: 10px; }
+  .infokort a { color: #d96fa0; font-weight: 700; }
+  .infokort .knapp { display: inline-block; background: #d96fa0; color: #fff; border: 3px solid var(--bläck); border-radius: 999px; font-weight: 700; text-decoration: none; padding: 11px 22px; margin-top: 6px; box-shadow: 0 5px 0 rgba(53,80,60,0.5); }
+  .infokort .stäng { position: absolute; top: 12px; right: 14px; width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--bläck); background: #fff; font-weight: 700; cursor: pointer; }
+
+  .festbanner {
+    position: fixed;
+    top: 64px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 60;
+    background: #fff;
+    border: 3px solid var(--bläck);
+    border-radius: 999px;
+    font-family: var(--hand);
+    font-size: 22px;
+    padding: 10px 26px;
+    box-shadow: 0 10px 26px rgba(53, 80, 60, 0.25);
+    display: none;
+  }
+  .festbanner.syns { display: block; animation: poppa 0.6s cubic-bezier(0.3, 1.6, 0.5, 1); }
+  @keyframes poppa { from { transform: translateX(-50%) scale(0.3); opacity: 0; } }
+
+  footer { position: relative; z-index: 5; text-align: center; padding: 18px 16px 40px; font-size: 13px; color: #4c6b53; background: #d9f0d4; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sol .strålar, .fjäril, .vattna { animation: none; }
+    .plantering.växt .blomma { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sol" aria-hidden="true"><span class="strålar" id="strålar"></span><span class="kärna"></span></div>
+<span class="fjäril" style="top:30vh; left:2vw" aria-hidden="true">🦋</span>
+<span class="fjäril" style="top:44vh; left:8vw; animation-delay:-8s; font-size:20px" aria-hidden="true">🦋</span>
+
+<div class="räknare">🌸 Trädgården blommar: <span id="antal">0</span>/7</div>
+
+<header>
+  <p class="hand-rad">Välkommen in i</p>
+  <h1>Minnes<em>trädgården</em></h1>
+  <p class="sub">Hjärnan är en trädgård: allt du planterar kan växa — hur mycket som helst, hur länge som helst.
+  <b>Klicka på skyltarna för att så</b>, och glöm inte vattna: i den här trädgården heter vattnet <i>repetition</i>.</p>
+</header>
+
+<main class="trädgård" id="trädgård"></main>
+
+<div class="skugga" id="skugga"></div>
+<aside class="infokort" id="infokort">
+  <button class="stäng" id="kort-stäng" aria-label="Stäng">✕</button>
+  <p class="blomnamn" id="kort-art"></p>
+  <h2 id="kort-titel"></h2>
+  <div id="kort-text"></div>
+</aside>
+
+<div class="festbanner" id="festbanner">🌈 Hela trädgården blommar! Tänk vad en hjärna rymmer.</div>
+
+<footer>Koncept 19 · jonasvonessen.se · Trädgårdsmästarens regel: det du vattnar växer. Det gäller minnen också.</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* Solstrålar */
+  var strålar = document.getElementById("strålar");
+  for (var v = 0; v < 12; v++) {
+    var i = document.createElement("i");
+    i.style.transform = "rotate(" + (v * 30) + "deg) translateX(-50%)";
+    strålar.appendChild(i);
+  }
+
+  /* Blomma-SVG-byggare */
+  function blommaSVG(typ) {
+    var KRONBLAD = {
+      ros:        { färg: "#e87fae", antal: 8, rx: 16, ry: 24, mitt: "#f7c873" },
+      tulpan:     { färg: "#f2b144", antal: 5, rx: 17, ry: 26, mitt: "#e87fae" },
+      tulpan2:    { färg: "#9a86d9", antal: 5, rx: 17, ry: 26, mitt: "#f7c873" },
+      solros:     { färg: "#ffd23e", antal: 12, rx: 13, ry: 30, mitt: "#8a6243" },
+      förgätmigej:{ färg: "#7fb2f0", antal: 6, rx: 14, ry: 20, mitt: "#ffd23e" },
+      klocka:     { färg: "#f0a8c4", antal: 6, rx: 15, ry: 22, mitt: "#fff" },
+      valnöt:     { färg: "#a8d8a0", antal: 7, rx: 15, ry: 22, mitt: "#8a6243" }
+    };
+    var k = KRONBLAD[typ] || KRONBLAD.ros;
+    var blad = "";
+    for (var p = 0; p < k.antal; p++) {
+      blad += '<ellipse cx="55" cy="34" rx="' + k.rx + '" ry="' + k.ry + '" fill="' + k.färg +
+        '" transform="rotate(' + (p * 360 / k.antal) + ' 55 58)" opacity="0.93"/>';
+    }
+    return '<svg viewBox="0 0 110 205" aria-hidden="true">' +
+      '<path d="M55 200 C55 160 52 130 55 66" stroke="#4d8a52" stroke-width="7" fill="none" stroke-linecap="round"/>' +
+      '<path d="M55 150 C38 142 30 128 32 112 C48 120 55 132 55 150 Z" fill="#5cab60"/>' +
+      '<path d="M55 122 C72 114 80 100 78 84 C62 92 55 104 55 122 Z" fill="#6fbf73"/>' +
+      '<g class="huvud">' + blad + '<circle cx="55" cy="58" r="15" fill="' + k.mitt + '"/></g>' +
+      "</svg>";
+  }
+
+  var BLOMMOR = [
+    { typ: "ros", namn: "Jonas-rosen", art: "Rosa skövdensis, planterad 2012",
+      titel: "Allt började med ett frö",
+      html: "<p>En glömsk student. En bok om minnesteknik, hittad av en slump på Skövde bibliotek 2012. Det är hela fröet.</p><p>Arton månader senare hade det vuxit till något ingen sett förut: en världsmästare i minne. Hjärnor är sådana — de växer åt det håll man vattnar.</p>" },
+    { typ: "tulpan", namn: "Guldtulpan I", art: "Tulipa london, 2013",
+      titel: "VM-guld nummer ett",
+      html: "<p>Världsmästerskapen i minne, London 2013. Spelkort, binära tal, namn, årtal — och högst upp på prispallen: nykomlingen från Skövde.</p>" },
+    { typ: "tulpan2", namn: "Guldtulpan II", art: "Tulipa haikou, 2014",
+      titel: "VM-guld nummer två",
+      html: "<p>Kina, 2014: titeln försvaras. Två raka VM-guld ur samma rabatt.</p><p>I samma land memorerade Jonas senare hundratals valnötter i tv-programmet The Brain — trädgårdens mest oväntade skörd.</p>" },
+    { typ: "solros", namn: "π-solrosen", art: "Helianthus pi · 100 000 frön",
+      titel: "Solrosen med 100 000 frön",
+      html: "<p>Varje frökorg i en solros följer matematiska mönster — och den här bär exakt 100 000 frön: decimalerna av π som Jonas memorerat.</p><p>2020 räknade han upp 24 063 i följd under åtta timmar (Europarekord) och klarade som första person i världen stickprovstestet på allihop.</p>" },
+    { typ: "förgätmigej", namn: "Förgätmigej", art: "Myosotis · 500 blommor",
+      titel: "Blomman som aldrig glömmer namn",
+      html: "<p>Förgätmigej — såklart är det namnens blomma. I TV4:s Talang 2018 lärde sig Jonas hela publikens förnamn: 500 stycken på en kväll. Guldbuzzer, raka vägen till final.</p><p>Tekniken: koppla namnet till en bild du ser. Rosa? En ros bakom örat.</p>" },
+    { typ: "klocka", namn: "Kunskapsklockan", art: "Campanula sapientia",
+      titel: "Frön att ta med hem",
+      html: "<p>Hela trädgårdskonsten finns nedskriven: <b>«Så får du ett superminne»</b> (vuxna), <b>«Bli ett minnesgeni!»</b> (5–125 år) och <b>«Pi-boken 2.0»</b> (alla 100 000 decimaler).</p><p>Och fröpåsen på nätet: <a href='https://kurs.jonasvonessen.se' target='_blank' rel='noopener'>kursen «Skaffa ett superminne!» — 50+ lektioner →</a></p>" },
+    { typ: "valnöt", namn: "Honungsblomman", art: "Inviteria maxima",
+      titel: "Bjud hem trädgårdsmästaren",
+      html: "<p>Jonas föreläser med häpnad, skratt och verktyg som publiken planterar samma kväll — företag, konferenser, skolor. Fysiskt eller digitalt.</p><p><a class='knapp' href='mailto:hej@jonasvonessen.se?subject=Bokningsförfrågan%20(från%20Minnesträdgården)'>🐝 Boka föreläsning</a></p><p style='font-size:13px'><a href='https://www.instagram.com/jonasvonessen/' target='_blank' rel='noopener'>Instagram</a> · <a href='https://www.youtube.com/@BlueberryClubSparven' target='_blank' rel='noopener'>YouTube</a> · <a href='https://www.facebook.com/jonasvonessenmemorychampion/' target='_blank' rel='noopener'>Facebook</a></p>" }
+  ];
+
+  var trädgård = document.getElementById("trädgård");
+  var skugga = document.getElementById("skugga");
+  var infokort = document.getElementById("infokort");
+  var antalEl = document.getElementById("antal");
+  var växta = 0;
+  var stilla = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  BLOMMOR.forEach(function (b, idx) {
+    var plant = document.createElement("div");
+    plant.className = "plantering";
+    plant.innerHTML =
+      '<div class="växtyta">' +
+        '<button class="vattna">💧 Vattna (repetera!)</button>' +
+        '<button class="frö-knapp" aria-label="Plantera ' + b.namn + '"><span class="kulle"></span><span class="skylt">Så 🌱</span></button>' +
+        '<button class="blomma" aria-label="Läs om ' + b.namn + '">' + blommaSVG(b.typ) + "</button>" +
+      "</div>" +
+      '<p class="namnlapp"></p>';
+    trädgård.appendChild(plant);
+
+    var frö = plant.querySelector(".frö-knapp");
+    var blomma = plant.querySelector(".blomma");
+    var vattnaKnapp = plant.querySelector(".vattna");
+    var namnlapp = plant.querySelector(".namnlapp");
+    var vissnTimer = null;
+
+    function planteraVissning() {
+      if (stilla) return;
+      clearTimeout(vissnTimer);
+      vissnTimer = setTimeout(function () { plant.classList.add("vissen"); }, 22000 + Math.random() * 8000);
+    }
+
+    frö.addEventListener("click", function () {
+      plant.classList.add("växt");
+      namnlapp.textContent = b.namn;
+      växta++;
+      antalEl.textContent = växta;
+      planteraVissning();
+      if (växta === BLOMMOR.length) {
+        document.getElementById("festbanner").classList.add("syns");
+        document.body.insertAdjacentHTML("beforeend",
+          '<span class="fjäril" style="top:26vh; left:14vw; animation-delay:-4s" aria-hidden="true">🦋</span>' +
+          '<span class="fjäril" style="top:38vh; left:5vw; animation-delay:-12s; font-size:18px" aria-hidden="true">🦋</span>');
+      }
+    });
+
+    blomma.addEventListener("click", function () {
+      document.getElementById("kort-art").textContent = b.art;
+      document.getElementById("kort-titel").textContent = b.titel;
+      document.getElementById("kort-text").innerHTML = b.html;
+      infokort.classList.add("syns");
+      skugga.classList.add("syns");
+      plant.classList.remove("vissen");
+      planteraVissning();
+    });
+
+    vattnaKnapp.addEventListener("click", function (e) {
+      e.stopPropagation();
+      plant.classList.remove("vissen");
+      namnlapp.textContent = b.namn + " 💧";
+      setTimeout(function () { namnlapp.textContent = b.namn; }, 1800);
+      planteraVissning();
+    });
+  });
+
+  function stäng() {
+    infokort.classList.remove("syns");
+    skugga.classList.remove("syns");
+  }
+  document.getElementById("kort-stäng").addEventListener("click", stäng);
+  skugga.addEventListener("click", stäng);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") stäng(); });
+})();
+</script>
+</body>
+</html>

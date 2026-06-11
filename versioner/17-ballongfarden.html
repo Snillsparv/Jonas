@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ballongfärden — Jonas von Essen (koncept 17)</title>
+<meta name="description" content="Konceptversion: stig till väders genom minnets atmosfär — från ängen till rymden.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bläck: #2e3a52;
+    --sans: "Quicksand", system-ui, sans-serif;
+    --serif: "Fraunces", Georgia, serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--sans); color: var(--bläck); }
+
+  /* ---------- Den fasta himlen ---------- */
+  .himmel { position: fixed; inset: 0; z-index: 0; background: #9ad8f5; transition: none; }
+  .sol, .måne {
+    position: fixed;
+    width: 110px; height: 110px;
+    border-radius: 50%;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .sol { top: 9vh; right: 12vw; background: radial-gradient(circle, #fff3c4 30%, #ffd96b 70%); box-shadow: 0 0 70px rgba(255, 217, 107, 0.8); }
+  .måne { top: 12vh; left: 12vw; background: radial-gradient(circle at 35% 35%, #f4f6ff 30%, #c9d2ee 80%); box-shadow: 0 0 50px rgba(201, 210, 238, 0.6); opacity: 0; }
+  .stjärnhimmel { position: fixed; inset: 0; z-index: 1; opacity: 0; pointer-events: none; }
+  .stjärnhimmel i {
+    position: absolute;
+    width: 3px; height: 3px;
+    background: #fff;
+    border-radius: 50%;
+    animation: tindra 2.6s ease-in-out infinite;
+  }
+  @keyframes tindra { 50% { opacity: 0.2; } }
+
+  /* moln */
+  .moln {
+    position: fixed;
+    z-index: 2;
+    width: 240px; height: 70px;
+    background: rgba(255,255,255,0.85);
+    border-radius: 999px;
+    filter: blur(2px);
+    box-shadow: 40px -18px 0 -8px rgba(255,255,255,0.8), -50px -14px 0 -12px rgba(255,255,255,0.75);
+    animation: driva linear infinite;
+    pointer-events: none;
+  }
+  @keyframes driva { from { transform: translateX(-30vw); } to { transform: translateX(130vw); } }
+
+  /* ---------- Ballongen ---------- */
+  .ballong {
+    position: fixed;
+    left: clamp(8px, 7vw, 130px);
+    top: 34vh;
+    z-index: 10;
+    width: clamp(110px, 15vw, 190px);
+    animation: sväva 5.5s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+  @keyframes sväva { from { transform: translateY(-12px) rotate(-1.6deg); } to { transform: translateY(12px) rotate(1.8deg); } }
+  .ballong .låga { animation: fladdra 0.5s ease-in-out infinite alternate; transform-origin: 150px 235px; }
+  @keyframes fladdra { to { transform: scale(1.18); } }
+
+  /* ---------- Höjdmätare ---------- */
+  .höjdmätare {
+    position: fixed;
+    top: 16px; right: 16px;
+    z-index: 50;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    border: 2.5px solid var(--bläck);
+    border-radius: 16px;
+    padding: 12px 18px;
+    text-align: right;
+    box-shadow: 0 8px 24px rgba(46, 58, 82, 0.18);
+  }
+  .höjdmätare .etikett { font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase; opacity: 0.6; }
+  .höjdmätare .meter { font-size: clamp(20px, 3vw, 28px); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .höjdmätare .minnen { font-size: 11.5px; color: #6b7894; }
+
+  /* ---------- Innehållet ---------- */
+  main { position: relative; z-index: 5; }
+  .station {
+    min-height: 105vh;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 10vh clamp(16px, 7vw, 110px) 10vh clamp(150px, 24vw, 360px);
+  }
+  .molnkort {
+    max-width: 460px;
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 28px;
+    padding: 30px 32px;
+    box-shadow:
+      0 18px 50px rgba(46, 58, 82, 0.18),
+      0 0 0 10px rgba(255, 255, 255, 0.35);
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .molnkort.syns { opacity: 1; transform: none; }
+  .molnkort .höjd {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: #fff;
+    background: var(--bläck);
+    border-radius: 999px;
+    padding: 6px 14px;
+    margin-bottom: 12px;
+  }
+  .molnkort h2 { font-family: var(--serif); font-weight: 700; font-size: clamp(22px, 3vw, 30px); line-height: 1.2; margin-bottom: 10px; }
+  .molnkort h2 em { font-style: italic; color: #e2702f; }
+  .molnkort p { font-size: 15.5px; line-height: 1.7; color: #4d5a76; margin-bottom: 8px; }
+  .molnkort a { color: #e2702f; font-weight: 600; }
+  .molnkort .knapp {
+    display: inline-block;
+    background: linear-gradient(120deg, #ff9a56, #e2702f);
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 999px;
+    padding: 13px 26px;
+    margin-top: 8px;
+    box-shadow: 0 10px 26px rgba(226, 112, 47, 0.4);
+  }
+
+  .hero-station { justify-content: center; text-align: center; padding: 0 18px; flex-direction: column; gap: 0; }
+  .hero-station .molnkort { max-width: 580px; }
+  .hero-station h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(30px, 5.6vw, 52px); line-height: 1.12; margin-bottom: 12px; }
+  .hero-station h1 em { font-style: italic; color: #e2702f; }
+  .pil-ner { margin-top: 22px; font-weight: 700; font-size: 13px; letter-spacing: 0.2em; animation: hoppa 1.8s ease-in-out infinite; }
+  @keyframes hoppa { 50% { transform: translateY(7px); } }
+
+  .äng {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    height: 16vh;
+    z-index: 3;
+    background: radial-gradient(120% 130% at 50% 130%, #6fbf73 0%, #8fd694 70%, transparent 71%);
+    pointer-events: none;
+    transition: opacity 0.4s;
+  }
+
+  footer { position: relative; z-index: 5; text-align: center; color: #fff; padding: 0 18px 40px; font-size: 13px; opacity: 0.85; }
+
+  @media (max-width: 700px) {
+    .station { padding-left: 16px; padding-right: 16px; justify-content: center; }
+    .ballong { width: 84px; top: 10vh; opacity: 0.9; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ballong, .ballong .låga, .moln, .pil-ner, .stjärnhimmel i { animation: none; }
+    .molnkort { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="himmel" id="himmel"></div>
+<div class="sol" id="sol"></div>
+<div class="måne" id="måne"></div>
+<div class="stjärnhimmel" id="stjärnhimmel"></div>
+<div class="moln" style="top:18vh; animation-duration:75s; animation-delay:-20s"></div>
+<div class="moln" style="top:46vh; animation-duration:95s; animation-delay:-60s; transform:scale(0.7)"></div>
+<div class="moln" style="top:70vh; animation-duration:115s; animation-delay:-35s; transform:scale(1.25)"></div>
+<div class="äng" id="äng"></div>
+
+<svg class="ballong" viewBox="0 0 300 420" aria-hidden="true">
+  <path d="M150 20 C70 20 40 90 40 150 C40 215 100 255 128 272 L172 272 C200 255 260 215 260 150 C260 90 230 20 150 20 Z" fill="#ff7b6b"/>
+  <path d="M150 20 C115 20 100 90 100 150 C100 215 122 255 134 272 L150 272 Z" fill="#ffd96b"/>
+  <path d="M150 20 C185 20 200 90 200 150 C200 215 178 255 166 272 L150 272 Z" fill="#7fc8f5"/>
+  <path d="M128 272 L122 320 M172 272 L178 320 M150 272 L150 320" stroke="#8a5a3b" stroke-width="4"/>
+  <circle class="låga" cx="150" cy="318" r="9" fill="#ffb13d"/>
+  <path d="M118 320 H182 L174 372 H126 Z" fill="#a9714b"/>
+  <path d="M118 320 H182" stroke="#8a5a3b" stroke-width="6"/>
+  <text x="150" y="170" text-anchor="middle" font-size="52" fill="#fff" font-family="Georgia, serif">π</text>
+</svg>
+
+<aside class="höjdmätare" aria-live="off">
+  <p class="etikett">Höjd över glömskan</p>
+  <p class="meter"><span id="meter">0</span> m</p>
+  <p class="minnen">1 meter = 1 minne · mål: 100 000</p>
+</aside>
+
+<main>
+
+  <section class="station hero-station">
+    <div class="molnkort syns">
+      <span class="höjd">0 M · ÄNGEN, SKÖVDE</span>
+      <h1>Hur högt kan<br>en <em>hjärna</em> flyga?</h1>
+      <p>Här nere på ängen står vi alla och tror att taket sitter vid inköpslistor och borttappade namn.
+      Jonas von Essen klev i korgen 2012 — och visade att hjärnan inte har något tak alls.</p>
+      <p><b>Följ med upp.</b> En meter för varje minne. Vi ska till 100 000.</p>
+      <p class="pil-ner">▼ SCROLLA FÖR ATT LYFTA</p>
+    </div>
+  </section>
+
+  <section class="station">
+    <div class="molnkort">
+      <span class="höjd">2 012 M · FÖRSTA VINDEN</span>
+      <h2>Biblioteket som gav <em>lyftkraft</em></h2>
+      <p>En lånad bok om minnesteknik. En glömsk student som bestämde sig för att testa.
+      Det är all ballast som behöver kastas ur korgen: idén att minne är medfött.</p>
+      <p>Arton månader senare hade vinden burit honom högre än någon trodde var möjligt.</p>
+    </div>
+  </section>
+
+  <section class="station">
+    <div class="molnkort">
+      <span class="höjd">2 013 M · ÖVER LONDON</span>
+      <h2>Världsmästare <em>i minne</em></h2>
+      <p>Minnes-VM, London 2013: den okände svensken seglar förbi hela världseliten. Guld.</p>
+      <p>Och 2014, på vindarna över Kina: guld igen. Två raka titlar — med tekniker som vem som helst kan lära sig.</p>
+    </div>
+  </section>
+
+  <section class="station">
+    <div class="molnkort">
+      <span class="höjd">2 018 M · BLAND FÅGLARNA 🕊️</span>
+      <h2>500 namn lyfter <em>mot final</em></h2>
+      <p>I TV4:s Talang lärde sig Jonas förnamnen på hela publiken — 500 personer — på en kväll.
+      David Batra tryckte på guldbuzzern och korgen steg rakt mot finalen.</p>
+      <p>Däruppe någonstans memorerade han även hundratals valnötter för kinesisk tv. Fråga inte — njut.</p>
+    </div>
+  </section>
+
+  <section class="station">
+    <div class="molnkort">
+      <span class="höjd">24 063 M · REKORDMOLNET</span>
+      <h2>Tunnare luft, <em>skarpare minne</em></h2>
+      <p>2020: Jonas återger 24 063 decimaler av π i följd under åtta timmar — Europarekord.
+      Strax därpå, som första människa i världen: godkänd på stickprovstestet över alla 100 000.</p>
+      <p>Härifrån ser man väldigt långt. Och han minns allt man ser.</p>
+    </div>
+  </section>
+
+  <section class="station">
+    <div class="molnkort">
+      <span class="höjd">50 000 M · PROVIANTMOLNET</span>
+      <h2>Karta och kompass <em>till alla</em></h2>
+      <p>Allt Jonas kan packas ner i ryggsäckar att dela ut: böckerna <b>«Så får du ett superminne»</b>,
+      <b>«Bli ett minnesgeni!»</b> (5–125 år) och <b>«Pi-boken 2.0»</b> — plus kursen
+      <a href="https://kurs.jonasvonessen.se" target="_blank" rel="noopener">«Skaffa ett superminne!» med 50+ lektioner</a>.</p>
+      <p>Fyra tekniker driver allt: minnespalatset, tokiga bilder, smart repetition och namnknepet.</p>
+    </div>
+  </section>
+
+  <section class="station">
+    <div class="molnkort">
+      <span class="höjd">100 000 M · RYMDEN ✨</span>
+      <h2>Här uppe finns <em>inga gränser</em></h2>
+      <p>100 000 meter. 100 000 minnen. Och vet du? Korgen är rymlig — hjärnor är byggda för det här,
+      din också. Det enda som krävs är någon som visar var lyftkraften sitter.</p>
+      <p>Boka Jonas till er konferens, ert företag eller er skola — så lyfter hela publiken.</p>
+      <a class="knapp" href="mailto:hej@jonasvonessen.se?subject=Bokningsförfrågan%20(vi%20vill%20lyfta)">🎈 Boka en uppstigning</a>
+      <p style="margin-top:14px; font-size:13px">
+        <a href="https://www.instagram.com/jonasvonessen/" target="_blank" rel="noopener">Instagram</a> ·
+        <a href="https://www.youtube.com/@BlueberryClubSparven" target="_blank" rel="noopener">YouTube</a> ·
+        <a href="https://www.facebook.com/jonasvonessenmemorychampion/" target="_blank" rel="noopener">Facebook</a>
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer>Koncept 17 · jonasvonessen.se · Ingen ballong skadades — höjdrädda kan ta kursen från marken.</footer>
+
+<script>
+(function () {
+  "use strict";
+  var stilla = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* Himlens färgstopp: [andel, [topp], [botten]] */
+  var STOPP = [
+    [0.00, [154, 216, 245], [201, 235, 250]],
+    [0.30, [110, 190, 240], [170, 220, 248]],
+    [0.55, [247, 178, 103], [250, 215, 160]],
+    [0.75, [93, 74, 138],  [180, 130, 160]],
+    [1.00, [7, 10, 40],    [30, 26, 70]]
+  ];
+  function lerp(a, b, t) { return Math.round(a + (b - a) * t); }
+  function färg(arr) { return "rgb(" + arr.join(",") + ")"; }
+  function blanda(a, b, t) { return [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)]; }
+
+  var himmel = document.getElementById("himmel");
+  var sol = document.getElementById("sol");
+  var måne = document.getElementById("måne");
+  var stjärnhimmel = document.getElementById("stjärnhimmel");
+  var äng = document.getElementById("äng");
+  var meter = document.getElementById("meter");
+
+  /* stjärnor */
+  for (var i = 0; i < 60; i++) {
+    var s = document.createElement("i");
+    s.style.left = Math.random() * 100 + "%";
+    s.style.top = Math.random() * 100 + "%";
+    s.style.animationDelay = (Math.random() * 2.6) + "s";
+    stjärnhimmel.appendChild(s);
+  }
+
+  function vidScroll() {
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    var p = max > 0 ? Math.min(1, window.scrollY / max) : 0;
+
+    /* himmelsfärg */
+    var i = 0;
+    while (i < STOPP.length - 2 && p > STOPP[i + 1][0]) i++;
+    var a = STOPP[i], b = STOPP[i + 1];
+    var t = (p - a[0]) / (b[0] - a[0] || 1);
+    himmel.style.background = "linear-gradient(180deg, " + färg(blanda(a[1], b[1], t)) + ", " + färg(blanda(a[2], b[2], t)) + ")";
+
+    sol.style.opacity = Math.max(0, 1 - p * 1.8);
+    sol.style.transform = "translateY(" + p * 60 + "vh)";
+    måne.style.opacity = Math.max(0, (p - 0.55) * 2.4);
+    stjärnhimmel.style.opacity = Math.max(0, (p - 0.6) * 2.6);
+    äng.style.opacity = Math.max(0, 1 - p * 6);
+
+    meter.textContent = Math.round(p * 100000).toLocaleString("sv-SE");
+  }
+  window.addEventListener("scroll", vidScroll, { passive: true });
+  window.addEventListener("resize", vidScroll);
+  vidScroll();
+
+  /* molnkorten tonar in */
+  var kort = document.querySelectorAll(".molnkort");
+  if (stilla) {
+    kort.forEach(function (k) { k.classList.add("syns"); });
+  } else {
+    var obs = new IntersectionObserver(function (poster) {
+      poster.forEach(function (post) {
+        if (post.isIntersecting) {
+          post.target.classList.add("syns");
+          obs.unobserve(post.target);
+        }
+      });
+    }, { threshold: 0.25 });
+    kort.forEach(function (k) { obs.observe(k); });
+  }
+})();
+</script>
+</body>
+</html>
