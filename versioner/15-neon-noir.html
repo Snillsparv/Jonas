@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mannen som aldrig glömmer — neon-noir (koncept 15)</title>
+<meta name="description" content="Konceptversion: en cyberpunk-noir-detektivberättelse om mannen som aldrig glömmer.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Monoton&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --natt: #050811;
+    --magenta: #ff4fd8;
+    --cyan: #4fd8ff;
+    --text: #d8dcec;
+    --dov: #8b92ad;
+    --neon: "Monoton", cursive;
+    --serif: "Crimson Pro", Georgia, serif;
+    --sans: "Inter", system-ui, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background:
+      radial-gradient(80% 50% at 50% 0%, rgba(255, 79, 216, 0.08), transparent 60%),
+      radial-gradient(70% 40% at 80% 100%, rgba(79, 216, 255, 0.06), transparent 60%),
+      var(--natt);
+    color: var(--text);
+    font-family: var(--serif);
+    font-size: 19px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* ---------- Regnet ---------- */
+  .regn { position: fixed; inset: -10%; pointer-events: none; z-index: 3; }
+  .regn.l1 {
+    background-image: repeating-linear-gradient(112deg, transparent 0 7px, rgba(170, 200, 255, 0.16) 7px 8px, transparent 8px 26px);
+    animation: ösa 0.5s linear infinite;
+    opacity: 0.5;
+  }
+  .regn.l2 {
+    background-image: repeating-linear-gradient(112deg, transparent 0 17px, rgba(170, 200, 255, 0.10) 17px 18px, transparent 18px 56px);
+    animation: ösa 0.9s linear infinite;
+  }
+  @keyframes ösa { to { transform: translate(-60px, 110px); } }
+
+  /* dimma */
+  .dimma {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    height: 36vh;
+    background: linear-gradient(180deg, transparent, rgba(10, 16, 34, 0.85));
+    pointer-events: none;
+    z-index: 4;
+  }
+
+  main { position: relative; z-index: 10; }
+
+  /* ---------- Hero: neonskylten ---------- */
+  .hero {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 18px;
+  }
+  .hero .bylinje {
+    font-family: var(--sans);
+    font-size: 12px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--dov);
+    margin-bottom: 30px;
+  }
+  .neonskylt {
+    font-family: var(--neon);
+    font-size: clamp(64px, 16vw, 180px);
+    line-height: 1;
+    color: var(--magenta);
+    text-shadow:
+      0 0 8px rgba(255, 79, 216, 0.9),
+      0 0 26px rgba(255, 79, 216, 0.65),
+      0 0 70px rgba(255, 79, 216, 0.4);
+    animation: neonflimmer 6s linear infinite;
+  }
+  @keyframes neonflimmer {
+    0%, 100% { opacity: 1; }
+    3% { opacity: 0.6; } 3.6% { opacity: 1; }
+    47% { opacity: 1; } 47.4% { opacity: 0.4; } 48% { opacity: 1; }
+    81% { opacity: 0.85; } 82% { opacity: 1; }
+  }
+  .neonskylt-spegel {
+    font-family: var(--neon);
+    font-size: clamp(64px, 16vw, 180px);
+    line-height: 1;
+    color: rgba(255, 79, 216, 0.18);
+    transform: scaleY(-0.5) translateY(-18%);
+    filter: blur(5px);
+    user-select: none;
+  }
+  .under-neon {
+    font-family: var(--sans);
+    font-size: clamp(12px, 1.8vw, 16px);
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    text-shadow: 0 0 12px rgba(79, 216, 255, 0.7);
+    margin-top: -10px;
+  }
+  .hero .ingress {
+    max-width: 540px;
+    margin-top: 44px;
+    font-style: italic;
+    color: var(--dov);
+    font-size: 18px;
+  }
+  .hero .pil { margin-top: 36px; font-family: var(--sans); font-size: 11px; letter-spacing: 0.4em; color: var(--dov); text-transform: uppercase; animation: blink 2.4s ease-in-out infinite; }
+  @keyframes blink { 50% { opacity: 0.3; } }
+
+  /* ---------- Kapitel ---------- */
+  .kapitel {
+    max-width: 660px;
+    margin: 0 auto;
+    padding: 9vh 22px;
+  }
+  .kapitel-etikett {
+    display: inline-block;
+    font-family: var(--sans);
+    font-size: 11.5px;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    text-shadow: 0 0 10px rgba(79, 216, 255, 0.6);
+    border: 1px solid rgba(79, 216, 255, 0.4);
+    border-radius: 3px;
+    padding: 7px 14px;
+    margin-bottom: 22px;
+  }
+  .kapitel h2 {
+    font-weight: 600;
+    font-size: clamp(26px, 4.2vw, 40px);
+    line-height: 1.2;
+    margin-bottom: 18px;
+  }
+  .kapitel h2 em { font-style: italic; color: var(--magenta); text-shadow: 0 0 16px rgba(255, 79, 216, 0.4); }
+  .kapitel p { margin-bottom: 16px; color: #c2c7dd; }
+  .kapitel p.viskning { font-style: italic; color: var(--dov); }
+  .kapitel .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.7s, transform 0.7s; }
+  .kapitel .reveal.syns { opacity: 1; transform: none; }
+
+  /* Bevisrader */
+  .bevis {
+    border-left: 2px solid var(--magenta);
+    background: rgba(255, 79, 216, 0.05);
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-size: 16.5px;
+  }
+  .bevis b { color: var(--text); }
+  .bevis .stämpel { font-family: var(--sans); font-size: 10px; letter-spacing: 0.26em; color: var(--magenta); display: block; margin-bottom: 4px; }
+
+  /* Neonsiffror */
+  .neon-tal {
+    text-align: center;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: clamp(40px, 9vw, 86px);
+    letter-spacing: 0.04em;
+    color: var(--cyan);
+    text-shadow: 0 0 12px rgba(79, 216, 255, 0.85), 0 0 50px rgba(79, 216, 255, 0.4);
+    margin: 22px 0 4px;
+  }
+  .neon-tal-text { text-align: center; font-family: var(--sans); font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--dov); }
+
+  /* anteckningar */
+  .anteckning {
+    background: rgba(216, 220, 236, 0.04);
+    border: 1px solid rgba(216, 220, 236, 0.14);
+    border-radius: 6px;
+    padding: 18px 22px;
+    margin: 12px 0;
+  }
+  .anteckning b { color: var(--cyan); }
+
+  /* ---------- Epilog / boka ---------- */
+  .epilog { text-align: center; padding-bottom: 14vh; }
+  .boka-neon {
+    display: inline-block;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: clamp(17px, 2.6vw, 24px);
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: var(--magenta);
+    text-decoration: none;
+    border: 2.5px solid var(--magenta);
+    border-radius: 10px;
+    padding: 20px 38px;
+    margin-top: 30px;
+    text-shadow: 0 0 12px rgba(255, 79, 216, 0.8);
+    box-shadow: 0 0 24px rgba(255, 79, 216, 0.35), inset 0 0 24px rgba(255, 79, 216, 0.12);
+    animation: neonflimmer 7s linear infinite;
+  }
+  .boka-neon:hover { background: rgba(255, 79, 216, 0.12); }
+  .epilog .alternativ { margin-top: 26px; font-family: var(--sans); font-size: 13.5px; color: var(--dov); }
+  .epilog .alternativ a { color: var(--cyan); }
+
+  footer {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 20px 20px 36px;
+    font-family: var(--sans);
+    font-size: 11.5px;
+    letter-spacing: 0.16em;
+    color: #5a607c;
+    text-transform: uppercase;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .regn, .neonskylt, .boka-neon, .hero .pil { animation: none; }
+    .kapitel .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="regn l1" aria-hidden="true"></div>
+<div class="regn l2" aria-hidden="true"></div>
+<div class="dimma" aria-hidden="true"></div>
+
+<main>
+
+  <section class="hero">
+    <p class="bylinje">En detektivberättelse i fem kapitel · Skövde, i regnet</p>
+    <h1 class="neonskylt">MINNE</h1>
+    <div class="neonskylt-spegel" aria-hidden="true">MINNE</div>
+    <p class="under-neon">— öppet dygnet runt · inget glöms —</p>
+    <p class="ingress">
+      Jag hade jobbat som utredare i tjugo år och trodde att jag sett allt.
+      Sedan kom fallet med mannen som aldrig glömmer.
+    </p>
+    <p class="pil">▼ Följ spåret</p>
+  </section>
+
+  <section class="kapitel">
+    <p class="kapitel-etikett reveal">Kapitel I · Ryktet</p>
+    <h2 class="reveal">Alla städer har sina <em>legender</em></h2>
+    <p class="reveal">Regnet hade fallit över Skövde i tre dygn när ryktet nådde mig: det fanns en man i stan
+    som kunde se en kortlek en gång och rabbla den baklänges. En man som hälsat på femhundra främlingar
+    och mindes varenda namn. En man som — sas det — bar hundra tusen siffror i huvudet.</p>
+    <p class="reveal viskning">Sånt där pratar folk om på barer. Jag trodde inte på ett ord. Det var mitt första misstag.</p>
+  </section>
+
+  <section class="kapitel">
+    <p class="kapitel-etikett reveal">Kapitel II · Spåret</p>
+    <h2 class="reveal">Varje historia har en <em>första ledtråd</em></h2>
+    <p class="reveal">Jag följde spåret bakåt. Det slutade på ett ställe ingen väntat sig: stadsbiblioteket, 2012.
+    En lånad bok om minnesteknik. Låntagaren: en student som inte ens kunde minnas sin flickväns telefonnummer.</p>
+    <p class="reveal">Arton månader senare stod samme man överst på pallen i minnes-VM i London.
+    Året därpå gjorde han om det i Kina. Två raka världsmästartitlar.</p>
+    <p class="reveal viskning">Ingen blir världsbäst på arton månader. Om det inte finns ett system. Det fanns ett system.</p>
+  </section>
+
+  <section class="kapitel">
+    <p class="kapitel-etikett reveal">Kapitel III · Bevisen</p>
+    <h2 class="reveal">Bevismaterialet bara <em>växte</em></h2>
+    <div class="bevis reveal"><span class="stämpel">Bevis 01 · TV4, 2018</span><b>500 namn på en kväll.</b> Hela Talang-publiken. Guldbuzzer. Final.</div>
+    <div class="bevis reveal"><span class="stämpel">Bevis 02 · Kinesisk TV</span><b>Hundratals valnötter</b>, individuellt memorerade i The Brain. Jag läste rapporten två gånger. Där stod valnötter båda gångerna.</div>
+    <div class="bevis reveal"><span class="stämpel">Bevis 03 · 7 mars 2020</span><b>24 063 decimaler av π i följd</b>, åtta timmar utan ett felsteg. Europarekord.</div>
+  </section>
+
+  <section class="kapitel">
+    <p class="kapitel-etikett reveal">Kapitel IV · Numren</p>
+    <h2 class="reveal">Och så var det <em>talet</em></h2>
+    <p class="reveal">Det stora talet. Det som inte borde få plats i ett mänskligt huvud.</p>
+    <div class="reveal">
+      <p class="neon-tal">100 000</p>
+      <p class="neon-tal-text">memorerade decimaler av π · stickprovstestade · världsunikt</p>
+    </div>
+    <p class="reveal viskning" style="margin-top:18px">Jag satt i bilen utanför hans föreläsning och lyssnade på regnet.
+    Det fanns bara två möjligheter: antingen var han inte mänsklig — eller så hade alla vi andra
+    underskattat vad mänskligt betyder.</p>
+  </section>
+
+  <section class="kapitel">
+    <p class="kapitel-etikett reveal">Kapitel V · Upplösningen</p>
+    <h2 class="reveal">Ingen magi. <em>Teknik.</em></h2>
+    <p class="reveal">Jag konfronterade honom efter en föreläsning. Han skrattade och berättade allt.
+    Fyra metoder. Vem som helst kan lära sig dem. Jag skrev ner dem i mitt block:</p>
+    <div class="anteckning reveal"><b>Minnespalatset.</b> Lägg det du vill minnas på platser du kan utantill. Hjärnan är byggd för rum, inte listor.</div>
+    <div class="anteckning reveal"><b>Tokiga bilder.</b> Det absurda fastnar. En ko som jonglerar batterier glömmer ingen.</div>
+    <div class="anteckning reveal"><b>Smart repetition.</b> Repetera precis innan du glömmer: en dag, en vecka, en månad.</div>
+    <div class="anteckning reveal"><b>Namnknepet.</b> Rosa? En ros bakom örat. Femhundra gånger om.</div>
+    <p class="reveal">Han hade till och med skrivit ner alltihop — «Så får du ett superminne», «Bli ett minnesgeni!»,
+    och en bok som bara innehåller siffrorna: «Pi-boken 2.0». Plus en kurs med femtio lektioner.
+    Fallet var löst. Det hade aldrig varit ett mysterium. Det var en metod.</p>
+  </section>
+
+  <section class="kapitel epilog">
+    <p class="kapitel-etikett reveal">Epilog</p>
+    <h2 class="reveal">Om ni behöver honom<br><em>lyser skylten alltid</em></h2>
+    <p class="reveal" style="color:var(--dov); font-style:italic">Företag, konferenser, skolor. Han kommer med en show,
+    lämnar en verktygslåda — och er publik glömmer aldrig kvällen. Tro mig. Jag har kollat. Det är liksom hans grej.</p>
+    <a class="boka-neon reveal" href="mailto:hej@jonasvonessen.se?subject=Bokningsförfrågan%20(följde%20neonskylten)">Boka · Jonas von Essen</a>
+    <p class="alternativ reveal">
+      <a href="https://kurs.jonasvonessen.se" target="_blank" rel="noopener">Kursen: Skaffa ett superminne (50+ lektioner)</a><br><br>
+      <a href="https://www.instagram.com/jonasvonessen/" target="_blank" rel="noopener">Instagram</a> ·
+      <a href="https://www.youtube.com/@BlueberryClubSparven" target="_blank" rel="noopener">YouTube</a> ·
+      <a href="https://www.facebook.com/jonasvonessenmemorychampion/" target="_blank" rel="noopener">Facebook</a>
+    </p>
+  </section>
+</main>
+
+<footer>Koncept 15 · jonasvonessen.se · regnet är CSS · minnet är på riktigt</footer>
+
+<script>
+(function () {
+  "use strict";
+  var stilla = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var element = document.querySelectorAll(".reveal");
+  if (stilla) {
+    element.forEach(function (el) { el.classList.add("syns"); });
+    return;
+  }
+  var obs = new IntersectionObserver(function (poster) {
+    poster.forEach(function (p, i) {
+      if (p.isIntersecting) {
+        p.target.classList.add("syns");
+        obs.unobserve(p.target);
+      }
+    });
+  }, { threshold: 0.18 });
+  element.forEach(function (el) { obs.observe(el); });
+})();
+</script>
+</body>
+</html>

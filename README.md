@@ -35,7 +35,7 @@ webbläsare så är du igång.
 
 ## Konceptversioner
 
-I `versioner/` ligger tio helt olika, fristående konceptversioner av sajten,
+I `versioner/` ligger femton helt olika, fristående konceptversioner av sajten,
 plus ett galleri (`versioner/index.html`) som länkar till alla:
 
 1. **Minnespalatset** — vandra i sidled genom palatsets rum
@@ -49,6 +49,11 @@ plus ett galleri (`versioner/index.html`) som länkar till alla:
 8. **Akten von Essen** — hemligstämplad utredningsmapp med klickbar sekretess
 9. **Kortbordet** — kortlek på filtbord; vänd korten, blanda, bli tidtagen
 10. **Kylskåpsdörren** — dragbara magnetbokstäver, lappar och riv-av-bokning
+11. **Neuroshell** — hacker-terminal: skriv kommandon, `pi 100` beräknar riktiga decimaler
+12. **Konnektomet** — levande neuronnätverk; klicka på noder så pulserar aktiveringsvågor
+13. **Dekrypteringen** — tre lås att knäcka (Caesar-hjul, sekvens, minnestest)
+14. **Neuroscan 3000** — sci-fi-HUD med roterande hjärna, EEG-våg och anomalirapport
+15. **Neon-noir** — detektivnovell i CSS-regn under flimrande neonskyltar
 
 Varje fil är självständig (HTML + CSS + JS i ett) och kan öppnas direkt.
 

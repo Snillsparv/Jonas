@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEUROSCAN 3000 — Jonas von Essen (koncept 14)</title>
+<meta name="description" content="Konceptversion: en sci-fi-hjärnskanner analyserar minnesmästaren i realtid.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #02060d;
+    --cyan: #7de8ff;
+    --cyan-dov: #2e6e80;
+    --cyan-glöd: rgba(125, 232, 255, 0.4);
+    --varning: #ffc24b;
+    --mono: "Share Tech Mono", monospace;
+    --rubrik: "Rajdhani", sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background:
+      linear-gradient(rgba(125,232,255,0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(125,232,255,0.045) 1px, transparent 1px),
+      radial-gradient(110% 90% at 50% 0%, #07111f 0%, var(--bg) 65%);
+    background-size: 44px 44px, 44px 44px, 100% 100%;
+    color: var(--cyan);
+    font-family: var(--mono);
+    min-height: 100vh;
+    padding: 18px clamp(12px, 2.5vw, 30px) 26px;
+  }
+
+  /* ---------- Boot ---------- */
+  #boot {
+    position: fixed; inset: 0;
+    background: var(--bg);
+    z-index: 999;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    transition: opacity 0.5s;
+  }
+  #boot.borta { opacity: 0; pointer-events: none; }
+  #boot h1 { font-family: var(--rubrik); font-size: clamp(26px, 5vw, 44px); letter-spacing: 0.3em; }
+  #boot .bar { width: min(420px, 80vw); height: 6px; border: 1px solid var(--cyan-dov); margin: 18px auto 8px; }
+  #boot .bar i { display: block; height: 100%; width: 0; background: var(--cyan); box-shadow: 0 0 12px var(--cyan-glöd); transition: width 0.2s; }
+  #boot p { font-size: 12px; color: var(--cyan-dov); letter-spacing: 0.2em; }
+
+  /* ---------- Toppram ---------- */
+  .topp {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    border: 1px solid var(--cyan-dov);
+    padding: 10px 18px;
+    margin-bottom: 14px;
+    background: rgba(125, 232, 255, 0.03);
+  }
+  .topp h1 { font-family: var(--rubrik); font-weight: 700; font-size: clamp(17px, 2.6vw, 24px); letter-spacing: 0.24em; }
+  .topp .patient { font-size: 12.5px; color: var(--cyan-dov); }
+  .topp .patient b { color: var(--varning); font-weight: 400; }
+  .blink { animation: blink 1.2s step-end infinite; }
+  @keyframes blink { 50% { opacity: 0.25; } }
+
+  /* ---------- Rutnät ---------- */
+  .rutnät {
+    display: grid;
+    grid-template-columns: 250px 1fr 330px;
+    gap: 14px;
+    align-items: stretch;
+  }
+  .panel {
+    position: relative;
+    border: 1px solid var(--cyan-dov);
+    background: rgba(125, 232, 255, 0.025);
+    padding: 16px;
+  }
+  /* hörnvinklar */
+  .panel::before, .panel::after {
+    content: "";
+    position: absolute;
+    width: 14px; height: 14px;
+    border: 2px solid var(--cyan);
+  }
+  .panel::before { top: -2px; left: -2px; border-right: 0; border-bottom: 0; }
+  .panel::after { bottom: -2px; right: -2px; border-left: 0; border-top: 0; }
+  .panel h2 {
+    font-family: var(--rubrik);
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    color: var(--cyan);
+    border-bottom: 1px dashed var(--cyan-dov);
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+  }
+
+  /* Vänster: avläsningar */
+  .avläsning { font-size: 12.5px; line-height: 2.05; color: #9fd4e2; }
+  .avläsning b { color: var(--cyan); float: right; }
+  .avläsning .varn { color: var(--varning); }
+
+  /* Mitten: hjärnan */
+  .skanner { display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; min-height: 380px; }
+  .hjärna-scen { position: relative; width: min(380px, 80%); }
+  .hjärna-scen svg { width: 100%; filter: drop-shadow(0 0 18px var(--cyan-glöd)); }
+  .hjärna-rot { animation: gunga 7s ease-in-out infinite alternate; transform-origin: center; }
+  @keyframes gunga { from { transform: perspective(700px) rotateY(-22deg); } to { transform: perspective(700px) rotateY(22deg); } }
+  .skanlinje {
+    position: absolute;
+    left: -4%; right: -4%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    box-shadow: 0 0 16px var(--cyan-glöd);
+    animation: svep 3.4s ease-in-out infinite alternate;
+  }
+  @keyframes svep { from { top: 6%; } to { top: 92%; } }
+  .skanner .status-text { margin-top: 14px; font-size: 12px; letter-spacing: 0.24em; color: var(--cyan-dov); text-align: center; }
+
+  /* Höger: anomalier */
+  .anomali { border: 1px solid var(--cyan-dov); margin-bottom: 10px; background: rgba(2, 6, 13, 0.5); }
+  .anomali summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    padding: 11px 13px;
+    font-size: 12.5px;
+  }
+  .anomali summary::-webkit-details-marker { display: none; }
+  .anomali summary .kod { color: var(--varning); }
+  .anomali summary .pil { margin-left: auto; transition: transform 0.2s; }
+  .anomali[open] summary .pil { transform: rotate(90deg); }
+  .anomali .innehåll { padding: 0 13px 13px; font-size: 13px; line-height: 1.7; color: #b7dde8; }
+  .anomali .innehåll a { color: var(--varning); }
+  .anomali .innehåll .cta {
+    display: inline-block;
+    border: 1px solid var(--varning);
+    color: var(--varning);
+    text-decoration: none;
+    padding: 9px 16px;
+    margin-top: 8px;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+  }
+  .anomali .innehåll .cta:hover { background: rgba(255, 194, 75, 0.12); }
+
+  /* ---------- Botten: våg + telemetri ---------- */
+  .botten {
+    display: grid;
+    grid-template-columns: 1fr 330px;
+    gap: 14px;
+    margin-top: 14px;
+  }
+  #våg { width: 100%; height: 86px; display: block; }
+  .telemetri { font-size: 12px; line-height: 1.95; color: #9fd4e2; }
+  .telemetri b { color: var(--cyan); }
+
+  @media (max-width: 1020px) {
+    .rutnät { grid-template-columns: 1fr; }
+    .botten { grid-template-columns: 1fr; }
+    .skanner { min-height: 300px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hjärna-rot, .skanlinje, .blink { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="boot">
+  <div>
+    <h1>NEUROSCAN 3000</h1>
+    <div class="bar"><i id="boot-bar"></i></div>
+    <p id="boot-text">INITIERAR SENSORER…</p>
+  </div>
+</div>
+
+<header class="topp">
+  <h1>NEUROSCAN 3000</h1>
+  <span class="patient">SUBJEKT: <b>von ESSEN, J.</b> · F. SKÖVDE · STATUS: <b class="blink">SKANNING PÅGÅR</b></span>
+</header>
+
+<div class="rutnät">
+
+  <!-- VÄNSTER -->
+  <section class="panel">
+    <h2>AVLÄSNINGAR</h2>
+    <p class="avläsning">
+      Minneskapacitet <b class="varn">9 412 % ↑</b><br>
+      π-buffert <b>100 000/100 000</b><br>
+      Namnregister <b>500/kväll</b><br>
+      Glömskenivå <b>0,00 %</b><br>
+      VM-titlar <b>2 (’13, ’14)</b><br>
+      Valnötsindex <b class="varn">EXTREM</b><br>
+      Hippocampus <b>förstärkt</b><br>
+      Koffein <b>spårbart</b><br>
+      Ödmjukhet <b>intakt</b>
+    </p>
+  </section>
+
+  <!-- MITTEN -->
+  <section class="panel skanner">
+    <div class="hjärna-scen">
+      <span class="skanlinje" aria-hidden="true"></span>
+      <svg viewBox="0 0 400 320" aria-label="Wireframe av hjärna">
+        <g class="hjärna-rot" fill="none" stroke="#7de8ff" stroke-width="2">
+          <path stroke-width="3" d="M88 210 C58 196 52 150 78 128 C70 96 96 66 130 70 C144 40 192 32 216 52 C248 30 296 44 304 78 C338 86 352 126 332 152 C348 184 330 218 296 222 C288 252 250 268 222 252 C196 276 142 272 128 244 C108 244 92 230 88 210 Z"/>
+          <path opacity="0.7" d="M196 52 C190 120 198 190 202 254 M128 92 C150 122 148 160 132 196 M268 84 C252 120 256 168 274 200 M96 150 C140 162 170 158 198 146 M202 160 C240 172 280 168 320 150"/>
+          <path opacity="0.45" d="M120 120 C136 108 156 110 166 124 M232 110 C248 98 270 102 280 118 M160 200 C180 214 214 214 234 198"/>
+          <circle cx="160" cy="130" r="5" fill="#7de8ff"/>
+          <circle cx="262" cy="142" r="5" fill="#ffc24b" stroke="#ffc24b"/>
+          <circle cx="206" cy="206" r="5" fill="#7de8ff"/>
+        </g>
+      </svg>
+    </div>
+    <p class="status-text">TVÄRSNITT 0,42 · ROTATION AKTIV · INGA DEFEKTER FUNNA — ENDAST ANOMALIER (SE LISTA)</p>
+  </section>
+
+  <!-- HÖGER -->
+  <section class="panel">
+    <h2>ANOMALIER FUNNA: 5</h2>
+
+    <details class="anomali" open>
+      <summary><span class="kod">A-01</span> URSPRUNGSHÄNDELSEN <span class="pil">▸</span></summary>
+      <div class="innehåll">2012: subjektet — då oförmögen att minnas ett telefonnummer — exponerades för en biblioteksbok om minnesteknik i Skövde. Total ombyggnad av minnessystemet inleddes. 18 månader senare: världsmästare (London 2013). Upprepat 2014 (Kina).</div>
+    </details>
+
+    <details class="anomali">
+      <summary><span class="kod">A-02</span> π-REGIONEN <span class="pil">▸</span></summary>
+      <div class="innehåll">Regionen lagrar 100 000 decimaler av π. Verifierad: Europarekord 2020 — 24 063 i följd under 8 timmar — samt världens första godkända stickprovstest på hela sviten. Ingen kompression upptäckt: allt lagras i bilder och palats.</div>
+    </details>
+
+    <details class="anomali">
+      <summary><span class="kod">A-03</span> ANSIKTS/NAMN-KOPPLAREN <span class="pil">▸</span></summary>
+      <div class="innehåll">Kapacitet: 500 namn per kväll (verifierat i TV4:s Talang 2018; guldbuzzer utlöstes). Sekundärt fynd: hundratals valnötter individuellt igenkända i kinesisk TV (The Brain). Skannerteamet har slutat ifrågasätta.</div>
+    </details>
+
+    <details class="anomali">
+      <summary><span class="kod">A-04</span> METODKÄRNAN <span class="pil">▸</span></summary>
+      <div class="innehåll">Fyra subrutiner driver allt: minnespalatset (platser), tokiga bilder (det absurda fastnar), smart repetition (dag/vecka/månad), namnknepet (Rosa → ros bakom örat). VIKTIGT: subrutinerna är kopierbara till valfri hjärna. Distribution: böckerna «Så får du ett superminne», «Bli ett minnesgeni!», «Pi-boken 2.0» samt <a href="https://kurs.jonasvonessen.se" target="_blank" rel="noopener">kursen (50+ lektioner)</a>.</div>
+    </details>
+
+    <details class="anomali">
+      <summary><span class="kod">A-05</span> UTÅTRIKTAD AKTIVITET <span class="pil">▸</span></summary>
+      <div class="innehåll">Subjektet uppvisar stark drift att lära ut: föreläsningar (50 % show, 50 % verktygslåda) för företag, konferenser och skolor — fysiskt eller digitalt, svenska eller engelska. Referenser: TV4, SVT, The Brain, Strömsö.
+      <br><a class="cta" href="mailto:hej@jonasvonessen.se?subject=Bokningsförfrågan%20(via%20NEUROSCAN)">▸ BOKA SUBJEKTET</a>
+      <br><span style="font-size:11px">Övervakningskanaler: <a href="https://www.instagram.com/jonasvonessen/" target="_blank" rel="noopener">Instagram</a> · <a href="https://www.youtube.com/@BlueberryClubSparven" target="_blank" rel="noopener">YouTube</a> · <a href="https://www.facebook.com/jonasvonessenmemorychampion/" target="_blank" rel="noopener">Facebook</a></span></div>
+    </details>
+  </section>
+</div>
+
+<!-- BOTTEN -->
+<div class="botten">
+  <section class="panel">
+    <h2>MINNESAKTIVITET · REALTID</h2>
+    <canvas id="våg"></canvas>
+  </section>
+  <section class="panel">
+    <h2>TELEMETRI</h2>
+    <p class="telemetri">
+      Decimaler i omlopp <b id="t-dec">0</b><br>
+      Synapser/sekund <b id="t-syn">—</b><br>
+      Dagar utan glömska <b id="t-dagar">—</b><br>
+      Systemversion <b>π 3.14159</b>
+    </p>
+  </section>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var stilla = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- Boot ---------- */
+  var bootSteg = ["INITIERAR SENSORER…", "KALIBRERAR π-DETEKTOR…", "SÖKER GLÖMSKA… 0 TRÄFFAR", "RITAR KONNEKTOM…", "KLAR. VISAR RESULTAT."];
+  var bar = document.getElementById("boot-bar");
+  var bootText = document.getElementById("boot-text");
+  var bi = 0;
+  var bootTimer = setInterval(function () {
+    bi++;
+    bar.style.width = (bi / bootSteg.length) * 100 + "%";
+    bootText.textContent = bootSteg[Math.min(bi, bootSteg.length - 1)];
+    if (bi >= bootSteg.length) {
+      clearInterval(bootTimer);
+      setTimeout(function () { document.getElementById("boot").classList.add("borta"); }, 420);
+    }
+  }, stilla ? 80 : 480);
+
+  /* ---------- Vågform ---------- */
+  var canvas = document.getElementById("våg");
+  var ctx = canvas.getContext("2d");
+  function storlek() {
+    canvas.width = canvas.offsetWidth * 2;
+    canvas.height = canvas.offsetHeight * 2;
+  }
+  storlek();
+  window.addEventListener("resize", storlek);
+  var t = 0;
+  (function ritaVåg() {
+    t += stilla ? 0 : 0.045;
+    var w = canvas.width, h = canvas.height, mitt = h / 2;
+    ctx.clearRect(0, 0, w, h);
+    ctx.strokeStyle = "#7de8ff";
+    ctx.lineWidth = 2.5;
+    ctx.shadowColor = "rgba(125,232,255,0.6)";
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    for (var x = 0; x < w; x += 4) {
+      var puls = Math.pow(Math.max(0, Math.sin(x / 70 - t)), 9) * h * 0.34;
+      var y = mitt + Math.sin(x / 26 + t * 2) * h * 0.07 + (Math.sin(x / 9 - t * 3) * h * 0.03) - puls;
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    requestAnimationFrame(ritaVåg);
+  })();
+
+  /* ---------- Telemetri ---------- */
+  var dec = 0;
+  var decEl = document.getElementById("t-dec");
+  setInterval(function () {
+    dec = (dec + 137) % 100001;
+    decEl.textContent = dec.toLocaleString("sv-SE") + " / 100 000";
+    document.getElementById("t-syn").textContent = (31400 + Math.floor(Math.random() * 1600)).toLocaleString("sv-SE");
+  }, 300);
+  var dagar = Math.floor((Date.now() - new Date("2012-08-14").getTime()) / 86400000);
+  document.getElementById("t-dagar").textContent = dagar.toLocaleString("sv-SE");
+})();
+</script>
+</body>
+</html>

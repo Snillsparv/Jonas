@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Konnektomet — Jonas von Essen (koncept 12)</title>
+<meta name="description" content="Konceptversion: ett levande neuronnätverk — aktivera synapser för att läsa minnena.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #06040f;
+    --violett: #a78bfa;
+    --cyan: #67e8f9;
+    --text: #e6e1f5;
+    --dov: #8d86a8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: radial-gradient(120% 110% at 70% 20%, #120c26 0%, var(--bg) 60%);
+    color: var(--text);
+    font-family: "Inter", system-ui, sans-serif;
+    overflow: hidden;
+  }
+  canvas { position: fixed; inset: 0; display: block; cursor: crosshair; }
+
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 20;
+    padding: 22px clamp(18px, 4vw, 40px);
+    pointer-events: none;
+  }
+  header h1 {
+    font-family: "Space Grotesk", sans-serif;
+    font-weight: 700;
+    font-size: clamp(19px, 2.6vw, 27px);
+    letter-spacing: 0.04em;
+  }
+  header h1 span { color: var(--violett); }
+  header p { font-size: 13px; color: var(--dov); margin-top: 4px; max-width: 520px; }
+  header b { color: var(--cyan); font-weight: 600; }
+
+  .telemetri {
+    position: fixed;
+    bottom: 16px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    font-size: 11.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--dov);
+    pointer-events: none;
+    text-align: center;
+  }
+  .telemetri b { color: var(--violett); font-weight: 600; }
+
+  /* ---------- Minnespanel ---------- */
+  .panel {
+    position: fixed;
+    top: 50%; right: clamp(14px, 3vw, 40px);
+    transform: translateY(-50%) translateX(30px);
+    width: min(400px, 90vw);
+    max-height: 78vh;
+    overflow-y: auto;
+    z-index: 40;
+    background: rgba(16, 11, 34, 0.82);
+    border: 1px solid rgba(167, 139, 250, 0.45);
+    border-radius: 16px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    padding: 26px 28px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6), 0 0 40px rgba(167, 139, 250, 0.12);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+  }
+  .panel.öppen { opacity: 1; pointer-events: auto; transform: translateY(-50%) translateX(0); }
+  .panel .nod-id {
+    font-size: 10.5px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 10px;
+  }
+  .panel h2 { font-family: "Space Grotesk", sans-serif; font-size: 23px; margin-bottom: 12px; }
+  .panel p { font-size: 14.5px; line-height: 1.65; color: #c9c2e0; margin-bottom: 10px; }
+  .panel a { color: var(--cyan); }
+  .panel .knapp {
+    display: inline-block;
+    background: linear-gradient(90deg, var(--violett), var(--cyan));
+    color: #0d0822;
+    font-weight: 600;
+    font-size: 13.5px;
+    text-decoration: none;
+    border-radius: 999px;
+    padding: 10px 20px;
+    margin-top: 6px;
+  }
+  .panel .stäng {
+    position: absolute;
+    top: 12px; right: 12px;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 1px solid rgba(167,139,250,0.5);
+    background: none;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 14px;
+  }
+  @media (max-width: 640px) {
+    .panel { top: auto; bottom: 12px; right: 50%; transform: translateX(50%) translateY(20px); max-height: 60vh; }
+    .panel.öppen { transform: translateX(50%) translateY(0); }
+    .telemetri { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>KONNEKTOM<span>:</span> von Essen</h1>
+  <p>En karta över ett tränat minne. Nätverket lever — signaler pulserar mellan synapser.
+  <b>Klicka på en lysande nod</b> för att aktivera minnet.</p>
+</header>
+
+<canvas id="nät"></canvas>
+
+<p class="telemetri">noder: <b id="t-noder">—</b> · synapser: <b id="t-kanter">—</b> · aktiverade minnen: <b id="t-aktiva">0/9</b> · glömda: <b>0</b></p>
+
+<aside class="panel" id="panel">
+  <button class="stäng" id="panel-stäng" aria-label="Stäng">✕</button>
+  <p class="nod-id" id="panel-id"></p>
+  <h2 id="panel-titel"></h2>
+  <div id="panel-text"></div>
+</aside>
+
+<script>
+(function () {
+  "use strict";
+  var canvas = document.getElementById("nät");
+  var ctx = canvas.getContext("2d");
+  var stilla = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var MINNEN = [
+    { id: "NOD 001 · KÄRNAN", titel: "Jonas von Essen", fx: 0.46, fy: 0.50, r: 17,
+      html: "<p>Skövde, 2012: en student som glömde telefonnummer hittar en bok om minnesteknik på biblioteket. Nätverket du ser började byggas om samma dag.</p><p>Arton månader senare var det starkast i världen. <b>Minne är teknik — inte talang.</b></p>" },
+    { id: "NOD 013 · LONDON", titel: "VM-guld 2013", fx: 0.24, fy: 0.30, r: 13,
+      html: "<p>Världsmästerskapen i minne, London. Den okände svensken utklassar världseliten — spelkort, binära tal, årtal, namn.</p><p>Arton månader efter biblioteksboken.</p>" },
+    { id: "NOD 014 · HAIKOU", titel: "VM-guld 2014", fx: 0.18, fy: 0.58, r: 13,
+      html: "<p>Titeln försvaras i Kina. Två raka VM-guld.</p><p>Samma nätverk återvände senare till kinesisk tv (The Brain) för en av minnesvärldens märkligaste uppgifter…</p>" },
+    { id: "NOD 314 · π-REGIONEN", titel: "100 000 decimaler av π", fx: 0.66, fy: 0.26, r: 15,
+      html: "<p>Hela regionen lagrar π. 2020: <b>Europarekord</b> — 24 063 decimaler återgivna i följd under åtta timmar.</p><p>Och som första person i världen: godkänd på stickprovstestet över samtliga 100 000.</p>" },
+    { id: "NOD 500 · ANSIKTSMINNET", titel: "500 namn på en kväll", fx: 0.80, fy: 0.47, r: 13,
+      html: "<p>Talang (TV4), 2018. Hela publikens förnamn — 500 stycken — memorerade under kvällen. Guldbuzzer av David Batra, raka vägen till final.</p><p>Tekniken bakom heter namnknepet. Den finns i nod TEKNIKERNA.</p>" },
+    { id: "NOD 099 · NÖTREGIONEN", titel: "Valnötterna", fx: 0.71, fy: 0.71, r: 11,
+      html: "<p>Hundratals slumpmässiga valnötter, memorerade individuellt i kinesisk tv. Varje nöt: en egen identitet, en egen plats i nätverket.</p><p>Varför? För att minnesvärlden är underbar.</p>" },
+    { id: "NOD 004 · TEKNIKERNA", titel: "De fyra knepen", fx: 0.33, fy: 0.74, r: 14,
+      html: "<p><b>Minnespalatset</b> — lägg minnen på platser du kan utantill.<br><b>Tokiga bilder</b> — det absurda fastnar.<br><b>Smart repetition</b> — dag, vecka, månad.<br><b>Namnknepet</b> — Rosa? En ros bakom örat.</p><p>Inget av det kräver medfödd begåvning.</p>" },
+    { id: "NOD 050 · BIBLIOTEKET", titel: "Böcker & kurs", fx: 0.52, fy: 0.84, r: 12,
+      html: "<p>«Så får du ett superminne» (vuxna) · «Bli ett minnesgeni!» (5–125 år) · «Pi-boken 2.0» (alla 100 000 decimaler, tryckta).</p><p>Plus kursen <a href='https://kurs.jonasvonessen.se' target='_blank' rel='noopener'>«Skaffa ett superminne!» — 50+ lektioner →</a></p>" },
+    { id: "NOD 911 · KONTAKTYTAN", titel: "Synaps mot omvärlden", fx: 0.90, fy: 0.22, r: 12,
+      html: "<p>Föreläsningar som är hälften show, hälften verktygslåda — företag, konferenser, skolor. Fysiskt eller digitalt.</p><p><a class='knapp' href='mailto:hej@jonasvonessen.se?subject=Bokningsförfrågan%20föreläsning'>Aktivera kontakt: boka →</a></p><p style='font-size:12.5px'><a href='https://www.instagram.com/jonasvonessen/' target='_blank' rel='noopener'>Instagram</a> · <a href='https://www.youtube.com/@BlueberryClubSparven' target='_blank' rel='noopener'>YouTube</a> · <a href='https://www.facebook.com/jonasvonessenmemorychampion/' target='_blank' rel='noopener'>Facebook</a></p>" }
+  ];
+
+  var noder = [], kanter = [], pulser = [], W, H, DPR;
+  var aktiverade = new Set();
+
+  function bygg() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth; H = window.innerHeight;
+    canvas.width = W * DPR; canvas.height = H * DPR;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+
+  function init() {
+    bygg();
+    noder = [];
+    /* innehållsnoder */
+    MINNEN.forEach(function (m, i) {
+      noder.push({ x: m.fx * W, y: m.fy * H, vx: 0, vy: 0, r: m.r, minne: i, glöd: 0 });
+    });
+    /* dekorationsneuroner */
+    var antal = Math.min(46, Math.floor(W * H / 26000));
+    for (var i = 0; i < antal; i++) {
+      noder.push({
+        x: Math.random() * W, y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.16, vy: (Math.random() - 0.5) * 0.16,
+        r: 1.6 + Math.random() * 2.6, minne: null, glöd: 0
+      });
+    }
+    /* synapser: koppla nära grannar */
+    kanter = [];
+    for (var a = 0; a < noder.length; a++) {
+      var närmsta = [];
+      for (var b = 0; b < noder.length; b++) {
+        if (a === b) continue;
+        var d = avst(noder[a], noder[b]);
+        närmsta.push({ b: b, d: d });
+      }
+      närmsta.sort(function (x, y) { return x.d - y.d; });
+      var antalKanter = noder[a].minne !== null ? 4 : 2;
+      for (var k = 0; k < antalKanter && k < närmsta.length; k++) {
+        var bb = närmsta[k].b;
+        if (!kanter.some(function (e) { return (e.a === a && e.b === bb) || (e.a === bb && e.b === a); })) {
+          kanter.push({ a: a, b: bb });
+        }
+      }
+    }
+    document.getElementById("t-noder").textContent = noder.length;
+    document.getElementById("t-kanter").textContent = kanter.length;
+  }
+  function avst(p, q) { return Math.hypot(p.x - q.x, p.y - q.y); }
+
+  /* ---------- Pulser ---------- */
+  function nyPuls(kant, färg) {
+    pulser.push({ kant: kant, t: 0, fart: 0.012 + Math.random() * 0.01, färg: färg || "rgba(167,139,250," });
+  }
+  function ambient() {
+    if (!stilla && pulser.length < 14) nyPuls(kanter[Math.floor(Math.random() * kanter.length)]);
+    setTimeout(ambient, 380);
+  }
+
+  /* aktiveringsvåg från en nod */
+  function våg(start) {
+    var besökta = new Set([start]);
+    var front = [start];
+    var nivå = 0;
+    (function steg() {
+      if (nivå++ > 4 || front.length === 0) return;
+      var nästa = [];
+      front.forEach(function (n) {
+        kanter.forEach(function (k) {
+          var granne = k.a === n ? k.b : k.b === n ? k.a : null;
+          if (granne !== null && !besökta.has(granne)) {
+            besökta.add(granne);
+            nästa.push(granne);
+            nyPuls(k, "rgba(103,232,249,");
+            noder[granne].glöd = 1;
+          }
+        });
+      });
+      front = nästa;
+      setTimeout(steg, 160);
+    })();
+  }
+
+  /* ---------- Rendering ---------- */
+  var mus = { x: -9999, y: -9999 };
+  function rita() {
+    ctx.clearRect(0, 0, W, H);
+
+    /* synapser */
+    kanter.forEach(function (k) {
+      var a = noder[k.a], b = noder[k.b];
+      var d = avst(a, b);
+      var alfa = Math.max(0.04, 0.22 - d / 2400);
+      ctx.strokeStyle = "rgba(167,139,250," + alfa + ")";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.stroke();
+    });
+
+    /* pulser */
+    for (var i = pulser.length - 1; i >= 0; i--) {
+      var p = pulser[i];
+      p.t += p.fart;
+      if (p.t >= 1) { pulser.splice(i, 1); continue; }
+      var a = noder[p.kant.a], b = noder[p.kant.b];
+      var x = a.x + (b.x - a.x) * p.t;
+      var y = a.y + (b.y - a.y) * p.t;
+      ctx.fillStyle = p.färg + (0.9 * (1 - Math.abs(p.t - 0.5) * 1.4)) + ")";
+      ctx.beginPath();
+      ctx.arc(x, y, 2.4, 0, 7);
+      ctx.fill();
+    }
+
+    /* noder */
+    noder.forEach(function (n) {
+      if (!stilla && n.minne === null) {
+        n.x += n.vx; n.y += n.vy;
+        if (n.x < 0 || n.x > W) n.vx *= -1;
+        if (n.y < 0 || n.y > H) n.vy *= -1;
+      }
+      n.glöd = Math.max(0, n.glöd - 0.012);
+      var ärMinne = n.minne !== null;
+      var nära = avst(n, mus) < (ärMinne ? 40 : 9999);
+      var bas = ärMinne ? 0.85 : 0.4;
+
+      if (ärMinne) {
+        var aktiv = aktiverade.has(n.minne);
+        var glöd = 14 + n.glöd * 26 + (nära ? 10 : 0);
+        var grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r + glöd);
+        grad.addColorStop(0, aktiv ? "rgba(103,232,249,0.85)" : "rgba(167,139,250,0.85)");
+        grad.addColorStop(1, "rgba(167,139,250,0)");
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r + glöd, 0, 7);
+        ctx.fill();
+      }
+      ctx.fillStyle = ärMinne
+        ? (aktiverade.has(n.minne) ? "rgba(103,232,249," + bas + ")" : "rgba(208,196,255," + bas + ")")
+        : "rgba(141,134,168," + (bas + n.glöd * 0.5) + ")";
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, 7);
+      ctx.fill();
+
+      if (ärMinne) {
+        ctx.font = "600 12.5px Inter, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillStyle = nära ? "rgba(230,225,245,1)" : "rgba(230,225,245,0.72)";
+        ctx.fillText(MINNEN[n.minne].titel, n.x, n.y + n.r + 20);
+      }
+    });
+
+    requestAnimationFrame(rita);
+  }
+
+  /* ---------- Interaktion ---------- */
+  canvas.addEventListener("pointermove", function (e) {
+    mus.x = e.clientX; mus.y = e.clientY;
+    var träff = träffadNod(e.clientX, e.clientY);
+    canvas.style.cursor = träff !== null ? "pointer" : "crosshair";
+  });
+  canvas.addEventListener("click", function (e) {
+    var i = träffadNod(e.clientX, e.clientY);
+    if (i === null) return;
+    var nod = noder[i];
+    nod.glöd = 1;
+    våg(i);
+    öppnaPanel(nod.minne);
+  });
+  function träffadNod(x, y) {
+    for (var i = 0; i < MINNEN.length; i++) {
+      if (Math.hypot(noder[i].x - x, noder[i].y - y) < noder[i].r + 16) return i;
+    }
+    return null;
+  }
+
+  var panel = document.getElementById("panel");
+  function öppnaPanel(mi) {
+    var m = MINNEN[mi];
+    aktiverade.add(mi);
+    document.getElementById("t-aktiva").textContent = aktiverade.size + "/9";
+    document.getElementById("panel-id").textContent = m.id + " · AKTIVERAD";
+    document.getElementById("panel-titel").textContent = m.titel;
+    document.getElementById("panel-text").innerHTML = m.html;
+    panel.classList.add("öppen");
+  }
+  document.getElementById("panel-stäng").addEventListener("click", function () {
+    panel.classList.remove("öppen");
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") panel.classList.remove("öppen"); });
+
+  window.addEventListener("resize", init);
+  init();
+  rita();
+  ambient();
+})();
+</script>
+</body>
+</html>

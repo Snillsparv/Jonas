@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEUROSHELL — Jonas von Essen (koncept 11)</title>
+<meta name="description" content="Konceptversion: logga in i minnesmästarens hjärna via terminal.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0702;
+    --amber: #ffb454;
+    --amber-dim: #9a7038;
+    --amber-stark: #ffd9a0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: radial-gradient(120% 100% at 50% 0%, #14100a 0%, var(--bg) 60%);
+    color: var(--amber);
+    font-family: "VT323", "Courier New", monospace;
+    font-size: clamp(17px, 2.1vw, 22px);
+    line-height: 1.5;
+    text-shadow: 0 0 7px rgba(255, 180, 84, 0.4);
+    overflow: hidden;
+  }
+  /* CRT-känsla */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 50;
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,0.25) 0 2px, transparent 2px 4px),
+      radial-gradient(110% 110% at 50% 50%, transparent 55%, rgba(0,0,0,0.6) 100%);
+  }
+  body::after {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 51;
+    background: rgba(255, 200, 120, 0.03);
+    animation: flimmer 4s steps(12) infinite;
+  }
+  @keyframes flimmer { 50% { opacity: 0.5; } }
+
+  .terminal {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 18px 22px 14px;
+  }
+  .utdata { flex: 1; overflow-y: auto; padding-bottom: 8px; scrollbar-width: thin; scrollbar-color: var(--amber-dim) transparent; }
+  .utdata p { white-space: pre-wrap; word-break: break-word; margin: 0; }
+  .utdata .dim { color: var(--amber-dim); }
+  .utdata .stark { color: var(--amber-stark); }
+  .utdata .kommando-eko { color: var(--amber-stark); }
+  .utdata a { color: var(--amber-stark); }
+  .utdata .block { display: block; border-left: 3px solid var(--amber-dim); padding-left: 14px; margin: 4px 0; }
+
+  .inrad { display: flex; align-items: baseline; gap: 8px; border-top: 1px solid rgba(255,180,84,0.25); padding-top: 10px; }
+  .prompt { color: var(--amber-stark); white-space: nowrap; }
+  .infält {
+    flex: 1;
+    background: none;
+    border: 0;
+    outline: none;
+    color: var(--amber);
+    font: inherit;
+    text-shadow: inherit;
+    caret-color: var(--amber-stark);
+  }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 0 4px; }
+  .chip {
+    font: inherit;
+    font-size: 0.82em;
+    color: var(--amber);
+    background: rgba(255, 180, 84, 0.08);
+    border: 1px solid rgba(255, 180, 84, 0.4);
+    border-radius: 4px;
+    padding: 2px 12px;
+    cursor: pointer;
+  }
+  .chip:hover { background: rgba(255, 180, 84, 0.22); color: var(--amber-stark); }
+
+  .statusrad {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 0.75em;
+    color: var(--amber-dim);
+    padding-top: 6px;
+    flex-wrap: wrap;
+  }
+  @media (prefers-reduced-motion: reduce) { body::after { animation: none; } }
+</style>
+</head>
+<body>
+
+<div class="terminal" onclick="document.getElementById('infält').focus()">
+  <div class="utdata" id="utdata" aria-live="polite"></div>
+  <div class="chips" id="chips" aria-label="Snabbkommandon"></div>
+  <div class="inrad">
+    <span class="prompt" id="prompt">gäst@hippocampus:~$</span>
+    <input class="infält" id="infält" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Skriv ett kommando">
+  </div>
+  <div class="statusrad">
+    <span>NEUROSHELL 3.14 · värd: hjärna.jonasvonessen.se</span>
+    <span>minne: 100 000/100 000 π-decimaler · glömska: 0,00 %</span>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var utdata = document.getElementById("utdata");
+  var infält = document.getElementById("infält");
+  var stilla = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- π-generator (Gibbons spigot) ---------- */
+  function piDecimaler(n) {
+    try {
+      var q = 1n, r = 180n, t = 60n, i = 2n, ut = "";
+      /* första siffran är 3:an — släng den */
+      for (var k = 0; k <= n; k++) {
+        var u = 3n * (3n * i + 1n) * (3n * i + 2n);
+        var y = (q * (27n * i - 12n) + 5n * r) / (5n * t);
+        if (k > 0) ut += y.toString();
+        r = 10n * u * (q * (5n * i - 2n) + r - y * t);
+        q = 10n * q * i * (2n * i - 1n);
+        t = t * u;
+        i = i + 1n;
+      }
+      return ut;
+    } catch (e) {
+      return "14159265358979323846264338327950288419716939937510";
+    }
+  }
+
+  /* ---------- Utskrift ---------- */
+  var kö = [];
+  var skriver = false;
+  function skriv(text, klass) {
+    kö.push({ text: text, klass: klass || "" });
+    bearbeta();
+  }
+  function bearbeta() {
+    if (skriver || kö.length === 0) return;
+    skriver = true;
+    var post = kö.shift();
+    var p = document.createElement("p");
+    if (post.klass) p.className = post.klass;
+    utdata.appendChild(p);
+    if (stilla || post.text.length > 600) {
+      p.innerHTML = post.text;
+      utdata.scrollTop = utdata.scrollHeight;
+      skriver = false;
+      bearbeta();
+      return;
+    }
+    /* maskinskrivning: html-säkert genom att skriva till en buffert först */
+    var i = 0;
+    var timer = setInterval(function () {
+      i += 3;
+      p.innerHTML = post.text.slice(0, i);
+      utdata.scrollTop = utdata.scrollHeight;
+      if (i >= post.text.length) {
+        clearInterval(timer);
+        skriver = false;
+        bearbeta();
+      }
+    }, 12);
+  }
+
+  /* ---------- Kommandon ---------- */
+  var KOMMANDON = {
+    "hjälp": function () {
+      skriv("Tillgängliga kommandon:", "stark");
+      skriv(
+        "  vem            — vem är den här hjärnan?\n" +
+        "  meriter        — VM-guld, rekord och valnötter\n" +
+        "  pi [antal]     — räkna fram π-decimaler på riktigt (prova: pi 100)\n" +
+        "  tekniker       — de fyra knepen, avslöjade\n" +
+        "  böcker         — utgivna volymer\n" +
+        "  föreläsning    — info för företag & skolor\n" +
+        "  kurs           — öppna kursportalen\n" +
+        "  boka           — skicka bokningsförfrågan\n" +
+        "  sociala        — kanaler att följa\n" +
+        "  rensa          — töm skärmen\n" +
+        "  sudo glöm      — (avrådes)"
+      );
+    },
+    "vem": function () {
+      skriv("IDENTITET: Jonas von Essen, Skövde.", "stark");
+      skriv("2012 kunde den här hjärnan inte minnas ett telefonnummer. Sedan hittade ägaren en bok om minnesteknik på biblioteket och installerade nya rutiner.\n\n18 månader senare: VÄRLDSMÄSTARE I MINNE (London 2013). Året därpå: igen (Kina 2014).\n\nSlutsats: minne är mjukvara, inte hårdvara. Vem som helst kan uppgradera.");
+    },
+    "meriter": function () {
+      skriv("MERITLOGG:", "stark");
+      skriv("<span class='block'>2013  VM-guld i minne, London\n2014  VM-guld i minne, Haikou, Kina\n2018  Talang (TV4): 500 namn memorerade, guldbuzzer, final\n2020  Europarekord: 24 063 π-decimaler i följd (8 timmar)\n2020  Först i världen: stickprovstest på 100 000 memorerade decimaler\n????  Hundratals valnötter memorerade i kinesisk TV (The Brain)</span>");
+    },
+    "pi": function (arg) {
+      var n = Math.min(Math.max(parseInt(arg, 10) || 50, 1), 1000);
+      skriv("beräknar " + n + " decimaler med spigot-algoritm (på riktigt, här i terminalen)…", "dim");
+      setTimeout(function () {
+        skriv("π = 3," + piDecimaler(n));
+        skriv("(Jonas kan " + (100000 - n).toLocaleString("sv-SE") + " fler än så där.)", "dim");
+      }, 60);
+    },
+    "tekniker": function () {
+      skriv("DEKLASSIFICERADE METODER:", "stark");
+      skriv("1. MINNESPALATSET — placera minnen på platser du kan utantill. Hjärnan är byggd för rum.\n2. TOKIGA BILDER — det absurda fastnar. En ko som jonglerar batterier raderas aldrig.\n3. SMART REPETITION — repetera precis innan du glömmer: dag, vecka, månad.\n4. NAMNKNEPET — Rosa? En ros bakom örat. Så klarades 500 namn på en kväll.");
+    },
+    "böcker": function () {
+      skriv("BIBLIOTEK /utgivet:", "stark");
+      skriv("«Så får du ett superminne»   — teknikerna för vuxna\n«Bli ett minnesgeni!»         — för alla 5–125 år\n«Pi-boken 2.0»                — alla 100 000 decimaler, tryckta. En bok med enbart siffror.");
+    },
+    "föreläsning": function () {
+      skriv("MODUL: FÖRELÄSNING — hälften show, hälften verktygslåda.", "stark");
+      skriv("Publiken får se vad ett tränat minne klarar — och lär sig sedan teknikerna själva.\nFormat: företag, konferenser, skolor · fysiskt eller digitalt · svenska eller engelska.\nReferensbuffert: TV4 Talang, SVT, The Brain (Kina), Strömsö.\n\nKör kommandot 'boka' för att initiera förfrågan.");
+    },
+    "kurs": function () {
+      skriv("öppnar kursportalen «Skaffa ett superminne!» (50+ lektioner)…", "dim");
+      skriv("<a href='https://kurs.jonasvonessen.se' target='_blank' rel='noopener'>https://kurs.jonasvonessen.se</a>");
+      window.open("https://kurs.jonasvonessen.se", "_blank", "noopener");
+    },
+    "boka": function () {
+      skriv("initierar bokningsprotokoll…", "dim");
+      skriv("<a href='mailto:hej@jonasvonessen.se?subject=Bokningsförfrågan%20föreläsning'>hej@jonasvonessen.se — klicka för att skicka förfrågan</a>", "stark");
+      skriv("(svarstid: snabb. risk att glömmas bort: 0,00 %)", "dim");
+    },
+    "sociala": function () {
+      skriv("<a href='https://www.instagram.com/jonasvonessen/' target='_blank' rel='noopener'>instagram/jonasvonessen</a> · <a href='https://www.youtube.com/@BlueberryClubSparven' target='_blank' rel='noopener'>youtube</a> · <a href='https://www.facebook.com/jonasvonessenmemorychampion/' target='_blank' rel='noopener'>facebook</a>");
+    },
+    "rensa": function () { utdata.innerHTML = ""; },
+    "sudo": function (arg) {
+      if ((arg || "").trim() === "glöm") {
+        skriv("sudo: ÅTKOMST NEKAD — paketet 'glömska' avinstallerades permanent 2012-08-14.", "stark");
+      } else {
+        skriv("sudo: du har inte root i någon annans hjärna. Bra regel i allmänhet.");
+      }
+    },
+    "valnötter": function () {
+      skriv("🥜 ja, det hände på riktigt. hundratals. kinesisk tv. kör 'meriter'.", "dim");
+    },
+    "42": function () {
+      skriv("rätt svar — men fel tal. här gäller 3,14159…", "dim");
+    },
+    "ls": function () {
+      skriv("minnen/  tekniker/  rekord/  valnötter/  glömt/\n(katalogen 'glömt/' är tom sedan 2012)");
+    }
+  };
+
+  function kör(rad) {
+    rad = rad.trim();
+    if (!rad) return;
+    skriv("gäst@hippocampus:~$ " + rad, "kommando-eko");
+    var delar = rad.toLowerCase().split(/\s+/);
+    var namn = delar[0];
+    var arg = delar.slice(1).join(" ");
+    if (namn === "help") namn = "hjälp";
+    if (namn === "clear") namn = "rensa";
+    if (namn === "bocker") namn = "böcker";
+    if (namn === "forelasning" || namn === "föreläsningar") namn = "föreläsning";
+    var fn = KOMMANDON[namn];
+    if (fn) fn(arg);
+    else skriv("okänt kommando: '" + namn.replace(/[<>&]/g, "") + "' — prova 'hjälp'", "dim");
+  }
+
+  /* ---------- Inmatning + historik ---------- */
+  var historik = [];
+  var hIndex = -1;
+  infält.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      var rad = infält.value;
+      if (rad.trim()) { historik.unshift(rad); hIndex = -1; }
+      infält.value = "";
+      kör(rad);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (hIndex < historik.length - 1) { hIndex++; infält.value = historik[hIndex]; }
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (hIndex > 0) { hIndex--; infält.value = historik[hIndex]; }
+      else { hIndex = -1; infält.value = ""; }
+    }
+  });
+
+  /* ---------- Chips ---------- */
+  var chips = document.getElementById("chips");
+  ["hjälp", "vem", "meriter", "pi 100", "tekniker", "böcker", "föreläsning", "boka"].forEach(function (k) {
+    var b = document.createElement("button");
+    b.className = "chip";
+    b.textContent = k;
+    b.addEventListener("click", function (e) { e.stopPropagation(); kör(k); });
+    chips.appendChild(b);
+  });
+
+  /* ---------- Boot ---------- */
+  skriv("ansluter till hjärna.jonasvonessen.se:3141 …", "dim");
+  skriv("handskakning  ..............  OK", "dim");
+  skriv("kryptering    ..............  AES-π", "dim");
+  skriv("behörighet    ..............  GÄST (läsåtkomst till alla minnen)", "dim");
+  skriv(" ");
+  skriv("VÄLKOMMEN TILL NEUROSHELL 3.14", "stark");
+  skriv("Du är inloggad i hjärnan på Jonas von Essen — tvåfaldig världsmästare i minne.\nHär finns 100 000 π-decimaler, två VM-guld, 500 namn och noll glömda saker.\n\nSkriv ett kommando (eller klicka på knapparna). Börja gärna med 'vem'.");
+  infält.focus();
+})();
+</script>
+</body>
+</html>
