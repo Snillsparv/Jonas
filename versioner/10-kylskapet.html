@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kylskåpsdörren — Jonas von Essen (koncept 10)</title>
+<meta name="description" content="Konceptversion: hemma hos minnesmästaren — magnetbokstäver, lappar och en bokningsremsa att riva av.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Caveat:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --vägg: #f0dfc8;
+    --kakel: #e7d3b8;
+    --kyl: #dfe8e2;
+    --kyl-mörk: #c4d2c9;
+    --sans: "Inter", system-ui, sans-serif;
+    --hand: "Caveat", cursive;
+    --plast: "Baloo 2", system-ui, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--sans);
+    min-height: 100vh;
+    background:
+      linear-gradient(180deg, var(--vägg) 0 68%, var(--kakel) 68%),
+      var(--vägg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 4vh 14px 50px;
+    color: #4a4036;
+  }
+  /* kakelfog */
+  body::before {
+    content: "";
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    height: 32vh;
+    background:
+      repeating-linear-gradient(90deg, transparent 0 88px, rgba(255,255,255,0.5) 88px 92px),
+      repeating-linear-gradient(0deg, transparent 0 60px, rgba(255,255,255,0.5) 60px 64px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header { position: relative; z-index: 5; text-align: center; max-width: 640px; margin-bottom: 24px; }
+  header h1 { font-family: var(--hand); font-weight: 700; font-size: clamp(30px, 5vw, 44px); color: #5b4a38; }
+  header p { font-size: 14px; margin-top: 6px; color: #7a6a56; }
+  header b { color: #b3573a; }
+
+  /* ---------- Kylskåpet ---------- */
+  .kyl {
+    position: relative;
+    z-index: 5;
+    width: min(640px, 96vw);
+    border-radius: 26px;
+    background: linear-gradient(105deg, #eaf1ec 0%, var(--kyl) 45%, var(--kyl-mörk) 100%);
+    box-shadow:
+      inset -10px 0 24px rgba(0,0,0,0.08),
+      inset 4px 4px 0 rgba(255,255,255,0.65),
+      0 30px 60px rgba(90,70,50,0.35);
+    padding: 0 0 18px;
+  }
+
+  /* Frysdörren */
+  .frys {
+    position: relative;
+    height: 130px;
+    border-bottom: 10px solid rgba(90,90,90,0.18);
+    border-radius: 26px 26px 0 0;
+  }
+  .handtag { position: absolute; right: 22px; width: 14px; border-radius: 8px; background: linear-gradient(90deg, #b8c4bc, #98a69d); box-shadow: 2px 3px 6px rgba(0,0,0,0.25); }
+  .frys .handtag { top: 26px; bottom: 26px; }
+  .frys-lapp {
+    position: absolute;
+    top: 34px; left: 36px;
+    font-family: var(--hand);
+    font-size: 19px;
+    color: #41657d;
+    background: #eaf4fb;
+    padding: 10px 16px;
+    transform: rotate(-2deg);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  }
+  .frys-lapp::before { content: "❄"; margin-right: 6px; }
+  .märke {
+    position: absolute;
+    top: 12px; right: 60px;
+    font-size: 10.5px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #8d9b91;
+  }
+
+  /* Stora dörren */
+  .dörr {
+    position: relative;
+    height: clamp(560px, 78vh, 760px);
+    border-radius: 0 0 26px 26px;
+    overflow: hidden;
+  }
+  .dörr .handtag { top: 30px; height: 150px; }
+
+  /* ---------- Magnetbokstäver ---------- */
+  .bokstav {
+    position: absolute;
+    font-family: var(--plast);
+    font-weight: 800;
+    font-size: clamp(26px, 4.6vw, 38px);
+    line-height: 1;
+    padding: 2px 4px;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+    filter: drop-shadow(2px 3px 2px rgba(0,0,0,0.28));
+    transition: transform 0.15s;
+    z-index: 20;
+  }
+  .bokstav:active { cursor: grabbing; }
+  .bokstav:hover { transform: rotate(var(--rot)) scale(1.12); }
+
+  /* ---------- Lappar ---------- */
+  .lapp {
+    position: absolute;
+    border: 0;
+    cursor: pointer;
+    text-align: left;
+    font-family: var(--hand);
+    color: #46403a;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+    transition: transform 0.2s;
+    z-index: 10;
+    padding: 14px 14px 12px;
+  }
+  .lapp:hover { transform: rotate(0deg) scale(1.04) !important; z-index: 30; }
+  .lapp .magnet {
+    position: absolute;
+    top: -11px; left: 50%;
+    transform: translateX(-50%);
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ff8a7a, #c23b2e);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+  }
+  .lapp .magnet.blå { background: radial-gradient(circle at 35% 30%, #7ab2ff, #2e5fc2); }
+  .lapp .magnet.grön { background: radial-gradient(circle at 35% 30%, #8ad89a, #2e8c45); }
+  .lapp .magnet.gul { background: radial-gradient(circle at 35% 30%, #ffd97a, #c2912e); }
+  .lapp h2 { font-size: 21px; font-weight: 700; margin-bottom: 2px; }
+  .lapp .kort-text { font-size: 16px; line-height: 1.3; }
+  .lapp .mer { display: none; }
+
+  .postit { background: #fff3a1; width: 168px; min-height: 150px; }
+  .rutigt {
+    background:
+      repeating-linear-gradient(0deg, transparent 0 19px, rgba(60,120,180,0.18) 19px 20px),
+      repeating-linear-gradient(90deg, transparent 0 19px, rgba(60,120,180,0.18) 19px 20px),
+      #fdfdf6;
+    width: 190px;
+  }
+  .polaroid { background: #fff; width: 158px; padding-bottom: 8px; }
+  .polaroid .foto {
+    height: 108px;
+    background: linear-gradient(150deg, #c9b97f, #7d6b3f);
+    display: grid;
+    place-items: center;
+    font-size: 38px;
+    margin-bottom: 8px;
+  }
+  .flyer { background: #d9ecf7; width: 178px; font-family: var(--sans); }
+  .flyer h2 { font-family: var(--sans); font-weight: 600; font-size: 14px; letter-spacing: 0.04em; }
+  .flyer .kort-text { font-size: 12px; line-height: 1.45; }
+  .teckning { background: #fefcf5; width: 150px; }
+  .teckning svg { display: block; margin: 4px auto; }
+  .bokrygg { background: #10455e; color: #ffe9ad; width: 130px; }
+  .bokrygg h2 { color: #ffe9ad; font-family: var(--sans); font-weight: 600; font-size: 13px; }
+  .bokrygg .kort-text { color: #cfe3ee; font-size: 12px; font-family: var(--sans); }
+
+  /* ---------- Öppen lapp (zoomad) ---------- */
+  .skugga {
+    position: fixed; inset: 0;
+    background: rgba(60, 45, 30, 0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    z-index: 100;
+  }
+  .skugga.syns { opacity: 1; pointer-events: auto; }
+  .lapp.öppen {
+    position: fixed !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) rotate(0deg) scale(1) !important;
+    width: min(440px, 92vw) !important;
+    min-height: 0 !important;
+    max-height: 84vh;
+    overflow-y: auto;
+    z-index: 200;
+    padding: 26px 28px;
+    cursor: default;
+  }
+  .lapp.öppen .kort-text { font-size: 19px; }
+  .lapp.öppen .mer { display: block; font-size: 18px; line-height: 1.45; margin-top: 10px; }
+  .lapp.öppen.flyer .mer, .lapp.öppen.bokrygg .mer { font-size: 14px; font-family: var(--sans); line-height: 1.6; }
+  .lapp.öppen h2 { font-size: 26px; }
+  .lapp.öppen.flyer h2, .lapp.öppen.bokrygg h2 { font-size: 18px; }
+  .mer a { color: #b3573a; font-weight: 600; }
+  .mer .boka-knapp {
+    display: inline-block;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    background: #b3573a;
+    text-decoration: none;
+    border-radius: 999px;
+    padding: 10px 20px;
+    margin-top: 6px;
+  }
+
+  /* ---------- Rivremsan ---------- */
+  .rivlapp {
+    position: absolute;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%) rotate(1deg);
+    width: min(420px, 86%);
+    background: #fff;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+    text-align: center;
+    padding: 12px 10px 0;
+    z-index: 15;
+  }
+  .rivlapp .magnet { position: absolute; top: -11px; left: 24px; width: 24px; height: 24px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #8ad89a, #2e8c45); box-shadow: 0 3px 6px rgba(0,0,0,0.3); }
+  .rivlapp .magnet2 { position: absolute; top: -11px; right: 24px; width: 24px; height: 24px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ffd97a, #c2912e); box-shadow: 0 3px 6px rgba(0,0,0,0.3); }
+  .rivlapp h2 { font-family: var(--hand); font-size: 24px; }
+  .rivlapp p { font-size: 12px; color: #7a6a56; margin: 2px 0 10px; }
+  .flikar { display: flex; border-top: 2px dashed #c8beae; }
+  .flik {
+    flex: 1;
+    border: 0;
+    border-left: 2px dashed #c8beae;
+    background: #fff;
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 600;
+    color: #b3573a;
+    padding: 10px 2px 12px;
+    cursor: pointer;
+    writing-mode: vertical-rl;
+    min-height: 74px;
+    transition: transform 0.4s, opacity 0.4s;
+  }
+  .flik:first-child { border-left: 0; }
+  .flik:hover { background: #fff3ea; }
+  .flik.riven { transform: translateY(70px) rotate(18deg); opacity: 0; pointer-events: none; }
+
+  footer { position: relative; z-index: 5; margin-top: 26px; font-size: 12.5px; color: #8a7a64; text-align: center; }
+
+  @media (max-width: 560px) {
+    .postit { width: 138px; min-height: 120px; }
+    .rutigt { width: 156px; }
+    .flyer { width: 148px; }
+    .polaroid { width: 130px; }
+    .teckning { width: 124px; }
+    .bokrygg { width: 110px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lapp, .flik, .skugga { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Hemma hos minnesmästaren</h1>
+  <p>Jonas von Essens kylskåpsdörr berättar allt. <b>Dra i magnetbokstäverna</b>, klicka på lapparna —
+  och riv av en bokningsflik om du vill ha honom till din scen.</p>
+</header>
+
+<div class="kyl">
+  <div class="frys">
+    <span class="märke">Frost &amp; Minne 3000</span>
+    <div class="frys-lapp">Frysen: inget bortglömt här inne sedan 2012</div>
+    <span class="handtag"></span>
+  </div>
+
+  <div class="dörr" id="dörr">
+    <span class="handtag"></span>
+
+    <!-- Lappar -->
+    <button class="lapp postit" style="left:6%; top:5%; transform: rotate(-3deg)">
+      <span class="magnet gul"></span>
+      <h2>Inköpslista</h2>
+      <div class="kort-text">mjölk ✓<br>valnötter (träning!)<br>kaffe ✓✓<br>mer minne — nej vänta</div>
+      <div class="mer">
+        <p>Listan är av princip, inte behov. Jonas gick från att glömma sin flickväns telefonnummer
+        till att bli <b>världsmästare i minne 2013 och 2014</b> — på arton månaders träning,
+        som började med en boklån i Skövde.</p>
+        <p>Numera glömmer han ingenting. Men gamla vanor, ni vet.</p>
+      </div>
+    </button>
+
+    <button class="lapp rutigt" style="right:10%; top:4%; transform: rotate(2deg)">
+      <span class="magnet"></span>
+      <h2>Kom ihåg (haha)</h2>
+      <div class="kort-text">– 100 000 decimaler ✓<br>– 500 namn, Talang ✓<br>– valnötterna ✓<br>– Europarekordet ✓</div>
+      <div class="mer">
+        <p><b>100 000 decimaler av π</b> memorerade — Europarekord 2020 med 24 063 återgivna i sträck
+        på åtta timmar, och först i världen att klara stickprovstestet på hela sviten.</p>
+        <p><b>500 namn</b> på en kväll i TV4:s Talang (guldbuzzer av David Batra) och
+        <b>hundratals valnötter</b> i kinesiska The Brain.</p>
+      </div>
+    </button>
+
+    <button class="lapp polaroid" style="left:9%; top:43%; transform: rotate(3deg)">
+      <span class="magnet blå"></span>
+      <div class="foto">🏆🏆</div>
+      <div class="kort-text" style="text-align:center">VM-gulden, -13 &amp; -14</div>
+      <div class="mer">
+        <p>London 2013: okänd svensk nykomling utklassar världseliten i minnes-VM.
+        Haikou 2014: han gör om det.</p>
+        <p>Discipliner som spelkort på tid, binära tal och historiska årtal.
+        Allt med tekniker som vem som helst kan lära sig — det är liksom poängen.</p>
+      </div>
+    </button>
+
+    <button class="lapp flyer" style="right:8%; top:38%; transform: rotate(-2deg)">
+      <span class="magnet grön"></span>
+      <h2>FÖRELÄSNING?</h2>
+      <div class="kort-text">Halvt show, halvt verktygslåda. Företag · konferens · skola. Publiken glömmer den aldrig (ironiskt nog).</div>
+      <div class="mer">
+        <p>Jonas visar vad ett tränat minne klarar — och lär sedan ut teknikerna:
+        namn, siffror, presentationer, prov. På plats eller digitalt, svenska eller engelska.</p>
+        <p>Känd från TV4 Talang, SVT, The Brain och Strömsö.</p>
+        <a class="boka-knapp" href="mailto:hej@jonasvonessen.se?subject=Bokningsförfrågan%20föreläsning">Boka Jonas →</a>
+      </div>
+    </button>
+
+    <button class="lapp teckning" style="left:38%; top:28%; transform: rotate(-1deg)">
+      <span class="magnet gul"></span>
+      <svg width="86" height="64" viewBox="0 0 86 64" aria-hidden="true">
+        <path d="M14 40 C6 30 12 16 24 14 C28 4 46 2 52 10 C66 6 78 16 74 28 C80 36 74 46 64 47 C60 56 40 58 34 51 C24 54 16 49 14 40 Z"
+              fill="none" stroke="#e2607a" stroke-width="4" stroke-linecap="round"/>
+        <path d="M30 26 C36 20 44 22 46 28 M42 38 C48 32 58 34 60 40" stroke="#5a8fd6" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div class="kort-text" style="text-align:center">min hjärna<br>(teckning: brorsbarnen)</div>
+      <div class="mer">
+        <p>Knepen som även barn lär sig på en kvart:</p>
+        <p>🏰 <b>Minnespalatset</b> — lägg minnen på platser du kan utantill.<br>
+        🐄 <b>Tokiga bilder</b> — det absurda fastnar.<br>
+        🔁 <b>Repetera smart</b> — dag, vecka, månad.<br>
+        🌹 <b>Namnknepet</b> — Rosa? En ros bakom örat.</p>
+      </div>
+    </button>
+
+    <button class="lapp bokrygg" style="left:44%; top:62%; transform: rotate(2deg)">
+      <span class="magnet blå"></span>
+      <h2>π 3,14159…</h2>
+      <div class="kort-text">Pi-boken 2.0 — magnet från förlaget</div>
+      <div class="mer">
+        <p><b>«Så får du ett superminne»</b> — teknikerna för vuxna.</p>
+        <p><b>«Bli ett minnesgeni!»</b> — för alla mellan 5 och 125 år.</p>
+        <p><b>«Pi-boken 2.0»</b> — alla 100 000 decimaler. En bok med bara siffror. Ja, på riktigt.</p>
+        <p>Och kursen: <a href="https://kurs.jonasvonessen.se" target="_blank" rel="noopener">«Skaffa ett superminne!» — 50+ lektioner →</a></p>
+      </div>
+    </button>
+
+    <!-- Rivremsa -->
+    <div class="rivlapp">
+      <span class="magnet"></span><span class="magnet2"></span>
+      <h2>BOKA JONAS — riv en flik!</h2>
+      <p>som på anslagstavlan på ICA, fast 2026</p>
+      <div class="flikar" id="flikar"></div>
+    </div>
+  </div>
+</div>
+
+<div class="skugga" id="skugga"></div>
+
+<footer>Koncept 10 · jonasvonessen.se · Magneterna sitter löst — minnena sitter fast.<br>
+<a href="https://www.instagram.com/jonasvonessen/" target="_blank" rel="noopener" style="color:#b3573a">Instagram</a> ·
+<a href="https://www.youtube.com/@BlueberryClubSparven" target="_blank" rel="noopener" style="color:#b3573a">YouTube</a> ·
+<a href="https://www.facebook.com/jonasvonessenmemorychampion/" target="_blank" rel="noopener" style="color:#b3573a">Facebook</a></footer>
+
+<script>
+(function () {
+  "use strict";
+  var dörr = document.getElementById("dörr");
+
+  /* ---------- Magnetbokstäver ---------- */
+  var FRAS = "JONAS MINNS ALLT";
+  var FÄRGER = ["#e2607a", "#5a8fd6", "#58b368", "#e8a13c", "#9a6dd7", "#e2607a", "#3aa7a3"];
+  var rad = 0, kol = 0;
+  FRAS.split("").forEach(function (tecken, i) {
+    if (tecken === " ") { kol++; return; }
+    var b = document.createElement("span");
+    b.className = "bokstav";
+    b.textContent = tecken;
+    b.style.color = FÄRGER[i % FÄRGER.length];
+    var rot = (Math.random() * 14 - 7).toFixed(1) + "deg";
+    b.style.setProperty("--rot", rot);
+    b.style.transform = "rotate(" + rot + ")";
+    /* placera i två rader: "JONAS" / "MINNS ALLT" */
+    if (tecken === "M" && FRAS[i - 1] === " " && rad === 0) { rad = 1; kol = 0; }
+    b.style.left = (7 + kol * 8.4) + "%";
+    b.style.top = (rad === 0 ? 21 : 30) + "%";
+    kol++;
+    dörr.appendChild(b);
+    görDragbar(b);
+  });
+
+  function görDragbar(el) {
+    el.addEventListener("pointerdown", function (e) {
+      e.preventDefault();
+      el.setPointerCapture(e.pointerId);
+      var r = el.getBoundingClientRect();
+      var dr = dörr.getBoundingClientRect();
+      var offX = e.clientX - r.left;
+      var offY = e.clientY - r.top;
+      el.style.zIndex = 90;
+      function flytta(ev) {
+        var x = ev.clientX - dr.left - offX;
+        var y = ev.clientY - dr.top - offY;
+        x = Math.max(0, Math.min(dr.width - r.width, x));
+        y = Math.max(0, Math.min(dr.height - r.height, y));
+        el.style.left = (x / dr.width * 100) + "%";
+        el.style.top = (y / dr.height * 100) + "%";
+      }
+      function släpp() {
+        el.removeEventListener("pointermove", flytta);
+        el.removeEventListener("pointerup", släpp);
+        el.style.zIndex = 20;
+      }
+      el.addEventListener("pointermove", flytta);
+      el.addEventListener("pointerup", släpp);
+    });
+  }
+
+  /* ---------- Lappar: öppna/stäng ---------- */
+  var skugga = document.getElementById("skugga");
+  var öppenLapp = null;
+  document.querySelectorAll(".lapp").forEach(function (lapp) {
+    lapp.addEventListener("click", function (e) {
+      if (lapp.classList.contains("öppen")) return;
+      e.stopPropagation();
+      stäng();
+      lapp.classList.add("öppen");
+      skugga.classList.add("syns");
+      öppenLapp = lapp;
+    });
+  });
+  function stäng() {
+    if (öppenLapp) öppenLapp.classList.remove("öppen");
+    öppenLapp = null;
+    skugga.classList.remove("syns");
+  }
+  skugga.addEventListener("click", stäng);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") stäng(); });
+
+  /* ---------- Rivremsan ---------- */
+  var flikar = document.getElementById("flikar");
+  for (var i = 0; i < 7; i++) {
+    var f = document.createElement("button");
+    f.className = "flik";
+    f.textContent = "✆ BOKA JONAS";
+    f.addEventListener("click", function (e) {
+      var el = e.currentTarget;
+      if (el.classList.contains("riven")) return;
+      el.classList.add("riven");
+      setTimeout(function () {
+        location.href = "mailto:hej@jonasvonessen.se?subject=Bokningsförfrågan%20(rev%20en%20flik%20på%20kylskåpet)";
+      }, 450);
+    });
+    flikar.appendChild(f);
+  }
+})();
+</script>
+</body>
+</html>

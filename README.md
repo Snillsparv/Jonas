@@ -35,7 +35,7 @@ webbläsare så är du igång.
 
 ## Konceptversioner
 
-I `versioner/` ligger fem helt olika, fristående konceptversioner av sajten,
+I `versioner/` ligger tio helt olika, fristående konceptversioner av sajten,
 plus ett galleri (`versioner/index.html`) som länkar till alla:
 
 1. **Minnespalatset** — vandra i sidled genom palatsets rum
@@ -44,6 +44,11 @@ plus ett galleri (`versioner/index.html`) som länkar till alla:
 3. **JonasOS 3.14** — hjärnan som retro-OS med dragbara fönster
 4. **Sidan som glömmer** — texten bleknar tills besökaren repeterar
 5. **Varietéaffischen** — sekelskiftescirkus med ridå och glödlampor
+6. **Minneslinjen** — tunnelbanekarta där ett tåg åker till stationen du väljer
+7. **Kanal π** — retro-TV med sex kanaler (nyheter, TV-shop, sport, naturfilm…)
+8. **Akten von Essen** — hemligstämplad utredningsmapp med klickbar sekretess
+9. **Kortbordet** — kortlek på filtbord; vänd korten, blanda, bli tidtagen
+10. **Kylskåpsdörren** — dragbara magnetbokstäver, lappar och riv-av-bokning
 
 Varje fil är självständig (HTML + CSS + JS i ett) och kan öppnas direkt.
 

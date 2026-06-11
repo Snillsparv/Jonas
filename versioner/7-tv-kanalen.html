@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kanal π — Jonas von Essen (koncept 7)</title>
+<meta name="description" content="Konceptversion: zappa mellan TV-kanaler i minnesmästarens egen apparat.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --trä: #5a4232;
+    --plast: #2e2a26;
+    --grön: #4dff9d;
+    --sans: "Archivo", system-ui, sans-serif;
+    --tv-font: "VT323", monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: radial-gradient(110% 100% at 50% 0%, #3a3f4d 0%, #181b23 55%, #0c0e13 100%);
+    font-family: var(--sans);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 4vh 16px 40px;
+    color: #cdd3e0;
+  }
+
+  .rubrik { text-align: center; margin-bottom: 22px; }
+  .rubrik h1 { font-weight: 900; font-size: clamp(20px, 3.4vw, 32px); color: #fff; letter-spacing: 0.02em; }
+  .rubrik p { font-size: 13.5px; opacity: 0.7; margin-top: 4px; }
+  .rubrik b { color: var(--grön); }
+
+  /* ---------- TV:n ---------- */
+  .tv {
+    position: relative;
+    width: min(880px, 96vw);
+    background: linear-gradient(175deg, #6b5140 0%, var(--trä) 45%, #46332a 100%);
+    border-radius: 26px;
+    padding: 26px 120px 26px 26px;
+    box-shadow:
+      inset 0 2px 0 rgba(255,255,255,0.18),
+      0 30px 70px rgba(0,0,0,0.65);
+  }
+  .skärm-ram {
+    position: relative;
+    background: #0c0c0c;
+    border-radius: 18px;
+    padding: 14px;
+    box-shadow: inset 0 0 0 4px #1c1a18, inset 0 6px 24px rgba(0,0,0,0.9);
+  }
+  .skärm {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #000;
+  }
+  /* Scanlines + vinjett + flimmer */
+  .skärm::after {
+    content: "";
+    position: absolute; inset: 0;
+    pointer-events: none;
+    z-index: 60;
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,0.22) 0 2px, transparent 2px 4px),
+      radial-gradient(105% 105% at 50% 50%, transparent 60%, rgba(0,0,0,0.5) 100%);
+    border-radius: 10px;
+  }
+  .skärm.flimmer::after { animation: flimmer 0.12s steps(2) infinite; }
+  @keyframes flimmer { 50% { opacity: 0.86; } }
+
+  /* OSD-kanalnummer */
+  .osd {
+    position: absolute;
+    top: 12px; right: 16px;
+    z-index: 70;
+    font-family: var(--tv-font);
+    font-size: clamp(26px, 4vw, 40px);
+    color: var(--grön);
+    text-shadow: 0 0 10px rgba(77,255,157,0.8);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .osd.syns { opacity: 1; }
+
+  /* Brus */
+  .brus {
+    position: absolute; inset: 0;
+    z-index: 50;
+    display: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 240px;
+  }
+  .brus.syns { display: block; animation: brus-hopp 0.12s steps(3) infinite; }
+  @keyframes brus-hopp {
+    0% { background-position: 0 0; }
+    33% { background-position: -90px 60px; }
+    66% { background-position: 70px -110px; }
+  }
+
+  /* Påslagning: vit punkt */
+  .start-punkt {
+    position: absolute; inset: 0;
+    z-index: 80;
+    background: #000;
+    display: grid;
+    place-items: center;
+  }
+  .start-punkt i {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 30px #fff;
+    animation: tänd 0.9s ease-out forwards;
+  }
+  @keyframes tänd {
+    0% { transform: scale(0.2); }
+    55% { transform: scale(1.8); }
+    100% { transform: scale(420); opacity: 0; }
+  }
+  .start-punkt.borta { display: none; }
+
+  /* ---------- Kanaler ---------- */
+  .kanal { position: absolute; inset: 0; display: none; z-index: 10; }
+  .kanal.syns { display: block; }
+  .kanal-inre { position: absolute; inset: 0; padding: 5% 6%; overflow: hidden; }
+
+  /* K1: Minnesnytt */
+  .k1 { background: linear-gradient(180deg, #14254d 0%, #0d1830 100%); color: #fff; }
+  .k1 .logga { font-weight: 900; font-size: clamp(22px, 3.6vw, 40px); letter-spacing: 0.04em; }
+  .k1 .logga b { color: #ffd23e; }
+  .k1 .tid { font-family: var(--tv-font); color: #9fb4e4; font-size: 18px; margin-bottom: 4%; }
+  .k1 .nyhet { font-size: clamp(14px, 2vw, 19px); line-height: 1.6; max-width: 88%; }
+  .k1 .nyhet li { margin-bottom: 2.5%; list-style: none; padding-left: 22px; position: relative; }
+  .k1 .nyhet li::before { content: "■"; color: #ffd23e; position: absolute; left: 0; font-size: 12px; top: 4px; }
+  .k1 .banner {
+    position: absolute; left: 0; right: 0; bottom: 11%;
+    background: #c62828;
+    color: #fff;
+    font-weight: 700;
+    font-size: clamp(13px, 1.8vw, 17px);
+    padding: 8px 14px;
+  }
+  .k1 .ticker {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    background: #ffd23e;
+    color: #14254d;
+    font-weight: 700;
+    font-size: clamp(12px, 1.6vw, 15px);
+    padding: 7px 0;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .k1 .ticker span { display: inline-block; padding-left: 100%; animation: ticka 24s linear infinite; }
+  @keyframes ticka { to { transform: translateX(-100%); } }
+
+  /* K2: TV-shop */
+  .k2 { background: radial-gradient(120% 120% at 50% 0%, #7a1fb8 0%, #3c0f63 70%); color: #fff; text-align: center; }
+  .k2 .rop { font-weight: 900; font-size: clamp(24px, 4.4vw, 46px); line-height: 1.05; text-transform: uppercase; transform: rotate(-2deg); margin-top: 2%; }
+  .k2 .rop em { color: #ffe34d; font-style: normal; }
+  .k2 .pris {
+    display: inline-block;
+    margin-top: 3%;
+    background: #ffe34d;
+    color: #3c0f63;
+    font-weight: 900;
+    font-size: clamp(16px, 2.6vw, 24px);
+    padding: 10px 22px;
+    border-radius: 999px;
+    transform: rotate(2deg);
+    animation: pulsa 0.8s ease-in-out infinite alternate;
+  }
+  @keyframes pulsa { to { transform: rotate(2deg) scale(1.07); } }
+  .k2 .info { margin-top: 3%; font-size: clamp(13px, 1.9vw, 17px); line-height: 1.65; }
+  .k2 .litet { position: absolute; bottom: 4%; left: 6%; right: 6%; font-size: clamp(10px, 1.3vw, 12px); opacity: 0.75; }
+
+  /* K3: Utbildnings-TV (svart tavla) */
+  .k3 { background: #233527; color: #ecf5ec; }
+  .k3 .kanal-inre { border: 14px solid #6b4f33; }
+  .k3 h2 { font-family: var(--tv-font); font-size: clamp(24px, 3.4vw, 36px); color: #ffe9a8; margin-bottom: 3%; }
+  .k3 ol { margin-left: 5%; font-size: clamp(13px, 1.9vw, 17px); line-height: 1.7; }
+  .k3 ol li { margin-bottom: 2%; }
+  .k3 .krita { color: #b9d9b9; font-family: var(--tv-font); font-size: clamp(14px, 1.8vw, 18px); margin-top: 3%; }
+
+  /* K4: Sport */
+  .k4 { background: linear-gradient(180deg, #0d4f30 0%, #06301c 100%); color: #fff; }
+  .k4 .direkt {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #c62828; font-weight: 900; font-size: 13px;
+    padding: 5px 12px; border-radius: 4px; letter-spacing: 0.1em;
+  }
+  .k4 .direkt i { width: 9px; height: 9px; border-radius: 50%; background: #fff; animation: blink 1s step-end infinite; }
+  @keyframes blink { 50% { opacity: 0.2; } }
+  .k4 h2 { font-weight: 900; font-size: clamp(20px, 3vw, 32px); margin: 3% 0; }
+  .k4 .referat { font-size: clamp(13px, 1.9vw, 17px); line-height: 1.65; font-style: italic; max-width: 90%; }
+  .k4 .tavla {
+    position: absolute; bottom: 6%; left: 6%; right: 6%;
+    background: rgba(0,0,0,0.55);
+    border: 2px solid #ffd23e;
+    font-family: var(--tv-font);
+    font-size: clamp(15px, 2.2vw, 21px);
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .k4 .tavla b { color: #ffd23e; }
+
+  /* K5: Naturfilm */
+  .k5 { background: linear-gradient(180deg, #1d2b14 0%, #11190b 100%); color: #e9f0dc; }
+  .k5 .valnöt { font-size: clamp(50px, 9vw, 90px); text-align: center; margin-top: 2%; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.6)); }
+  .k5 h2 { text-align: center; font-weight: 900; font-size: clamp(18px, 2.8vw, 28px); margin-top: 1%; }
+  .k5 .berättare { font-style: italic; font-size: clamp(13px, 1.9vw, 17px); line-height: 1.7; max-width: 86%; margin: 3% auto 0; }
+  .k5 .undertext {
+    position: absolute; bottom: 5%; left: 0; right: 0;
+    text-align: center;
+    font-family: var(--tv-font);
+    font-size: clamp(14px, 2vw, 19px);
+    color: #ffe9a8;
+  }
+
+  /* K6: Testbild + kontakt */
+  .k6 { background: #111; }
+  .k6 .barer { position: absolute; inset: 0 0 38% 0; display: flex; }
+  .k6 .barer i { flex: 1; }
+  .k6 .panel {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 38%;
+    background: #181818;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 2%;
+    padding: 2% 6%;
+  }
+  .k6 .panel h2 { font-family: var(--tv-font); font-size: clamp(17px, 2.6vw, 26px); color: var(--grön); }
+  .k6 .panel p { font-size: clamp(12px, 1.7vw, 15px); opacity: 0.85; }
+  .k6 .panel a.boka {
+    background: var(--grön);
+    color: #06301c;
+    font-weight: 900;
+    text-decoration: none;
+    font-size: clamp(13px, 1.9vw, 16px);
+    padding: 9px 22px;
+    border-radius: 4px;
+  }
+  .k6 .panel .soc { font-size: clamp(11px, 1.5vw, 13px); }
+  .k6 .panel .soc a { color: var(--grön); }
+
+  /* ---------- Bezel: knappar & högtalare ---------- */
+  .panel-höger {
+    position: absolute;
+    top: 26px; right: 22px; bottom: 26px;
+    width: 84px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 0;
+    background: var(--plast);
+    border-radius: 14px;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.6);
+  }
+  .märke { font-family: var(--tv-font); color: #c8b894; font-size: 15px; letter-spacing: 0.1em; }
+  .knapp-tv {
+    width: 52px; height: 40px;
+    border-radius: 8px;
+    border: 0;
+    background: linear-gradient(180deg, #4a443e, #2a2622);
+    color: #e8dcc0;
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 3px 0 #15120f;
+  }
+  .knapp-tv:active { transform: translateY(2px); box-shadow: 0 1px 0 #15120f; }
+  .kanalvisare {
+    font-family: var(--tv-font);
+    font-size: 30px;
+    color: var(--grön);
+    background: #0a0f0a;
+    width: 52px;
+    text-align: center;
+    border-radius: 6px;
+    padding: 2px 0;
+    text-shadow: 0 0 8px rgba(77,255,157,0.8);
+  }
+  .högtalare { margin-top: auto; display: grid; gap: 4px; }
+  .högtalare i { width: 50px; height: 3px; background: #1a1714; border-radius: 2px; display: block; }
+
+  .tablå {
+    margin-top: 22px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    max-width: 880px;
+  }
+  .tablå button {
+    font-family: var(--sans);
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #cdd3e0;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 999px;
+    padding: 8px 14px;
+    cursor: pointer;
+  }
+  .tablå button:hover, .tablå button.aktiv { background: var(--grön); color: #06301c; border-color: var(--grön); }
+
+  footer { margin-top: 26px; font-size: 12px; opacity: 0.55; text-align: center; }
+
+  @media (max-width: 700px) {
+    .tv { padding: 16px 16px 90px; }
+    .panel-höger {
+      top: auto; right: 16px; left: 16px; bottom: 14px;
+      width: auto; height: 64px;
+      flex-direction: row;
+      justify-content: center;
+      padding: 0 10px;
+    }
+    .högtalare { display: none; }
+    .märke { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .brus.syns, .k1 .ticker span, .k2 .pris, .k4 .direkt i, .skärm.flimmer::after { animation: none; }
+    .start-punkt i { animation: none; opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="rubrik">
+  <h1>KANAL π — hela tablån handlar om minne</h1>
+  <p>Zappa med knapparna på TV:n, tablån nedanför eller siffrorna <b>1–6</b> på tangentbordet.</p>
+</div>
+
+<div class="tv">
+  <div class="skärm-ram">
+    <div class="skärm flimmer" id="skärm">
+      <div class="osd" id="osd">K1</div>
+      <div class="brus" id="brus"></div>
+      <div class="start-punkt" id="start-punkt"><i></i></div>
+
+      <!-- KANAL 1: MINNESNYTT -->
+      <section class="kanal k1 syns" data-nr="1">
+        <div class="kanal-inre">
+          <p class="logga">MINNES<b>NYTT</b></p>
+          <p class="tid">SÄNDNING 19:00 · DAGENS HUVUDNYHETER</p>
+          <ul class="nyhet">
+            <li>Skövdebo världsmästare i minne — <b>andra året i rad</b>. "Jag glömde nästan att försvara titeln", skojar von Essen (han glömde inte).</li>
+            <li>500 TV4-tittare fick sina namn memorerade i direktsändning. Guldbuzzer.</li>
+            <li>Europarekord bekräftat: 24 063 π-decimaler på åtta timmar.</li>
+          </ul>
+          <div class="banner">EXTRA: Experter eniga — "vem som helst kan lära sig teknikerna"</div>
+          <div class="ticker"><span>+++ von Essen memorerar 100 000 decimaler av π +++ hundratals valnötter memorerade i kinesisk TV +++ biblioteksbok i Skövde pekas ut som startskottet +++ inga glömda nycklar rapporterade sedan 2012 +++</span></div>
+        </div>
+      </section>
+
+      <!-- KANAL 2: TV-SHOP -->
+      <section class="kanal k2" data-nr="2">
+        <div class="kanal-inre">
+          <p class="rop">KÖP <em>PI-BOKEN 2.0</em> — NU MED ALLA 100 000 DECIMALER!</p>
+          <span class="pris">RING NU! (eller mejla, det är 2026)</span>
+          <p class="info">
+            Och det är inte allt! Beställer ni idag ingår även kunskapen om att
+            <b>«Så får du ett superminne»</b> (för vuxna) och <b>«Bli ett minnesgeni!»</b>
+            (5–125 år) finns i varje välsorterad bokhandel!<br>
+            Dessutom: kursen <b>«Skaffa ett superminne!»</b> — 50+ lektioner på kurs.jonasvonessen.se!
+          </p>
+          <p class="litet">* Inga dolda avgifter. Inga dolda decimaler — alla 100 000 redovisas öppet. Säljs även till vänsterhänta.</p>
+        </div>
+      </section>
+
+      <!-- KANAL 3: UTBILDNINGS-TV -->
+      <section class="kanal k3" data-nr="3">
+        <div class="kanal-inre">
+          <h2>Minnesskolan · avsnitt 4: teknikerna</h2>
+          <ol>
+            <li><b>Minnespalatset</b> — placera det du vill minnas på platser du kan utantill. Hjärnan älskar rum.</li>
+            <li><b>Tokiga bilder</b> — det absurda fastnar. En ko som jonglerar batterier glöms aldrig.</li>
+            <li><b>Smart repetition</b> — repetera precis innan du glömmer: dag, vecka, månad.</li>
+            <li><b>Namnknepet</b> — Rosa? En ros bakom örat. 500 namn på en kväll: så gick det till.</li>
+          </ol>
+          <p class="krita">Läxa till nästa vecka: imponera på någon.</p>
+        </div>
+      </section>
+
+      <!-- KANAL 4: SPORT -->
+      <section class="kanal k4" data-nr="4">
+        <div class="kanal-inre">
+          <span class="direkt"><i></i> DIREKT · MINNES-VM</span>
+          <h2>"HELT OTROLIGT, VILKEN AVSLUTNING!"</h2>
+          <p class="referat">
+            …och von Essen går in på sista kortleken, publiken vågar inte andas — han bläddrar,
+            han blundar, han LEVERERAR! Femtiotvå kort i perfekt ordning! Sverige har en
+            världsmästare, och kommentatorsbåset har slut på superlativ! Och vänta — han gör
+            om det 2014 också! Två raka guld!
+          </p>
+          <div class="tavla">
+            <span>LONDON 2013: <b>GULD</b></span>
+            <span>HAIKOU 2014: <b>GULD</b></span>
+            <span>SVERIGE JUBLAR: <b>JA</b></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- KANAL 5: NATURFILM -->
+      <section class="kanal k5" data-nr="5">
+        <div class="kanal-inre">
+          <p class="valnöt">🥜🥜🥜</p>
+          <h2>VALNÖTEN — ETT PORTRÄTT</h2>
+          <p class="berättare">
+            Här ser vi valnöten i dess naturliga miljö: en skål i en kinesisk tv-studio.
+            Till synes identisk med sina hundratals artfränder. Men för en enda man i studion
+            är varje nöt en egen individ, med eget utseende, eget namn, egen plats i minnet.
+            Programmet hette The Brain. Valnötterna hade ingen chans.
+          </p>
+          <p class="undertext">Berättarröst: din inre dokumentärröst · Foto: hjärnbarken</p>
+        </div>
+      </section>
+
+      <!-- KANAL 6: TESTBILD / KONTAKT -->
+      <section class="kanal k6" data-nr="6">
+        <div class="barer" aria-hidden="true">
+          <i style="background:#c0c0c0"></i><i style="background:#c0c000"></i><i style="background:#00c0c0"></i>
+          <i style="background:#00c000"></i><i style="background:#c000c0"></i><i style="background:#c00000"></i>
+          <i style="background:#0000c0"></i>
+        </div>
+        <div class="panel">
+          <h2>SÄNDNINGSUPPEHÅLL — MEN JONAS SVARAR</h2>
+          <p>Vill du ha en föreläsning publiken aldrig glömmer? Företag, konferens eller skola — på plats eller digitalt.</p>
+          <a class="boka" href="mailto:hej@jonasvonessen.se?subject=Bokningsförfrågan%20föreläsning">BOKA FÖRELÄSNING</a>
+          <p class="soc">
+            <a href="https://kurs.jonasvonessen.se" target="_blank" rel="noopener">kursen</a> ·
+            <a href="https://www.instagram.com/jonasvonessen/" target="_blank" rel="noopener">instagram</a> ·
+            <a href="https://www.youtube.com/@BlueberryClubSparven" target="_blank" rel="noopener">youtube</a> ·
+            <a href="https://www.facebook.com/jonasvonessenmemorychampion/" target="_blank" rel="noopener">facebook</a>
+          </p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="panel-höger">
+    <span class="märke">π-VISION</span>
+    <div class="kanalvisare" id="kanalvisare">1</div>
+    <button class="knapp-tv" id="ch-upp" aria-label="Kanal upp">CH +</button>
+    <button class="knapp-tv" id="ch-ner" aria-label="Kanal ner">CH −</button>
+    <div class="högtalare" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  </div>
+</div>
+
+<nav class="tablå" id="tablå">
+  <button data-kanal="1" class="aktiv">1 · Minnesnytt</button>
+  <button data-kanal="2">2 · TV-shop</button>
+  <button data-kanal="3">3 · Minnesskolan</button>
+  <button data-kanal="4">4 · Sport: VM</button>
+  <button data-kanal="5">5 · Naturfilm</button>
+  <button data-kanal="6">6 · Testbild &amp; kontakt</button>
+</nav>
+
+<footer>Koncept 7 · jonasvonessen.se · Programtablån upprepas i evighet — repetition är ju poängen.</footer>
+
+<script>
+(function () {
+  "use strict";
+  var aktuell = 1;
+  var byter = false;
+  var stilla = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var brus = document.getElementById("brus");
+  var osd = document.getElementById("osd");
+  var visare = document.getElementById("kanalvisare");
+  var kanaler = document.querySelectorAll(".kanal");
+  var tablåKnappar = document.querySelectorAll("#tablå button");
+
+  setTimeout(function () {
+    document.getElementById("start-punkt").classList.add("borta");
+    visaOsd();
+  }, 1000);
+
+  function visaOsd() {
+    osd.textContent = "K" + aktuell;
+    osd.classList.add("syns");
+    clearTimeout(visaOsd.t);
+    visaOsd.t = setTimeout(function () { osd.classList.remove("syns"); }, 2200);
+  }
+
+  function bytTill(nr) {
+    nr = ((nr - 1 + 6) % 6) + 1;
+    if (nr === aktuell || byter) return;
+    byter = true;
+    var dröjsmål = stilla ? 0 : 320;
+    if (!stilla) brus.classList.add("syns");
+    setTimeout(function () {
+      kanaler.forEach(function (k) { k.classList.toggle("syns", +k.dataset.nr === nr); });
+      tablåKnappar.forEach(function (b) { b.classList.toggle("aktiv", +b.dataset.kanal === nr); });
+      aktuell = nr;
+      visare.textContent = nr;
+      visaOsd();
+      brus.classList.remove("syns");
+      byter = false;
+    }, dröjsmål);
+  }
+
+  document.getElementById("ch-upp").addEventListener("click", function () { bytTill(aktuell + 1); });
+  document.getElementById("ch-ner").addEventListener("click", function () { bytTill(aktuell - 1); });
+  tablåKnappar.forEach(function (b) {
+    b.addEventListener("click", function () { bytTill(+b.dataset.kanal); });
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key >= "1" && e.key <= "6") bytTill(+e.key);
+    if (e.key === "ArrowUp" || e.key === "ArrowRight") bytTill(aktuell + 1);
+    if (e.key === "ArrowDown" || e.key === "ArrowLeft") bytTill(aktuell - 1);
+  });
+})();
+</script>
+</body>
+</html>

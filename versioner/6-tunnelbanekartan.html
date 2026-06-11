@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minneslinjen — Jonas von Essen (koncept 6)</title>
+<meta name="description" content="Konceptversion: webbplatsen som tunnelbanekarta — åk mellan stationerna i Jonas liv.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --papper: #f7f5f0;
+    --mörk: #1d2330;
+    --röd: #d6402e;
+    --blå: #2456a4;
+    --gul: #e8a13c;
+    --sans: "Public Sans", "Helvetica Neue", Arial, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--papper); color: var(--mörk); font-family: var(--sans); min-height: 100vh; }
+
+  /* ---------- Skylt ---------- */
+  header.skylt {
+    background: var(--mörk);
+    color: #fff;
+    padding: 18px clamp(18px, 4vw, 40px);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .skylt .rund {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--mörk);
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: 22px;
+    font-family: Georgia, serif;
+  }
+  .skylt h1 { font-size: clamp(17px, 2.6vw, 24px); font-weight: 800; letter-spacing: 0.02em; }
+  .skylt p { font-size: 12.5px; opacity: 0.75; width: 100%; max-width: 640px; }
+  .skylt .utrop {
+    margin-left: auto;
+    background: var(--gul);
+    color: var(--mörk);
+    font-weight: 700;
+    font-size: 12px;
+    padding: 7px 14px;
+    border-radius: 4px;
+  }
+
+  /* ---------- Utropsremsa ---------- */
+  .utropsremsa {
+    background: #fff;
+    border-bottom: 2px solid var(--mörk);
+    padding: 8px 16px;
+    font-size: 13.5px;
+    font-weight: 600;
+    text-align: center;
+    min-height: 36px;
+  }
+  .utropsremsa b { color: var(--röd); }
+
+  /* ---------- Kartan ---------- */
+  .kart-yta { position: relative; max-width: 1240px; margin: 0 auto; padding: 10px 12px 0; }
+  .karta-scroll { overflow-x: auto; }
+  svg.karta { display: block; min-width: 860px; width: 100%; height: auto; }
+
+  .station { cursor: pointer; }
+  .station circle { transition: r 0.15s; }
+  .station:hover circle { r: 11; }
+  .station text {
+    font-family: var(--sans);
+    font-size: 16px;
+    font-weight: 700;
+    fill: var(--mörk);
+    paint-order: stroke;
+    stroke: var(--papper);
+    stroke-width: 5px;
+    stroke-linejoin: round;
+  }
+  .station .årtal { font-size: 12.5px; font-weight: 600; fill: #6c7280; }
+  .station.aktiv circle { fill: var(--mörk) !important; }
+
+  .legend {
+    position: absolute;
+    top: 18px; right: 26px;
+    background: #fff;
+    border: 2px solid var(--mörk);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 12.5px;
+    box-shadow: 4px 4px 0 rgba(29,35,48,0.15);
+  }
+  .legend h2 { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 8px; }
+  .legend div { display: flex; align-items: center; gap: 8px; margin-top: 5px; font-weight: 600; }
+  .legend i { width: 22px; height: 6px; border-radius: 3px; }
+
+  /* ---------- Infopanel ---------- */
+  .info {
+    position: fixed;
+    right: 0; top: 0; bottom: 0;
+    width: min(420px, 92vw);
+    background: #fff;
+    border-left: 3px solid var(--mörk);
+    box-shadow: -16px 0 40px rgba(29,35,48,0.18);
+    transform: translateX(105%);
+    transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    z-index: 200;
+    padding: 26px 28px;
+    overflow-y: auto;
+  }
+  .info.öppen { transform: translateX(0); }
+  .info .linjeband {
+    display: inline-block;
+    color: #fff;
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: 4px;
+    margin-bottom: 14px;
+  }
+  .info h2 { font-size: 26px; font-weight: 800; line-height: 1.15; margin-bottom: 4px; }
+  .info .årtal { color: #6c7280; font-weight: 600; font-size: 14px; margin-bottom: 16px; }
+  .info p { font-size: 15px; line-height: 1.65; color: #39404f; margin-bottom: 12px; }
+  .info .restext { font-size: 12.5px; color: #6c7280; border-top: 1px dashed #c8c4ba; padding-top: 12px; margin-top: 6px; }
+  .info .stäng {
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: 2px solid var(--mörk);
+    background: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .info a.knapp {
+    display: inline-block;
+    background: var(--mörk);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 12px 22px;
+    border-radius: 6px;
+    margin-top: 8px;
+  }
+
+  /* ---------- Tidtabell (alla stationer som knappar) ---------- */
+  .tidtabell { max-width: 1240px; margin: 6px auto 50px; padding: 0 20px; }
+  .tidtabell h2 { font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: #6c7280; margin: 18px 0 10px; }
+  .tidtabell .rad { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tidtabell button {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 2px solid var(--mörk);
+    background: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .tidtabell button:hover { background: var(--mörk); color: #fff; }
+  .tidtabell button i { width: 10px; height: 10px; border-radius: 50%; }
+
+  footer { text-align: center; padding: 0 20px 40px; font-size: 12.5px; color: #6c7280; }
+
+  @media (max-width: 700px) {
+    .legend { position: static; margin: 10px 0 0; display: inline-block; }
+    .skylt .utrop { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .info { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="skylt">
+  <div class="rund">π</div>
+  <div>
+    <h1>MINNESLINJEN · Karta över Jonas von Essen</h1>
+    <p>Tre linjer. Alla utgår från Skövde. Välj en station så åker tåget dit — innehållet väntar på perrongen.</p>
+  </div>
+  <span class="utrop">Avgångar: alltid · Förseningar: aldrig (glöms ej)</span>
+</header>
+
+<div class="utropsremsa" id="utrop" aria-live="polite"><b>Trafikinformation:</b> tåget står vid Skövde C. Klicka på valfri station för avgång.</div>
+
+<div class="kart-yta">
+  <div class="karta-scroll">
+  <svg class="karta" viewBox="0 0 1200 780" xmlns="http://www.w3.org/2000/svg">
+    <!-- Linjer -->
+    <path id="linje-rod" d="M 120 620 L 120 470 L 290 300 L 560 300 L 680 180 L 1060 180"
+          fill="none" stroke="#d6402e" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+    <path id="linje-bla" d="M 120 620 L 430 620 L 610 440 L 1000 440"
+          fill="none" stroke="#2456a4" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+    <path id="linje-gul" d="M 120 620 L 200 700 L 660 700 L 800 560 L 1080 560"
+          fill="none" stroke="#e8a13c" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Stationer (cirklar + etiketter) ritas av JS -->
+    <g id="stationer"></g>
+
+    <!-- Tåget -->
+    <g id="tåg">
+      <rect x="-16" y="-10" width="32" height="20" rx="7" fill="#1d2330" stroke="#fff" stroke-width="3"/>
+      <circle cx="-6" cy="0" r="2.6" fill="#ffe9a8"/>
+      <circle cx="6" cy="0" r="2.6" fill="#ffe9a8"/>
+    </g>
+  </svg>
+  </div>
+  <div class="legend">
+    <h2>Linjer</h2>
+    <div><i style="background:#d6402e"></i> Röda linjen — Resan</div>
+    <div><i style="background:#2456a4"></i> Blå linjen — Teknikerna</div>
+    <div><i style="background:#e8a13c"></i> Gula linjen — Erbjudandet</div>
+  </div>
+</div>
+
+<aside class="info" id="info" aria-live="polite">
+  <button class="stäng" id="info-stäng" aria-label="Stäng">✕</button>
+  <span class="linjeband" id="info-band">Linje</span>
+  <h2 id="info-titel">Station</h2>
+  <p class="årtal" id="info-årtal"></p>
+  <div id="info-text"></div>
+  <p class="restext" id="info-res"></p>
+</aside>
+
+<nav class="tidtabell">
+  <h2>Tidtabell — alla stationer</h2>
+  <div class="rad" id="tidtabell-rad"></div>
+</nav>
+
+<footer>Koncept 6 · jonasvonessen.se · Vid hittegods (borttappade minnen): tag nästa tåg på blå linjen.</footer>
+
+<script>
+(function () {
+  "use strict";
+  var FÄRG = { rod: "#d6402e", bla: "#2456a4", gul: "#e8a13c" };
+  var NAMN = { rod: "Röda linjen — Resan", bla: "Blå linjen — Teknikerna", gul: "Gula linjen — Erbjudandet" };
+
+  var STATIONER = [
+    { id: "skovde", linje: "rod", x: 120, y: 620, byte: true, namn: "Skövde C", årtal: "Här börjar allt",
+      text: "<p>En alldeles vanlig student i Skövde som glömde telefonnummer, nycklar och namn. Alla tre linjer utgår härifrån — för utan startpunkten i Skövde 2012 hade resten av kartan varit tom.</p><p>Byt linje här när du vill utforska åt ett annat håll.</p>",
+      etikett: [16, -14] },
+    { id: "biblioteket", linje: "rod", x: 120, y: 470, namn: "Biblioteket", årtal: "2012",
+      text: "<p>Av en slump hittar Jonas en bok om minnesteknik på biblioteket. Han testar. Det funkar. Han testar mer.</p><p>Arton månader senare står han överst på pallen i minnes-VM. Stationen är liten — men det är härifrån alla stora resor avgår.</p>",
+      etikett: [16, -14] },
+    { id: "london", linje: "rod", x: 290, y: 300, namn: "London", årtal: "2013 · VM-guld",
+      text: "<p>Världsmästerskapen i minne. Jonas, okänd nykomling från Sverige, utklassar världseliten och tar guld.</p><p>Discipliner som binära siffror, spelkort och historiska årtal — allt med tekniker vem som helst kan lära sig.</p>",
+      etikett: [16, -16] },
+    { id: "kina", linje: "rod", x: 560, y: 300, namn: "Haikou, Kina", årtal: "2014 · VM-guld igen",
+      text: "<p>Titeln försvaras. Två raka världsmästerskap. Senare återvänder han till Kina och memorerar hundratals slumpmässiga valnötter i tv-programmet The Brain — för även det är en gren när minnesvärlden får bestämma.</p>",
+      etikett: [-10, -18, "end"] },
+    { id: "talang", linje: "rod", x: 680, y: 180, namn: "TV4-huset", årtal: "2018 · Talang",
+      text: "<p>Jonas memorerar förnamnen på alla 500 i publiken. David Batra trycker på guldbuzzern — direkt till final, där han ger sig på 50 000 decimaler av π inför svenska folket.</p>",
+      etikett: [-10, -18, "end"] },
+    { id: "rekordet", linje: "rod", x: 1060, y: 180, namn: "Europarekordet", årtal: "2020 · 24 063 decimaler",
+      text: "<p>Åtta timmar i sträck återger Jonas 24 063 decimaler av π — Europarekord. Strax därpå blir han först i världen att klara stickprovstestet på hela sin svit om 100 000 memorerade decimaler.</p><p>Slutstation på röda linjen. Än så länge.</p>",
+      etikett: [0, -20, "middle"] },
+
+    { id: "palatset", linje: "bla", x: 330, y: 620, namn: "Minnespalatset", årtal: "Teknik nr 1",
+      text: "<p>Placera det du vill minnas på platser du redan kan utantill — din hall, ditt kök, vägen till jobbet. Hjärnan är byggd för platser; ge den en karta (till exempel den här) så gör den resten.</p><p>Grunden som nästan hela minneseliten bygger allt på.</p>",
+      etikett: [0, 26, "middle"] },
+    { id: "bilderna", linje: "bla", x: 520, y: 530, namn: "Tokiga bilder", årtal: "Teknik nr 2",
+      text: "<p>Hjärnan glömmer det abstrakta men minns det absurda. Mjölk och batterier på listan? Se en ko som jonglerar batterier i kylen. Ju galnare bild, desto starkare minne.</p>",
+      etikett: [16, 8] },
+    { id: "repetitionen", linje: "bla", x: 800, y: 440, namn: "Repetitionen", årtal: "Teknik nr 3",
+      text: "<p>Hemligheten är inte att repetera mycket utan att repetera rätt: precis innan du glömmer. Efter en dag, en vecka, en månad — sedan sitter det i princip för alltid.</p>",
+      etikett: [0, -20, "middle"] },
+    { id: "namnen", linje: "bla", x: 1000, y: 440, namn: "Namnknepet", årtal: "Teknik nr 4",
+      text: "<p>Möter du en Rosa? Se en ros bakom hennes öra. En Björn? Du fattar. Koppla namnet till något du ser hos personen — det var exakt så Jonas klarade 500 namn i Talang.</p><p>Slutstation blå linjen: härifrån klarar du dig själv.</p>",
+      etikett: [0, 26, "middle"] },
+
+    { id: "forelasningen", linje: "gul", x: 360, y: 700, namn: "Föreläsningen", årtal: "Företag · konferens · skola",
+      text: "<p>Hälften show, hälften verktygslåda. Publiken får se minnesbedrifter på nära håll och lär sig sedan teknikerna själva — namn, siffror, presentationer, prov.</p><p>På plats eller digitalt, svenska eller engelska. Känd från TV4, SVT, The Brain och Strömsö.</p>",
+      etikett: [0, 26, "middle"] },
+    { id: "bockerna", linje: "gul", x: 580, y: 700, namn: "Böckerna", årtal: "3 titlar",
+      text: "<p>«Så får du ett superminne» för vuxna. «Bli ett minnesgeni!» för alla mellan 5 och 125. Och «Pi-boken 2.0» — alla 100 000 decimaler, tryckta. En av dem är alltså bokstavligen bara siffror.</p>",
+      etikett: [0, 26, "middle"] },
+    { id: "kursen", linje: "gul", x: 800, y: 560, namn: "Kursen", årtal: "50+ lektioner online",
+      text: "<p>«Skaffa ett superminne!» — över 50 interaktiva lektioner med video, texter och övningar, i din egen takt.</p><p><a class='knapp' href='https://kurs.jonasvonessen.se' target='_blank' rel='noopener'>Till kurs.jonasvonessen.se →</a></p>",
+      etikett: [0, -20, "middle"] },
+    { id: "biljett", linje: "gul", x: 1080, y: 560, namn: "Biljettluckan", årtal: "Slutstation: boka",
+      text: "<p>Vill du ha Minneslinjen till din konferens, ditt företag eller din skola? Skicka en förfrågan — Jonas glömmer garanterat inte bort dig.</p><p><a class='knapp' href='mailto:hej@jonasvonessen.se?subject=Bokningsförfrågan%20föreläsning'>Boka föreläsning →</a></p><p style='font-size:13px'><a href='https://www.instagram.com/jonasvonessen/' target='_blank' rel='noopener'>Instagram</a> · <a href='https://www.youtube.com/@BlueberryClubSparven' target='_blank' rel='noopener'>YouTube</a> · <a href='https://www.facebook.com/jonasvonessenmemorychampion/' target='_blank' rel='noopener'>Facebook</a></p>",
+      etikett: [0, 26, "middle"] }
+  ];
+
+  var SVG_NS = "http://www.w3.org/2000/svg";
+  var vägar = {
+    rod: document.getElementById("linje-rod"),
+    bla: document.getElementById("linje-bla"),
+    gul: document.getElementById("linje-gul")
+  };
+
+  /* Hitta varje stations position längs sin linje (närmaste punkt) */
+  function fraktionFör(path, x, y) {
+    var L = path.getTotalLength(), bäst = 0, bästAvst = 1e9;
+    for (var i = 0; i <= 400; i++) {
+      var p = path.getPointAtLength((i / 400) * L);
+      var d = (p.x - x) * (p.x - x) + (p.y - y) * (p.y - y);
+      if (d < bästAvst) { bästAvst = d; bäst = (i / 400) * L; }
+    }
+    return bäst;
+  }
+  STATIONER.forEach(function (s) { s.längd = fraktionFör(vägar[s.linje], s.x, s.y); });
+
+  /* Rita stationer */
+  var gStationer = document.getElementById("stationer");
+  STATIONER.forEach(function (s) {
+    var g = document.createElementNS(SVG_NS, "g");
+    g.setAttribute("class", "station");
+    g.setAttribute("data-id", s.id);
+    var c = document.createElementNS(SVG_NS, "circle");
+    c.setAttribute("cx", s.x); c.setAttribute("cy", s.y);
+    c.setAttribute("r", s.byte ? 12 : 8.5);
+    c.setAttribute("fill", "#fff");
+    c.setAttribute("stroke", s.byte ? "#1d2330" : FÄRG[s.linje]);
+    c.setAttribute("stroke-width", s.byte ? 5 : 4);
+    g.appendChild(c);
+    var t = document.createElementNS(SVG_NS, "text");
+    var ex = s.etikett[0], ey = s.etikett[1], anchor = s.etikett[2] || "start";
+    t.setAttribute("x", s.x + ex); t.setAttribute("y", s.y + ey);
+    t.setAttribute("text-anchor", anchor);
+    t.textContent = s.namn;
+    g.appendChild(t);
+    if (s.årtal && s.årtal.length < 26) {
+      var t2 = document.createElementNS(SVG_NS, "text");
+      t2.setAttribute("x", s.x + ex); t2.setAttribute("y", s.y + ey + 17);
+      t2.setAttribute("text-anchor", anchor);
+      t2.setAttribute("class", "årtal");
+      t2.textContent = s.årtal;
+      g.appendChild(t2);
+    }
+    g.addEventListener("click", function () { åkTill(s.id); });
+    gStationer.appendChild(g);
+  });
+
+  /* Tidtabellen */
+  var rad = document.getElementById("tidtabell-rad");
+  STATIONER.forEach(function (s) {
+    var b = document.createElement("button");
+    b.innerHTML = '<i style="background:' + FÄRG[s.linje] + '"></i>' + s.namn;
+    b.addEventListener("click", function () { åkTill(s.id); });
+    rad.appendChild(b);
+  });
+
+  /* ---------- Tåget ---------- */
+  var tåg = document.getElementById("tåg");
+  var utrop = document.getElementById("utrop");
+  var nuvarande = STATIONER[0];
+  var reser = false;
+  var stilla = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function placera(path, längd) {
+    var p = path.getPointAtLength(längd);
+    var p2 = path.getPointAtLength(Math.min(längd + 2, path.getTotalLength()));
+    var vinkel = Math.atan2(p2.y - p.y, p2.x - p.x) * 180 / Math.PI;
+    tåg.setAttribute("transform", "translate(" + p.x + "," + p.y + ") rotate(" + vinkel + ")");
+  }
+  placera(vägar.rod, STATIONER[0].längd);
+
+  function åkSträcka(linje, frånL, tillL, klart) {
+    var path = vägar[linje];
+    tåg.querySelector("rect").setAttribute("fill", FÄRG[linje]);
+    if (stilla) { placera(path, tillL); klart(); return; }
+    var avstånd = Math.abs(tillL - frånL);
+    var tid = Math.min(2200, Math.max(800, avstånd * 2.2));
+    var start = performance.now();
+    (function steg(nu) {
+      var t = Math.min(1, (nu - start) / tid);
+      var e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      placera(path, frånL + (tillL - frånL) * e);
+      if (t < 1) requestAnimationFrame(steg);
+      else klart();
+    })(performance.now());
+  }
+
+  function åkTill(id) {
+    var mål = STATIONER.find(function (s) { return s.id === id; });
+    if (!mål || reser || mål === nuvarande) { if (mål === nuvarande) visaInfo(mål, 0); return; }
+    stängInfo();
+    reser = true;
+    var skövde = STATIONER[0];
+    var byte = nuvarande.linje !== mål.linje && nuvarande.id !== "skovde" && mål.id !== "skovde";
+
+    markera(mål.id);
+    if (!byte) {
+      var linje = (mål.id === "skovde") ? nuvarande.linje : mål.linje;
+      utrop.innerHTML = "<b>Nästa station:</b> " + mål.namn + " · " + NAMN[linje];
+      åkSträcka(linje, längdPå(nuvarande, linje), längdPå(mål, linje), function () {
+        framme(mål, 1);
+      });
+    } else {
+      utrop.innerHTML = "<b>Nästa station:</b> Skövde C — byt där till " + NAMN[mål.linje];
+      åkSträcka(nuvarande.linje, nuvarande.längd, skövde.längd !== undefined ? längdPå(skövde, nuvarande.linje) : 0, function () {
+        utrop.innerHTML = "<b>Byte vid Skövde C.</b> Nästa station: " + mål.namn;
+        setTimeout(function () {
+          åkSträcka(mål.linje, längdPå(skövde, mål.linje), mål.längd, function () {
+            framme(mål, 2);
+          });
+        }, 420);
+      });
+    }
+  }
+
+  /* En stations längd på en specifik linje (Skövde ligger på alla tre) */
+  function längdPå(station, linje) {
+    if (station.linje === linje) return station.längd;
+    return fraktionFör(vägar[linje], station.x, station.y);
+  }
+
+  function framme(mål, ben) {
+    nuvarande = mål;
+    reser = false;
+    utrop.innerHTML = "<b>Framme:</b> " + mål.namn + (ben === 2 ? " (med byte i Skövde — snyggt rest!)" : "");
+    visaInfo(mål, ben);
+  }
+
+  function markera(id) {
+    document.querySelectorAll(".station").forEach(function (g) {
+      g.classList.toggle("aktiv", g.getAttribute("data-id") === id);
+    });
+  }
+
+  /* ---------- Infopanelen ---------- */
+  var info = document.getElementById("info");
+  function visaInfo(s, ben) {
+    document.getElementById("info-band").textContent = NAMN[s.linje];
+    document.getElementById("info-band").style.background = FÄRG[s.linje];
+    document.getElementById("info-titel").textContent = s.namn;
+    document.getElementById("info-årtal").textContent = s.årtal || "";
+    document.getElementById("info-text").innerHTML = s.text;
+    document.getElementById("info-res").textContent =
+      ben === 2 ? "Du reste med byte vid Skövde C. Som ett riktigt minnespalats: platser, vägar, hållplatser."
+      : ben === 1 ? "Direkttåg. Inga förseningar — tåget glömmer aldrig tidtabellen."
+      : "Du står redan här. Dörrarna är öppna.";
+    info.classList.add("öppen");
+  }
+  function stängInfo() { info.classList.remove("öppen"); }
+  document.getElementById("info-stäng").addEventListener("click", stängInfo);
+
+  markera("skovde");
+})();
+</script>
+</body>
+</html>

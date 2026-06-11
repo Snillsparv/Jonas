@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AKT 3,14: von Essen — (koncept 8)</title>
+<meta name="description" content="Konceptversion: utredningsakten om mannen med det omöjliga minnet. Sekretess kan hävas.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --skrivbord: #2c241c;
+    --manila: #d9bf8e;
+    --manila-mörk: #c5a96f;
+    --papper: #f4efe2;
+    --bläck: #2a2722;
+    --röd: #b3372b;
+    --blå-penna: #2456a4;
+    --skriv: "Special Elite", "Courier New", monospace;
+    --hand: "Caveat", cursive;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background:
+      radial-gradient(120% 100% at 50% 0%, rgba(255,235,190,0.07), transparent 60%),
+      repeating-linear-gradient(90deg, rgba(0,0,0,0.12) 0 3px, transparent 3px 90px),
+      var(--skrivbord);
+    font-family: var(--skriv);
+    color: var(--bläck);
+    min-height: 100vh;
+    padding: 5vh 16px 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .topp { color: #cdbfa3; text-align: center; margin-bottom: 26px; max-width: 620px; }
+  .topp h1 { font-size: clamp(18px, 3vw, 26px); letter-spacing: 0.08em; }
+  .topp p { font-size: 13px; opacity: 0.75; margin-top: 6px; }
+
+  /* ---------- Mappen ---------- */
+  .mapp { position: relative; width: min(760px, 96vw); }
+
+  /* Omslag */
+  .omslag {
+    position: relative;
+    z-index: 50;
+    background: linear-gradient(180deg, var(--manila) 0%, var(--manila-mörk) 100%);
+    border-radius: 6px 14px 6px 6px;
+    min-height: 520px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+    padding: 46px 44px;
+    cursor: pointer;
+    transition: transform 0.7s cubic-bezier(0.6, 0, 0.3, 1), opacity 0.5s 0.3s;
+    transform-origin: left center;
+  }
+  .omslag::before { /* flik */
+    content: "";
+    position: absolute;
+    top: -16px; left: 30px;
+    width: 180px; height: 18px;
+    background: var(--manila);
+    border-radius: 8px 8px 0 0;
+  }
+  .mapp.öppen .omslag {
+    transform: perspective(1400px) rotateY(-88deg);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .omslag .stämpel-stor {
+    position: absolute;
+    top: 36px; right: 36px;
+    border: 4px double var(--röd);
+    color: var(--röd);
+    font-size: 21px;
+    letter-spacing: 0.2em;
+    padding: 8px 16px;
+    transform: rotate(8deg);
+    border-radius: 4px;
+  }
+  .omslag h2 { font-size: clamp(20px, 3.4vw, 30px); letter-spacing: 0.05em; margin-top: 60px; }
+  .omslag .rad { margin-top: 14px; font-size: 15px; line-height: 1.8; }
+  .omslag .rad b { border-bottom: 2px solid var(--bläck); }
+  .omslag .öppna-knapp {
+    display: inline-block;
+    margin-top: 38px;
+    font-family: var(--skriv);
+    font-size: 15px;
+    letter-spacing: 0.15em;
+    background: var(--bläck);
+    color: var(--manila);
+    border: 0;
+    padding: 14px 26px;
+    cursor: pointer;
+  }
+  .omslag .snöre {
+    position: absolute;
+    bottom: 30px; right: 44px;
+    width: 70px; height: 70px;
+  }
+
+  /* ---------- Dokumentbunten ---------- */
+  .bunt { position: relative; z-index: 10; margin-top: -520px; min-height: 560px; display: none; }
+  .mapp.öppen .bunt { display: block; }
+
+  .dokument {
+    position: absolute;
+    inset: 0 56px 0 0;
+    background: var(--papper);
+    border-radius: 3px;
+    box-shadow: 0 14px 40px rgba(0,0,0,0.45);
+    padding: 42px 46px 46px;
+    display: none;
+    line-height: 1.75;
+    font-size: 15px;
+  }
+  .dokument.syns { display: block; animation: läggs-fram 0.35s ease; }
+  @keyframes läggs-fram {
+    from { transform: translateY(14px) rotate(0.6deg); opacity: 0; }
+    to { transform: none; opacity: 1; }
+  }
+  .dokument .doktitel {
+    font-size: 13px;
+    letter-spacing: 0.25em;
+    border-bottom: 2px solid var(--bläck);
+    padding-bottom: 8px;
+    margin-bottom: 18px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .dokument h3 { font-size: clamp(17px, 2.6vw, 22px); margin-bottom: 14px; letter-spacing: 0.04em; }
+  .dokument p { margin-bottom: 12px; }
+  .dokument .fråga { color: #6b6253; }
+  .dokument .hand {
+    font-family: var(--hand);
+    color: var(--blå-penna);
+    font-size: 21px;
+    transform: rotate(-1.5deg);
+    display: inline-block;
+  }
+
+  /* Sekretess */
+  .sekretess {
+    background: #1c1a17;
+    color: transparent;
+    border-radius: 2px;
+    cursor: pointer;
+    padding: 0 6px;
+    user-select: none;
+    transition: background 0.3s, color 0.3s;
+  }
+  .sekretess:hover { background: #3a352d; }
+  .sekretess.hävd {
+    background: #f5e08e;
+    color: var(--bläck);
+    user-select: auto;
+  }
+  .sekretess-info { font-size: 12px; color: var(--röd); letter-spacing: 0.08em; }
+
+  /* Stämplar i dokument */
+  .stämpel {
+    position: absolute;
+    border: 3px double var(--röd);
+    color: var(--röd);
+    font-size: 16px;
+    letter-spacing: 0.18em;
+    padding: 6px 13px;
+    border-radius: 4px;
+    opacity: 0.9;
+    pointer-events: none;
+  }
+  .dokument.syns .stämpel { animation: stämpla 0.4s cubic-bezier(0.3, 1.6, 0.5, 1) 0.25s both; }
+  @keyframes stämpla {
+    from { transform: scale(2.6) rotate(var(--rot, -8deg)); opacity: 0; }
+    to { transform: scale(1) rotate(var(--rot, -8deg)); opacity: 0.9; }
+  }
+
+  /* Kaffering + gem */
+  .kaffering {
+    position: absolute;
+    width: 88px; height: 88px;
+    border-radius: 50%;
+    border: 9px solid rgba(124, 84, 36, 0.22);
+    pointer-events: none;
+  }
+  .gem {
+    position: absolute;
+    top: -12px; left: 50px;
+    width: 22px; height: 56px;
+    border: 3px solid #8b8b94;
+    border-radius: 10px;
+    border-bottom: 0;
+    pointer-events: none;
+  }
+
+  /* Polaroid */
+  .polaroid {
+    float: right;
+    width: 168px;
+    background: #fff;
+    padding: 10px 10px 30px;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.3);
+    transform: rotate(2.5deg);
+    margin: 0 0 12px 16px;
+    text-align: center;
+  }
+  .polaroid .yta {
+    height: 120px;
+    background: linear-gradient(160deg, #5d4a33, #2e2519);
+    display: grid;
+    place-items: center;
+    color: #d9bf8e;
+    font-size: 34px;
+  }
+  .polaroid figcaption { font-family: var(--hand); font-size: 17px; color: var(--bläck); margin-top: 8px; }
+
+  /* π-remsa */
+  .remsa {
+    background: #fff;
+    border: 1px dashed #b9ab8d;
+    font-size: 14px;
+    letter-spacing: 0.22em;
+    padding: 10px 12px;
+    margin: 10px 0;
+    word-break: break-all;
+    box-shadow: 2px 3px 0 rgba(0,0,0,0.08);
+  }
+
+  /* ---------- Flikar ---------- */
+  .flikar {
+    position: absolute;
+    top: 26px; right: 0;
+    width: 56px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 60;
+  }
+  .flik {
+    writing-mode: vertical-rl;
+    font-family: var(--skriv);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    background: var(--manila);
+    color: var(--bläck);
+    border: 0;
+    border-radius: 0 6px 6px 0;
+    padding: 14px 6px;
+    cursor: pointer;
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.3);
+    opacity: 0.82;
+  }
+  .flik:hover { opacity: 1; }
+  .flik.aktiv { background: var(--röd); color: #fff; opacity: 1; }
+
+  footer { margin-top: 40px; color: #9c8e72; font-size: 12px; text-align: center; max-width: 560px; }
+
+  @media (max-width: 640px) {
+    .dokument { inset: 0 44px 0 0; padding: 30px 22px 36px; font-size: 13.5px; }
+    .polaroid { width: 128px; }
+    .omslag { padding: 36px 24px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .omslag, .dokument.syns, .dokument.syns .stämpel { transition: none; animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topp">
+  <h1>MYNDIGHETEN FÖR OFÖRKLARLIGA FÖRMÅGOR</h1>
+  <p>Diarienummer 3,14 · Utredningen pågick 2013–2020 · Sekretess: delvis hävd.
+  Svärtade uppgifter kan avslöjas av läsaren — klicka på dem.</p>
+</div>
+
+<div class="mapp" id="mapp">
+
+  <!-- OMSLAGET -->
+  <div class="omslag" id="omslag" role="button" tabindex="0" aria-label="Öppna akten">
+    <span class="stämpel-stor">HEMLIG</span>
+    <h2>AKT NR 3,14<br>von ESSEN, JONAS</h2>
+    <p class="rad">
+      ÄRENDE: <b>Misstänkt omöjligt minne</b><br>
+      ORT: <b>Skövde m.fl.</b> &nbsp; STATUS: <b>AVSLUTAD</b><br>
+      SLUTSATS: <b>FENOMENET ÄKTA — SE BILAGOR</b>
+    </p>
+    <button class="öppna-knapp">► ÖPPNA AKTEN</button>
+    <svg class="snöre" viewBox="0 0 70 70" aria-hidden="true">
+      <circle cx="35" cy="35" r="13" fill="none" stroke="#8a6f3c" stroke-width="3"/>
+      <path d="M35 48 C 20 60, 50 64, 38 50 M35 22 C 48 10, 18 8, 32 20" fill="none" stroke="#8a6f3c" stroke-width="2.5"/>
+    </svg>
+  </div>
+
+  <!-- DOKUMENTEN -->
+  <div class="bunt">
+
+    <article class="dokument syns" id="dok-1">
+      <span class="gem" aria-hidden="true"></span>
+      <div class="doktitel"><span>DOKUMENT 1/6</span><span>FÖRSÄTTSBLAD</span></div>
+      <span class="stämpel" style="top:84px; right:40px; --rot:-7deg">BEKRÄFTAT</span>
+      <h3>Sammanfattning av ärendet</h3>
+      <p>Subjektet, född i Skövde, uppvisade fram till 2012 <span class="sekretess">helt genomsnittlig glömska: borttappade nycklar, bortglömda telefonnummer</span>. Detta år inträffar något: subjektet lånar en bok om minnesteknik på stadsbiblioteket.</p>
+      <p>Arton månader senare vinner subjektet världsmästerskapen i minne (London, 2013). Året därpå upprepas dådet (Haikou, Kina, 2014). Myndigheten inledde granskning: <span class="fråga">kan ett mänskligt minne förbättras så snabbt utan fusk?</span></p>
+      <p>Efter sju års utredning är svaret entydigt: <span class="sekretess">ja — med teknik som vem som helst kan lära sig</span>.</p>
+      <p class="sekretess-info">▲ SVÄRTADE PARTIER: KLICKA FÖR ATT HÄVA SEKRETESSEN</p>
+      <span class="kaffering" style="bottom:30px; left:46%" aria-hidden="true"></span>
+    </article>
+
+    <article class="dokument" id="dok-2">
+      <div class="doktitel"><span>DOKUMENT 2/6</span><span>FÖRHÖRSPROTOKOLL</span></div>
+      <h3>Utdrag ur förhör med subjektet</h3>
+      <p><span class="fråga">UTREDAREN: Hur memorerar man 100 000 decimaler av π?</span><br>
+      von ESSEN: Med ett minnespalats. Jag placerar siffrorna som bilder på platser jag kan utantill. Hjärnan är byggd för platser, inte för siffror.</p>
+      <p><span class="fråga">UTREDAREN: Ni påstås ha lärt er 500 namn på en kväll i TV4:s Talang. Erkänner ni?</span><br>
+      von ESSEN: Jag erkänner. <span class="sekretess">David Batra tryckte på guldbuzzern. Jag gick till final och tog 50 000 decimaler där.</span></p>
+      <p><span class="fråga">UTREDAREN: Och valnötterna i kinesisk TV?</span><br>
+      von ESSEN: Hundratals. Varje nöt ser olik ut om man tittar noga. <span class="sekretess">Det gör ingen frisk människa frivilligt — utom i minnesvärlden.</span></p>
+      <p><span class="hand">Anteckning i marginalen: subjektet verkar... trevlig? Misstänkt trevlig. /utr. L.N.</span></p>
+    </article>
+
+    <article class="dokument" id="dok-3">
+      <div class="doktitel"><span>DOKUMENT 3/6</span><span>BEVISFÖREMÅL A</span></div>
+      <span class="stämpel" style="top:80px; right:44px; --rot:6deg">EUROPAREKORD</span>
+      <h3>Beslagtagen π-remsa</h3>
+      <p>Vid husrannsakan påträffades följande remsa (utdrag, de första 100 av 100 000 decimaler):</p>
+      <p class="remsa">3,1415926535 8979323846 2643383279 5028841971 6939937510 5820974944 5923078164 0628620899 8628034825 3421170679 …</p>
+      <p>Teknisk analys: den 7 mars 2020 återgav subjektet <span class="sekretess">24 063 decimaler i följd under åtta timmar — nytt Europarekord</span>. Tre dagar senare klarade subjektet som först i världen stickprovsförhör på hela sviten om 100 000.</p>
+      <p>Remsan förvaras numera i bokform, öppet tillgänglig under täcknamnet <span class="sekretess">«Pi-boken 2.0»</span>.</p>
+    </article>
+
+    <article class="dokument" id="dok-4">
+      <div class="doktitel"><span>DOKUMENT 4/6</span><span>BEVISFÖREMÅL B</span></div>
+      <figure class="polaroid">
+        <div class="yta">🥜?</div>
+        <figcaption>bevisfoto saknas — valnötterna åts upp</figcaption>
+      </figure>
+      <h3>Vittnesmål</h3>
+      <p>VITTNE 1 (en av 500 i TV4-publiken): "Han sa mitt namn. Han sa ALLAS namn. Jag har inte ens lärt mig mina kollegors namn och vi har jobbat ihop i nio år."</p>
+      <p>VITTNE 2 (lärare): "Efter föreläsningen kunde eleverna <span class="sekretess">glosorna bättre än jag. Det är ju pinsamt. Bra, men pinsamt.</span>"</p>
+      <p>VITTNE 3 (konferensdeltagare): "Hälften show, hälften verktygslåda. Jag minns fortfarande tekniken. Och min bordsgrannes namn. Och hans frus. Och deras katts."</p>
+      <p><span class="hand">Samtliga vittnen samstämmiga. Ingen hypnos kunde påvisas. /L.N.</span></p>
+    </article>
+
+    <article class="dokument" id="dok-5">
+      <div class="doktitel"><span>DOKUMENT 5/6</span><span>TEKNISK ANALYS</span></div>
+      <span class="stämpel" style="top:78px; right:40px; --rot:-5deg">KAN REPLIKERAS</span>
+      <h3>Metoderna — avhemligade i sin helhet</h3>
+      <p>1. MINNESPALATSET: information placeras som bilder på <span class="sekretess">välkända platser (hemmet, arbetsvägen)</span>. Grunden för i princip hela världseliten.</p>
+      <p>2. TOKIGA BILDER: hjärnan prioriterar det absurda. <span class="sekretess">En ko som jonglerar batterier</span> kvarstår i minnet mot försökspersonens vilja.</p>
+      <p>3. REPETITION VID RÄTT TIDPUNKT: omläsning <span class="sekretess">precis före glömskan: efter en dag, en vecka, en månad</span>.</p>
+      <p>4. NAMNKNEPET: namnet kopplas till synlig detalj. <span class="sekretess">Rosa → en ros bakom örat.</span></p>
+      <p>Bedömning: metoderna kräver ingen medfödd begåvning. Subjektet utgör levande bevis. Spridningsrisk: <b>hög och önskvärd</b>. Spridning sker via böckerna «Så får du ett superminne», «Bli ett minnesgeni!» samt kursen «Skaffa ett superminne!» (50+ lektioner, kurs.jonasvonessen.se).</p>
+    </article>
+
+    <article class="dokument" id="dok-6">
+      <div class="doktitel"><span>DOKUMENT 6/6</span><span>SLUTRAPPORT</span></div>
+      <span class="stämpel" style="top:120px; right:48px; --rot:8deg">ÄRENDET AVSLUTAS</span>
+      <h3>Myndighetens rekommendation</h3>
+      <p>Subjektet bedöms vara <span class="sekretess">Sveriges genom tiderna främsta minnesatlet</span> samt — vilket förvånade utredarna mer — en uppskattad och rolig föreläsare.</p>
+      <p>Myndigheten rekommenderar att organisationer, skolor och konferensarrangörer <b>snarast tar kontakt</b>, innan kalendern fylls:</p>
+      <p style="margin: 18px 0;">
+        <a href="mailto:hej@jonasvonessen.se?subject=Ang.%20akt%203,14%20(bokningsförfrågan)" style="background:#2a2722; color:#f4efe2; text-decoration:none; padding:13px 22px; letter-spacing:0.1em; display:inline-block;">► KONTAKTA SUBJEKTET (BOKA FÖRELÄSNING)</a>
+      </p>
+      <p style="font-size:13px">Övriga spaningskanaler:
+        <a href="https://www.instagram.com/jonasvonessen/" target="_blank" rel="noopener">Instagram</a> ·
+        <a href="https://www.youtube.com/@BlueberryClubSparven" target="_blank" rel="noopener">YouTube</a> ·
+        <a href="https://www.facebook.com/jonasvonessenmemorychampion/" target="_blank" rel="noopener">Facebook</a>
+      </p>
+      <p><span class="hand">Ärendet avslutat. Jag har bokat honom till min systers företag. /L.N.</span></p>
+      <span class="kaffering" style="bottom:22px; right:120px" aria-hidden="true"></span>
+    </article>
+
+    <!-- FLIKARNA -->
+    <nav class="flikar" aria-label="Dokumentflikar">
+      <button class="flik aktiv" data-dok="dok-1">FÖRSÄTTSBLAD</button>
+      <button class="flik" data-dok="dok-2">FÖRHÖR</button>
+      <button class="flik" data-dok="dok-3">BEVIS A</button>
+      <button class="flik" data-dok="dok-4">BEVIS B</button>
+      <button class="flik" data-dok="dok-5">ANALYS</button>
+      <button class="flik" data-dok="dok-6">SLUTSATS</button>
+    </nav>
+  </div>
+</div>
+
+<footer>Koncept 8 · jonasvonessen.se · Denna myndighet finns inte. Det gör däremot allt den kom fram till.</footer>
+
+<script>
+(function () {
+  "use strict";
+  var mapp = document.getElementById("mapp");
+  var omslag = document.getElementById("omslag");
+
+  function öppnaMapp() { mapp.classList.add("öppen"); }
+  omslag.addEventListener("click", öppnaMapp);
+  omslag.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); öppnaMapp(); }
+  });
+
+  document.querySelectorAll(".flik").forEach(function (flik) {
+    flik.addEventListener("click", function () {
+      document.querySelectorAll(".flik").forEach(function (f) { f.classList.remove("aktiv"); });
+      flik.classList.add("aktiv");
+      document.querySelectorAll(".dokument").forEach(function (d) {
+        d.classList.toggle("syns", d.id === flik.dataset.dok);
+      });
+    });
+  });
+
+  document.querySelectorAll(".sekretess").forEach(function (s) {
+    s.setAttribute("title", "Klicka för att häva sekretessen");
+    s.setAttribute("role", "button");
+    s.setAttribute("tabindex", "0");
+    function häv() { s.classList.add("hävd"); }
+    s.addEventListener("click", häv);
+    s.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); häv(); }
+    });
+  });
+})();
+</script>
+</body>
+</html>
